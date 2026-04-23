@@ -1,0 +1,13 @@
+# IDE
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Local server logs
+*.log
+
+# Project specific
+start_web.bat

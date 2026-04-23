@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderní Bydlení | Prémiová Šablona</title>
+    <meta name="description" content="Spravovatelná šablona pro realitní projekty a moderní weby.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="styles.css?v=5.0.0">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="" id="logo-img-display" style="display: none; height: var(--logo-size, 40px); margin-right: 15px; border-radius: 4px;">
+            <div class="logo-text">
+                <span id="editable-logo">MODERNÍ BYDLENÍ</span>
+                <span id="editable-subtitle" class="logo-subtitle"></span>
+            </div>
+        </div>
+        <nav style="display: flex; align-items: center;">
+            <a href="#hero">Domů</a>
+            <a href="#about">O projektu</a>
+            <a href="#gallery">Galerie</a>
+            <a href="#contact">Kontakt</a>
+            <button id="theme-toggle" style="background: none; border: none; cursor: pointer; color: var(--primary-color); margin-left: 1.5rem; display: flex; align-items: center;">
+                <svg id="sun-icon" style="display: none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg id="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <h1 id="editable-hero-title">Domov, kde začíná vaše nová etapa</h1>
+            <p id="editable-hero-text">Objevte moderní architekturu v srdci přírody. Nabízíme exkluzivní rodinné domy s důrazem na detail a udržitelnost.</p>
+            <a href="#contact" class="btn">Chci vědět více</a>
+        </div>
+        <div class="hero-image" id="hero-bg" style="background-image: url('hero-house.jpg');"></div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-title">
+            <h2 id="editable-about-title">O projektu</h2>
+            <p id="editable-about-text">Moderní design, funkčnost a nejvyšší standardy provedení. Každý detail je promyšlen tak, aby splňoval nároky moderní rodiny.</p>
+        </div>
+        
+        <div class="grid" id="cards-container">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="location" style="height: 500px; padding: 0; position: relative;">
+        <div id="map" style="width: 100%; height: 500px; min-height: 500px; display: block;"></div>
+    </section>
+
+    <!-- Units Selector Section -->
+    <section class="units-selector" id="gallery">
+        <div class="section-title">
+            <h2>Vyberte si svou etapu</h2>
+            <p>Klikněte na část domu pro detailní specifikace a rezervaci prohlídky.</p>
+        </div>
+        
+        <div class="units-container">
+            <img src="triplex.jpg" alt="Trojdomek" class="units-image">
+            <div class="unit-overlay" id="unit-overlay">
+                <!-- Dynamicky vyplňováno JavaScriptem podle administrace -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Unit Detail Modal -->
+    <div class="modal-overlay" id="unit-modal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            
+            <div class="modal-info">
+                <h2 id="modal-unit-name">Etapa A</h2>
+                <p id="modal-unit-desc" style="margin-bottom: 2rem;">Luxusní bytová jednotka s vlastní zahradou a dvěma parkovacími místy.</p>
+                
+                <h3>Specifikace</h3>
+                <table class="spec-table">
+                    <tr><td>Dispozice</td><td id="spec-layout">5+kk</td></tr>
+                    <tr><td>Užitná plocha</td><td id="spec-area">145 m²</td></tr>
+                    <tr><td>Zahrada</td><td id="spec-garden">210 m²</td></tr>
+                    <tr><td>Parkování</td><td id="spec-parking">---</td></tr>
+                    <tr><td>Cena</td><td id="spec-price">8 490 000 Kč</td></tr>
+                </table>
+
+                <div class="doc-buttons">
+                    <a href="#" class="btn-secondary" id="btn-karta-bytu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Karta bytu (PDF)
+                    </a>
+                    <a href="#" class="btn-secondary" id="btn-standardy">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        Standardy bytu
+                    </a>
+                </div>
+            </div>
+            
+            <div class="modal-form">
+                <h3>Mám zájem o prohlídku</h3>
+                <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Zanechte nám kontakt a my se vám ozveme pro domluvení termínu.</p>
+                
+                <form onsubmit="event.preventDefault(); alert('Poptávka odeslána! Ozveme se vám.'); closeModal();">
+                    <div class="form-group">
+                        <label>Jméno a příjmení</label>
+                        <input type="text" required placeholder="Jan Novák">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefon</label>
+                        <input type="tel" required placeholder="+420 ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" required placeholder="email@priklad.cz">
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Odeslat poptávku</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <section id="gallery-section">
+        <div class="section-title">
+            <h2>Galerie projektu</h2>
+            <p>Nahlédněte do interiéru i exteriéru našich domů.</p>
+        </div>
+        <div class="gallery-wrap">
+            <button id="gallery-prev" class="gallery-nav-btn" style="display: none;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button id="gallery-next" class="gallery-nav-btn" style="display: none;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+            <div class="gallery-grid" id="gallery-container">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" style="background: var(--gray-100);">
+        <div class="section-title">
+            <h2 id="editable-contact-title">Máte dotaz?</h2>
+            <p id="editable-contact-text">Náš tým je vám k dispozici pro prohlídku nebo konzultaci.</p>
+        </div>
+        <div style="max-width: 800px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 4rem; flex-wrap: wrap;">
+            <div class="agent-profile" style="text-align: center;">
+                <div class="agent-photo-circle" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin: 0 auto 1rem; border: 3px solid var(--accent-color); background: var(--gray-200); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);">
+                    <img id="agent-photo-display" src="" alt="Makléř" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <svg id="agent-photo-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <h4 id="editable-agent-name" style="font-size: 1.2rem; margin: 0; font-family: var(--font-heading);">Jan Novák</h4>
+            </div>
+            <div class="agent-methods" style="text-align: left; border-left: 1px solid rgba(0,0,0,0.1); padding-left: 4rem;">
+                <p style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-color);" id="editable-contact-phone">+420 123 456 789</p>
+                <p><a href="mailto:info@modernibydleni.cz" id="editable-contact-email" style="font-size: 1.1rem; color: var(--accent-color); text-decoration: none; font-weight: 500;">info@modernibydleni.cz</a></p>
+                
+                <div class="social-links" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                    <a href="#" id="fb-link" target="_blank" style="color: var(--primary-color); opacity: 0.6; transition: var(--transition);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-0.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
+                    </a>
+                    <a href="#" id="ig-link" target="_blank" style="color: var(--primary-color); opacity: 0.6; transition: var(--transition);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.266.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12s.014 3.667.072 4.947c.2 4.353 2.62 6.766 6.98 6.966 1.28.058 1.688.072 4.948.072s3.667-.014 4.947-.072c4.351-.2 6.764-2.612 6.965-6.966.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.2-4.354-2.612-6.77-6.965-6.966C15.667.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4.162 4.162 0 110-8.324 4.162 4.162 0 010 8.324zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <br>
+            <a href="#contact" class="btn" id="editable-contact-btn">Nezávazná poptávka</a>
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer style="padding: 2rem 5%; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(0,0,0,0.05);">
+        <p style="opacity: 0.6; font-size: 0.8rem; font-weight: 300;">&copy; 2024 Všechna práva vyhrazena.</p>
+    </footer>
+
+    <!-- Admin Panel -->
+    <div class="admin-toggle" id="admin-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+
+    <div id="admin-panel">
+        <h2 style="margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 0.5rem;">Nastavení Webu</h2>
+        
+        <!-- Section: Design -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>🎨 Vzhled & Styl</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div class="control-group">
+                    <label>Hlavní barva</label>
+                    <input type="color" id="primary-color-input" value="#1a1a1a">
+                </div>
+                <div class="control-group">
+                    <label>Akcentní barva</label>
+                    <input type="color" id="accent-color-input" value="#c5a059">
+                </div>
+                <div class="control-group">
+                    <label>Font nadpisů</label>
+                    <select id="font-heading-input">
+                        <option value="'Outfit', sans-serif">Outfit (Moderní)</option>
+                        <option value="'Playfair Display', serif">Playfair (Elegantní)</option>
+                        <option value="'Montserrat', sans-serif">Montserrat (Geometrický)</option>
+                        <option value="'Lora', serif">Lora (Klasický)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Hero - Světlý režim (Upload)</label>
+                    <input type="file" id="hero-img-upload" accept="image/*">
+                </div>
+                <div class="control-group">
+                    <label>Hero - Tmavý režim (Upload)</label>
+                    <input type="file" id="hero-dark-img-upload" accept="image/*">
+                </div>
+                <div class="control-group">
+                    <label>Obrázek Trojdomku (Upload)</label>
+                    <input type="file" id="triplex-img-upload" accept="image/*">
+                </div>
+                <hr style="margin: 1rem 0; opacity: 0.1;">
+                <h4>Galerie Obrázků (Flexibilní)</h4>
+                <div class="control-group">
+                    <label>Přidat fotky (lze vybrat více najednou)</label>
+                    <input type="file" id="gallery-upload-multiple" accept="image/*" multiple>
+                </div>
+                <button class="btn" id="clear-gallery" style="background: #ff4444; font-size: 0.7rem; padding: 5px 10px;">Smazat celou galerii</button>
+                <p style="font-size: 0.6rem; opacity: 0.5; margin-top: 0.5rem;">Pozor: Při velkém počtu fotek (nad 10-15) může dojít k zaplnění paměti prohlížeče.</p>
+            </div>
+        </div>
+
+        <!-- Section: Content Main -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>📝 Hlavní Obsah</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div class="control-group">
+                    <label>Velikost Loga</label>
+                    <input type="range" id="logo-size-input" min="20" max="600" value="40">
+                </div>
+                <div class="control-group">
+                    <label>Logo / Název projektu</label>
+                    <input type="text" id="logo-input" placeholder="MODERNÍ BYDLENÍ">
+                </div>
+                <div class="control-group">
+                    <label>Podtitul projektu</label>
+                    <input type="text" id="subtitle-input" placeholder="Rodinné domy Lipí">
+                </div>
+                <div class="control-group">
+                    <label>Obrázek Loga (Upload)</label>
+                    <input type="file" id="logo-img-upload" accept="image/*">
+                </div>
+                <div class="control-group">
+                    <label>Hero Nadpis</label>
+                    <input type="text" id="hero-title-input">
+                </div>
+                <div class="control-group">
+                    <label>Hero Text</label>
+                    <textarea class="admin-input" id="hero-text-input"></textarea>
+                </div>
+                <div class="control-group" style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
+                    <input type="checkbox" id="dark-mode-input" style="width: auto;">
+                    <label style="margin: 0;">Výchozí tmavý režim</label>
+                </div>
+                <hr style="margin: 1rem 0; opacity: 0.1;">
+                <div class="control-group">
+                    <label>O Projektu - Nadpis</label>
+                    <input type="text" id="about-title-input">
+                </div>
+                <div class="control-group">
+                    <label>O Projektu - Text</label>
+                    <textarea class="admin-input" id="about-text-input"></textarea>
+                </div>
+                <hr style="margin: 1rem 0; opacity: 0.1;">
+                <h4>Sekce Kontakt (Patička)</h4>
+                <div class="control-group">
+                    <label>Kontakt - Nadpis</label>
+                    <input type="text" id="contact-title-input">
+                </div>
+                <div class="control-group">
+                    <label>Kontakt - Text</label>
+                    <input type="text" id="contact-text-input">
+                </div>
+                <div class="control-group">
+                    <label>Jméno Makléře</label>
+                    <input type="text" id="agent-name-input">
+                </div>
+                <div class="control-group">
+                    <label>Foto Makléře (Upload)</label>
+                    <input type="file" id="agent-photo-upload" accept="image/*">
+                </div>
+                <div class="control-group">
+                    <label>Telefon</label>
+                    <input type="text" id="contact-phone-input">
+                </div>
+                <div class="control-group">
+                    <label>Email</label>
+                    <input type="text" id="contact-email-input">
+                </div>
+                <div class="control-group">
+                    <label>Facebook Link (URL)</label>
+                    <input type="text" id="fb-link-input" placeholder="https://facebook.com/...">
+                </div>
+                <div class="control-group">
+                    <label>Instagram Link (URL)</label>
+                    <input type="text" id="ig-link-input" placeholder="https://instagram.com/...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Project Cards -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>🗂️ Karty Projektu</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div id="admin-cards-container">
+                    <!-- Dynamic inputs for cards -->
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <button class="btn" id="add-card-btn" style="flex: 1; background: #2ecc71;">+ Přidat kartu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Units -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>🏠 Správa Jednotek (Etapy)</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div style="background: rgba(0,0,0,0.03); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <h4>Nastavení Layoutu Budovy</h4>
+                    <div class="control-group">
+                        <label>Počet Etap (Segmentů)</label>
+                        <select id="units-count-input">
+                            <option value="1">1 Segment (A)</option>
+                            <option value="2">2 Segmenty (A, B)</option>
+                            <option value="3">3 Segmenty (A, B, C)</option>
+                            <option value="4">4 Segmenty</option>
+                            <option value="5">5 Segmentů</option>
+                            <option value="6">6 Segmentů</option>
+                            <option value="7">7 Segmentů</option>
+                            <option value="8">8 Segmentů</option>
+                            <option value="9">9 Segmentů</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Režim Výběru</label>
+                        <select id="units-mode-input">
+                            <option value="slices">Varianta 1: Svislé pruhy (Řadovky)</option>
+                            <option value="pins">Varianta 2: Volné body (Piny na mapě/dronu)</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="margin-top: 1rem; border-top: 1px solid #e1e1e1; padding-top: 1rem;">
+                        <label>Režim zobrazení obrázků</label>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 0.5rem;">
+                            <input type="checkbox" id="units-separate-images-input" style="width: 20px; height: 20px; cursor: pointer;">
+                            <span style="font-size: 0.9rem; color: #555;">Každý segment má vlastní nezávislý obrázek</br>(Tato volba skryje hlavní společnou fotku domu nahoře)</span>
+                        </div>
+                    </div>
+                    <div class="control-group" style="display: flex; gap: 10px; align-items: center;">
+                        <div style="flex: 1;">
+                            <label>Barva překrytí (Hover)</label>
+                            <input type="color" id="units-color-input" value="#c5a059">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Barva Štítku (Pin)</label>
+                            <input type="color" id="pin-color-input" value="#c5a059">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Viditelnost barvy (Opacity)</label>
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <input type="range" id="units-opacity-input" min="0" max="100" value="40" style="flex: 1;">
+                                <input type="number" id="units-opacity-number" min="0" max="100" value="40" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-1-container">
+                        <label>Šířka: Etapa A</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-1-input" min="1" max="100" value="33" style="flex: 1;">
+                            <input type="number" id="units-width-1-number" min="1" max="100" value="33" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-2-container">
+                        <label>Šířka: Etapa B</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-2-input" min="1" max="100" value="33" style="flex: 1;">
+                            <input type="number" id="units-width-2-number" min="1" max="100" value="33" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-3-container">
+                        <label>Šířka: Etapa C</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-3-input" min="1" max="100" value="33" style="flex: 1;">
+                            <input type="number" id="units-width-3-number" min="1" max="100" value="33" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-4-container" style="display:none;">
+                        <label>Šířka: Jednotka 4</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-4-input" min="1" max="100" value="25" style="flex: 1;">
+                            <input type="number" id="units-width-4-number" min="1" max="100" value="25" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-5-container" style="display:none;">
+                        <label>Šířka: Jednotka 5</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-5-input" min="1" max="100" value="20" style="flex: 1;">
+                            <input type="number" id="units-width-5-number" min="1" max="100" value="20" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-6-container" style="display:none;">
+                        <label>Šířka: Jednotka 6</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-6-input" min="1" max="100" value="16" style="flex: 1;">
+                            <input type="number" id="units-width-6-number" min="1" max="100" value="16" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-7-container" style="display:none;">
+                        <label>Šířka: Jednotka 7</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-7-input" min="1" max="100" value="14" style="flex: 1;">
+                            <input type="number" id="units-width-7-number" min="1" max="100" value="14" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-8-container" style="display:none;">
+                        <label>Šířka: Jednotka 8</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-8-input" min="1" max="100" value="12" style="flex: 1;">
+                            <input type="number" id="units-width-8-number" min="1" max="100" value="12" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                    <div class="control-group" id="units-width-9-container" style="display:none;">
+                        <label>Šířka: Jednotka 9</label>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="range" id="units-width-9-input" min="1" max="100" value="11" style="flex: 1;">
+                            <input type="number" id="units-width-9-number" min="1" max="100" value="11" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                    <h4>Etapa A</h4>
+                    <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
+                        <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Zleva (X) %</span>
+                                <input type="range" id="pin-x-1-input" min="0" max="100" value="50">
+                            </div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Shora (Y) %</span>
+                                <input type="range" id="pin-y-1-input" min="0" max="100" value="50">
+                            </div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Velikost %</span>
+                                <input type="range" id="pin-s-1-input" min="20" max="200" value="100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group separate-image-upload" style="display: none; background: #fafafa; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-color);"><label>Obrázek (Nahradí výřez centrální fotky)</label><input type="file" id="unit-img-1-upload" accept="image/*"></div>
+                    <div class="control-group"><label>Stav</label><select id="status-1-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                    <div class="control-group"><label>Cena</label><input type="text" id="price-1-input"></div>
+                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-1-input"></div>
+                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-1-input"></div>
+                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-1-input"></div>
+                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-1-input" placeholder="2 místa"></div>
+                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-1-input"></textarea></div>
+                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-1-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-1-upload" accept="application/pdf"></div>
+                </div>
+
+                <div id="admin-unit-2-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                    <h4>Etapa B</h4>
+                    <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
+                        <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Zleva (X) %</span>
+                                <input type="range" id="pin-x-2-input" min="0" max="100" value="50">
+                            </div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Shora (Y) %</span>
+                                <input type="range" id="pin-y-2-input" min="0" max="100" value="50">
+                            </div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Velikost %</span>
+                                <input type="range" id="pin-s-2-input" min="20" max="200" value="100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group separate-image-upload" style="display: none; background: #fafafa; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-color);"><label>Obrázek (Nahradí výřez centrální fotky)</label><input type="file" id="unit-img-2-upload" accept="image/*"></div>
+                    <div class="control-group"><label>Stav</label><select id="status-2-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                    <div class="control-group"><label>Cena</label><input type="text" id="price-2-input"></div>
+                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-2-input"></div>
+                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-2-input"></div>
+                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-2-input"></div>
+                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-2-input" placeholder="2 místa"></div>
+                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-2-input"></textarea></div>
+                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-2-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-2-upload" accept="application/pdf"></div>
+                </div>
+
+                <div id="admin-unit-3-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                    <h4>Etapa C</h4>
+                    <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
+                        <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Zleva (X) %</span>
+                                <input type="range" id="pin-x-3-input" min="0" max="100" value="50">
+                            </div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Shora (Y) %</span>
+                                <input type="range" id="pin-y-3-input" min="0" max="100" value="50">
+                            </div>
+                            <div style="flex: 1;">
+                                <span style="font-size: 0.8rem;">Velikost %</span>
+                                <input type="range" id="pin-s-3-input" min="20" max="200" value="100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group separate-image-upload" style="display: none; background: #fafafa; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-color);"><label>Obrázek (Nahradí výřez centrální fotky)</label><input type="file" id="unit-img-3-upload" accept="image/*"></div>
+                    <div class="control-group"><label>Stav</label><select id="status-3-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                    <div class="control-group"><label>Cena</label><input type="text" id="price-3-input"></div>
+                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-3-input"></div>
+                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-3-input"></div>
+                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-3-input"></div>
+                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-3-input" placeholder="2 místa"></div>
+                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-3-input"></textarea></div>
+                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-3-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-3-upload" accept="application/pdf"></div>
+                </div>
+
+                <div id="admin-unit-container-4-9">
+                    <!-- Unit 4-9 Loop -->
+                    <div id="admin-unit-4-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                        <h4>Jednotka 4</h4>
+                        <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
+                            <label style="color: #2980b9;">Pozice Bodu (X a Y)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-4-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-4-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-4-input" min="20" max="200" value="100"></div>
+                            </div>
+                        </div>
+                        <div class="control-group separate-image-upload" style="display: none;"><label>Obrázek</label><input type="file" id="unit-img-4-upload" accept="image/*"></div>
+                        <div class="control-group"><label>Stav</label><select id="status-4-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                        <div class="control-group"><label>Cena</label><input type="text" id="price-4-input"></div>
+                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-4-input"></div>
+                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-4-input"></div>
+                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-4-input"></div>
+                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-4-input"></div>
+                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-4-input"></textarea></div>
+                        <div class="control-group"><label>Karta (PDF)</label><input type="file" id="pdf-karta-4-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF)</label><input type="file" id="pdf-standardy-4-upload" accept="application/pdf"></div>
+                    </div>
+                    <!-- Repeat for 5-9 with simplified template -->
+                    <div id="admin-unit-5-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                        <h4>Jednotka 5</h4>
+                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-5-input" min="0" max="100" value="50"><input type="range" id="pin-y-5-input" min="0" max="100" value="50"><input type="range" id="pin-s-5-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group separate-image-upload" style="display: none;"><input type="file" id="unit-img-5-upload" accept="image/*"></div>
+                        <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                        <div class="control-group"><label>Cena</label><input type="text" id="price-5-input"></div>
+                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-5-input"></div>
+                        <div class="control-group"><label>Plocha</label><input type="text" id="area-5-input"></div>
+                        <div class="control-group"><label>Zahrada</label><input type="text" id="garden-5-input"></div>
+                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-5-input"></div>
+                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-5-input"></textarea></div>
+                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-5-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy</label><input type="file" id="pdf-standardy-5-upload" accept="application/pdf"></div>
+                    </div>
+                    <!-- 6 -->
+                    <div id="admin-unit-6-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                        <h4>Jednotka 6</h4>
+                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-6-input" min="0" max="100" value="50"><input type="range" id="pin-y-6-input" min="0" max="100" value="50"><input type="range" id="pin-s-6-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                        <div class="control-group"><label>Cena</label><input type="text" id="price-6-input"></div>
+                        <div class="control-group"><label>Plocha</label><input type="text" id="area-6-input"></div>
+                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-6-input"></textarea></div>
+                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-6-upload" accept="application/pdf"></div>
+                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-6-upload" accept="image/*"><input type="text" id="layout-6-input"><input type="text" id="garden-6-input"><input type="text" id="parking-6-input"><input type="file" id="pdf-standardy-6-upload"></div>
+                    </div>
+                    <!-- 7 -->
+                    <div id="admin-unit-7-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                        <h4>Jednotka 7</h4>
+                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-7-input" min="0" max="100" value="50"><input type="range" id="pin-y-7-input" min="0" max="100" value="50"><input type="range" id="pin-s-7-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                        <div class="control-group"><label>Cena</label><input type="text" id="price-7-input"></div>
+                        <div class="control-group"><label>Plocha</label><input type="text" id="area-7-input"></div>
+                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-7-input"></textarea></div>
+                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-7-upload" accept="application/pdf"></div>
+                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-7-upload" accept="image/*"><input type="text" id="layout-7-input"><input type="text" id="garden-7-input"><input type="text" id="parking-7-input"><input type="file" id="pdf-standardy-7-upload"></div>
+                    </div>
+                    <!-- 8 -->
+                    <div id="admin-unit-8-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                        <h4>Jednotka 8</h4>
+                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-8-input" min="0" max="100" value="50"><input type="range" id="pin-y-8-input" min="0" max="100" value="50"><input type="range" id="pin-s-8-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group"><label>Stav</label><select id="status-8-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                        <div class="control-group"><label>Cena</label><input type="text" id="price-8-input"></div>
+                        <div class="control-group"><label>Plocha</label><input type="text" id="area-8-input"></div>
+                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-8-input"></textarea></div>
+                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-8-upload" accept="application/pdf"></div>
+                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-8-upload" accept="image/*"><input type="text" id="layout-8-input"><input type="text" id="garden-8-input"><input type="text" id="parking-8-input"><input type="file" id="pdf-standardy-8-upload"></div>
+                    </div>
+                    <!-- 9 -->
+                    <div id="admin-unit-9-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                        <h4>Jednotka 9</h4>
+                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-9-input" min="0" max="100" value="50"><input type="range" id="pin-y-9-input" min="0" max="100" value="50"><input type="range" id="pin-s-9-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                        <div class="control-group"><label>Cena</label><input type="text" id="price-9-input"></div>
+                        <div class="control-group"><label>Plocha</label><input type="text" id="area-9-input"></div>
+                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-9-input"></textarea></div>
+                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-9-upload" accept="application/pdf"></div>
+                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-9-upload" accept="image/*"><input type="text" id="layout-9-input"><input type="text" id="garden-9-input"><input type="text" id="parking-9-input"><input type="file" id="pdf-standardy-9-upload"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Map -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>📍 Mapa & GPS</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div class="control-group">
+                    <label>Zeměpisná šířka (Lat)</label>
+                    <input type="text" id="gps-lat-input">
+                </div>
+                <div class="control-group">
+                    <label>Zeměpisná délka (Lng)</label>
+                    <input type="text" id="gps-lng-input">
+                </div>
+                <div class="control-group" style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">
+                    <input type="checkbox" id="cadastral-map-input" style="width: auto;">
+                    <label style="margin: 0;">Zobrazit katastrální mapu (ČÚZK)</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Portability -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>💾 Přenos projektu (Záloha)</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <p style="font-size: 0.75rem; opacity: 0.6; margin-bottom: 1rem;">Stáhněte si nastavení jako soubor, který si můžete nahrát na jiném počítači.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="btn" id="export-config-btn" style="background: #3498db;">📥 Stáhnout konfiguraci</button>
+                    <button class="btn" id="import-config-trigger" style="background: #9b59b6;">📤 Nahrát konfiguraci</button>
+                    <input type="file" id="import-config-input" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn save-btn" id="save-settings">💾 Uložit vše</button>
+        <p style="font-size: 0.7rem; margin-top: 1rem; opacity: 0.5;">Změny se ukládají do prohlížeče (localStorage).</p>
+    </div>
+
+    <div id="lightbox-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 3000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;">
+        <span id="lightbox-close" style="position: absolute; top: 20px; right: 40px; color: white; font-size: 50px; cursor: pointer; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">&times;</span>
+        <img id="lightbox-img" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js?v=5.0.0"></script>
+</body>
+</html>
