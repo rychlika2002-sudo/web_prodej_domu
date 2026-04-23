@@ -98,17 +98,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const importInput = document.getElementById('import-config-input');
 
     if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            const saved = localStorage.getItem('web_prodej_ultra_v3_config');
-            if (!saved) {
+        exportBtn.addEventListener('click', async () => {
+            const configStr = localStorage.getItem('web_prodej_ultra_v3_config');
+            if (!configStr) {
                 alert('Žádná konfigurace k uložení nebyla nalezena.');
                 return;
             }
-            const blob = new Blob([saved], { type: 'application/json' });
+            
+            const config = JSON.parse(configStr);
+            const exportData = { config, mediaData: {} };
+
+            // Gather all db: keys from siteMedia
+            const gatherMedia = async (mediaObj) => {
+                for (const key in mediaObj) {
+                    const val = mediaObj[key];
+                    if (typeof val === 'string' && val.startsWith('db:')) {
+                        const dbKey = val.split(':')[1];
+                        try {
+                            const data = await MediaDB.load(dbKey);
+                            if (data) exportData.mediaData[dbKey] = data;
+                        } catch(e) {}
+                    } else if (Array.isArray(val)) {
+                        for (const item of val) {
+                            if (typeof item === 'string' && item.startsWith('db:')) {
+                                const dbKey = item.split(':')[1];
+                                try {
+                                    const data = await MediaDB.load(dbKey);
+                                    if (data) exportData.mediaData[dbKey] = data;
+                                } catch(e) {}
+                            }
+                        }
+                    }
+                }
+            };
+
+            await gatherMedia(config.media || {});
+            
+            const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `projekt_export_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `projekt_KOMPLETNI_export_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
         });
@@ -121,14 +151,28 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 try {
-                    const config = JSON.parse(event.target.result);
-                    // Basic validation
+                    const imported = JSON.parse(event.target.result);
+                    let config, mediaData = {};
+
+                    // Handle both old and new export formats
+                    if (imported.config && imported.mediaData) {
+                        config = imported.config;
+                        mediaData = imported.mediaData;
+                    } else {
+                        config = imported;
+                    }
+                    
                     if (!config.units || !config.content) throw new Error('Neplatný formát souboru.');
                     
-                    localStorage.setItem('web_prodej_ultra_v3_config', event.target.result);
-                    alert('Konfigurace byla úspěšně nahrána! Stránka se nyní restartuje.');
+                    // Save media to IndexedDB first
+                    for (const key in mediaData) {
+                        await MediaDB.save(key, mediaData[key]);
+                    }
+
+                    localStorage.setItem('web_prodej_ultra_v3_config', JSON.stringify(config));
+                    alert('Kompletní konfigurace (včetně obrázků) byla úspěšně nahrána! Stránka se restartuje.');
                     window.location.reload();
                 } catch (err) {
                     alert('Chyba při nahrávání konfigurace: ' + err.message);
