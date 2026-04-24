@@ -245,7 +245,7 @@ nav {
 nav a {
     text-decoration: none;
     color: var(--primary-color);
-    margin-left: 2rem;
+    margin-left: 1.5rem; /* Reduced from 2rem */
     font-weight: 500;
     font-size: 0.9rem;
     transition: var(--transition);
@@ -291,12 +291,13 @@ body.dark-mode .menu-toggle span {
     transform: translateY(-9px) rotate(-45deg);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .menu-toggle {
         display: flex;
     }
 
     nav {
+        display: none;
         position: fixed;
         top: 0;
         right: -100%;
