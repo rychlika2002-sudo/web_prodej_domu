@@ -1589,3 +1589,99 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAdminCards();
     })();
 });
+
+// ===== COOKIE CONSENT LOGIC (outside DOMContentLoaded for early init) =====
+(function() {
+    const COOKIE_KEY = 'web_prodej_cookie_consent';
+    const EXPIRY_DAYS = 365;
+
+    const banner      = document.getElementById('cookie-banner');
+    const modal       = document.getElementById('cookie-modal');
+    const openBtn     = document.getElementById('cookies-open-btn');
+    const modalClose  = document.getElementById('cookie-modal-close');
+    const acceptBtn   = document.getElementById('cookie-accept-btn');
+    const rejectBtn   = document.getElementById('cookie-reject-btn');
+    const settingsBtn = document.getElementById('cookie-settings-btn');
+    const saveBtn     = document.getElementById('cookie-save-btn');
+    const acceptAllModalBtn = document.getElementById('cookie-accept-all-modal-btn');
+    const analyticsToggle   = document.getElementById('cookie-analytics');
+    const marketingToggle   = document.getElementById('cookie-marketing');
+
+    const getConsent = () => {
+        try {
+            const raw = localStorage.getItem(COOKIE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (data.expires && Date.now() > data.expires) {
+                localStorage.removeItem(COOKIE_KEY);
+                return null;
+            }
+            return data;
+        } catch { return null; }
+    };
+
+    const saveConsent = (analytics, marketing) => {
+        const expires = Date.now() + EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+        localStorage.setItem(COOKIE_KEY, JSON.stringify({ analytics, marketing, expires }));
+    };
+
+    const hideBanner = () => { if (banner) banner.style.display = 'none'; };
+    const hideModal  = () => { if (modal)  modal.style.display  = 'none'; };
+    const showModal  = () => {
+        if (!modal) return;
+        // Sync toggles with saved state
+        const consent = getConsent();
+        if (analyticsToggle)  analyticsToggle.checked  = consent?.analytics  || false;
+        if (marketingToggle)  marketingToggle.checked  = consent?.marketing  || false;
+        modal.style.display = 'flex';
+    };
+
+    // Show banner if no consent saved
+    if (!getConsent()) {
+        if (banner) banner.style.display = 'block';
+    }
+
+    // Accept all
+    if (acceptBtn) acceptBtn.addEventListener('click', () => {
+        saveConsent(true, true);
+        hideBanner();
+    });
+
+    // Reject (only necessary)
+    if (rejectBtn) rejectBtn.addEventListener('click', () => {
+        saveConsent(false, false);
+        hideBanner();
+    });
+
+    // Open settings from banner
+    if (settingsBtn) settingsBtn.addEventListener('click', () => {
+        hideBanner();
+        showModal();
+    });
+
+    // Open settings from cookie button next to social icons
+    if (openBtn) openBtn.addEventListener('click', () => showModal());
+
+    // Close modal
+    if (modalClose) modalClose.addEventListener('click', hideModal);
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+
+    // Save custom settings
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+        saveConsent(analyticsToggle?.checked || false, marketingToggle?.checked || false);
+        hideModal();
+    });
+
+    // Accept all from modal
+    if (acceptAllModalBtn) acceptAllModalBtn.addEventListener('click', () => {
+        if (analyticsToggle)  analyticsToggle.checked  = true;
+        if (marketingToggle)  marketingToggle.checked  = true;
+        saveConsent(true, true);
+        hideModal();
+    });
+
+    // Escape key closes modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal?.style.display === 'flex') hideModal();
+    });
+})();
