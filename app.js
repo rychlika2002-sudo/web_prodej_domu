@@ -319,6 +319,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveBtn = document.getElementById('save-settings');
     const root = document.documentElement;
 
+    // --- Mobile Menu Toggle Logic ---
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    const navLinks = mainNav.querySelectorAll('a');
+
+    if (mobileMenuBtn && mainNav) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mainNav.classList.toggle('active');
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mainNav.classList.remove('active');
+            });
+        });
+    }
+
     // Media Uploads
     const logoUpload = document.getElementById('logo-img-upload');
     const heroUpload = document.getElementById('hero-img-upload');

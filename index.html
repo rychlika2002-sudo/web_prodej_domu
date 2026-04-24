@@ -23,7 +23,12 @@
                 <span id="editable-subtitle" class="logo-subtitle"></span>
             </div>
         </div>
-        <nav style="display: flex; align-items: center;">
+        <div class="menu-toggle" id="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav id="main-nav">
             <a href="#hero">Domů</a>
             <a href="#about">O projektu</a>
             <a href="#gallery">Galerie</a>
@@ -465,7 +470,7 @@
                     <h4>Etapa A</h4>
                     <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
                         <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
-                        <div style="display: flex; gap: 10px;">
+                        <div>
                             <div style="flex: 1;">
                                 <span style="font-size: 0.8rem;">Zleva (X) %</span>
                                 <input type="range" id="pin-x-1-input" min="0" max="100" value="50">
@@ -496,7 +501,7 @@
                     <h4>Etapa B</h4>
                     <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
                         <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
-                        <div style="display: flex; gap: 10px;">
+                        <div>
                             <div style="flex: 1;">
                                 <span style="font-size: 0.8rem;">Zleva (X) %</span>
                                 <input type="range" id="pin-x-2-input" min="0" max="100" value="50">
@@ -527,7 +532,7 @@
                     <h4>Etapa C</h4>
                     <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
                         <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
-                        <div style="display: flex; gap: 10px;">
+                        <div>
                             <div style="flex: 1;">
                                 <span style="font-size: 0.8rem;">Zleva (X) %</span>
                                 <input type="range" id="pin-x-3-input" min="0" max="100" value="50">
@@ -560,7 +565,7 @@
                         <h4>Jednotka 4</h4>
                         <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
                             <label style="color: #2980b9;">Pozice Bodu (X a Y)</label>
-                            <div style="display: flex; gap: 10px;">
+                            <div>
                                 <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-4-input" min="0" max="100" value="50"></div>
                                 <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-4-input" min="0" max="100" value="50"></div>
                                 <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-4-input" min="20" max="200" value="100"></div>
@@ -580,7 +585,7 @@
                     <!-- Repeat for 5-9 with simplified template -->
                     <div id="admin-unit-5-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 5</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-5-input" min="0" max="100" value="50"><input type="range" id="pin-y-5-input" min="0" max="100" value="50"><input type="range" id="pin-s-5-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-5-input" min="0" max="100" value="50"><input type="range" id="pin-y-5-input" min="0" max="100" value="50"><input type="range" id="pin-s-5-input" min="20" max="200" value="100"></div></div>
                         <div class="control-group separate-image-upload" style="display: none;"><input type="file" id="unit-img-5-upload" accept="image/*"></div>
                         <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-5-input"></div>
@@ -595,7 +600,7 @@
                     <!-- 6 -->
                     <div id="admin-unit-6-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 6</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-6-input" min="0" max="100" value="50"><input type="range" id="pin-y-6-input" min="0" max="100" value="50"><input type="range" id="pin-s-6-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-6-input" min="0" max="100" value="50"><input type="range" id="pin-y-6-input" min="0" max="100" value="50"><input type="range" id="pin-s-6-input" min="20" max="200" value="100"></div></div>
                         <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-6-input"></div>
                         <div class="control-group"><label>Plocha</label><input type="text" id="area-6-input"></div>
@@ -606,7 +611,7 @@
                     <!-- 7 -->
                     <div id="admin-unit-7-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 7</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-7-input" min="0" max="100" value="50"><input type="range" id="pin-y-7-input" min="0" max="100" value="50"><input type="range" id="pin-s-7-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-7-input" min="0" max="100" value="50"><input type="range" id="pin-y-7-input" min="0" max="100" value="50"><input type="range" id="pin-s-7-input" min="20" max="200" value="100"></div></div>
                         <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-7-input"></div>
                         <div class="control-group"><label>Plocha</label><input type="text" id="area-7-input"></div>
@@ -617,7 +622,7 @@
                     <!-- 8 -->
                     <div id="admin-unit-8-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 8</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-8-input" min="0" max="100" value="50"><input type="range" id="pin-y-8-input" min="0" max="100" value="50"><input type="range" id="pin-s-8-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-8-input" min="0" max="100" value="50"><input type="range" id="pin-y-8-input" min="0" max="100" value="50"><input type="range" id="pin-s-8-input" min="20" max="200" value="100"></div></div>
                         <div class="control-group"><label>Stav</label><select id="status-8-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-8-input"></div>
                         <div class="control-group"><label>Plocha</label><input type="text" id="area-8-input"></div>
@@ -628,7 +633,7 @@
                     <!-- 9 -->
                     <div id="admin-unit-9-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 9</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div style="display: flex; gap: 10px;"><input type="range" id="pin-x-9-input" min="0" max="100" value="50"><input type="range" id="pin-y-9-input" min="0" max="100" value="50"><input type="range" id="pin-s-9-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-9-input" min="0" max="100" value="50"><input type="range" id="pin-y-9-input" min="0" max="100" value="50"><input type="range" id="pin-s-9-input" min="20" max="200" value="100"></div></div>
                         <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-9-input"></div>
                         <div class="control-group"><label>Plocha</label><input type="text" id="area-9-input"></div>
