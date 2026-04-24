@@ -444,6 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactEmailInput = document.getElementById('contact-email-input');
     const fbLinkInput = document.getElementById('fb-link-input');
     const igLinkInput = document.getElementById('ig-link-input');
+    const agentNameInput = document.getElementById('agent-name-input');
 
     // Unit Admin Inputs Mapping
     const unitInputs = {};
@@ -960,8 +961,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const agentPhotoDisplay = document.getElementById('agent-photo-display');
     const agentPhotoPlaceholder = document.getElementById('agent-photo-placeholder');
 
-    handleFileUpload(agentPhotoUpload, (base64) => {
-        siteMedia.agent = base64;
+    // Agent name live-update
+    if (agentNameInput) {
+        agentNameInput.addEventListener('input', (e) => {
+            const display = document.getElementById('editable-agent-name');
+            if (display) display.textContent = e.target.value || 'Jan Novák';
+        });
+    }
+
+    handleFileUpload(agentPhotoUpload, async (base64) => {
+        siteMedia.agent = 'db:agent';
+        await MediaDB.save('agent', base64);
         if (agentPhotoDisplay) {
             agentPhotoDisplay.src = base64;
             agentPhotoDisplay.style.display = 'block';
@@ -1014,8 +1024,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlInput = document.getElementById(`partner-url-${i}-input`);
         
         if (logoInput) {
-            handleFileUpload(logoInput, (base64) => {
-                partnersData[i-1].logo = base64;
+            handleFileUpload(logoInput, async (base64) => {
+                const key = `partner_logo_${i}`;
+                await MediaDB.save(key, base64);
+                partnersData[i-1].logo = `db:${key}`;
                 saveToStorage(true);
                 renderPartners();
             });
@@ -1230,6 +1242,20 @@ document.addEventListener('DOMContentLoaded', () => {
     updateContent(contactTextInput, contactText, 'Náš tým je vám k dispozici...');
     updateContent(contactPhoneInput, contactPhone, '+420 123 456 789');
     updateContent(contactEmailInput, contactEmail, 'info@modernibydleni.cz');
+
+    // Keep phone/email href in sync
+    if (contactPhoneInput) {
+        contactPhoneInput.addEventListener('input', (e) => {
+            const phoneLink = document.getElementById('editable-contact-phone-link');
+            if (phoneLink) phoneLink.href = 'tel:' + e.target.value.replace(/\s/g, '');
+        });
+    }
+    if (contactEmailInput) {
+        contactEmailInput.addEventListener('input', (e) => {
+            const emailRow = document.querySelector('.agent-info-row[href^="mailto:"]');
+            if (emailRow) emailRow.href = 'mailto:' + e.target.value;
+        });
+    }
     
     if (subtitleInput) {
         subtitleInput.addEventListener('input', (e) => {
@@ -1492,7 +1518,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (config.units) unitsData = config.units;
 
             // Agent info (text)
-            agentNameDisplay.textContent = c.agentName || 'Jan Novák';
+            const agentNameDisplay = document.getElementById('editable-agent-name');
+            if (agentNameDisplay) agentNameDisplay.textContent = c.agentName || 'Jan Novák';
             agentNameInput.value = c.agentName || '';
             contactTitleInput.value = c.contactTitle || '';
             contactTextInput.value = c.contactText || '';
@@ -1500,6 +1527,12 @@ document.addEventListener('DOMContentLoaded', () => {
             contactEmailInput.value = c.contactEmail || '';
             fbLinkInput.value = c.fbLink || '';
             igLinkInput.value = c.igLink || '';
+
+            // Sync link hrefs from loaded data
+            const phoneLink = document.getElementById('editable-contact-phone-link');
+            if (phoneLink && c.contactPhone) phoneLink.href = 'tel:' + c.contactPhone.replace(/\s/g, '');
+            const emailRow = document.querySelector('.agent-info-row[href^="mailto:"]');
+            if (emailRow && c.contactEmail) emailRow.href = 'mailto:' + c.contactEmail;
 
             if (c.projectCards) {
                 projectCards = c.projectCards;

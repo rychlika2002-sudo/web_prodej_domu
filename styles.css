@@ -1249,6 +1249,210 @@ textarea.admin-input {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
 }
 
+/* --- Agent Section & Card --- */
+.agent-section {
+    border-left: 1px solid rgba(0,0,0,0.1);
+    padding-left: 4rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.agent-card {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    transition: var(--transition);
+}
+
+.agent-card:hover {
+    box-shadow: 0 30px 80px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+}
+
+body.dark-mode .agent-card {
+    background: #1e1e1e;
+    border-color: #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+/* TOP: gradient band with photo */
+.agent-card-top {
+    background: linear-gradient(135deg, var(--primary-color) 0%, color-mix(in srgb, var(--primary-color) 70%, var(--accent-color)) 100%);
+    padding: 2.5rem 2rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.agent-photo-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--accent-color);
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.agent-photo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+.agent-photo-circle svg {
+    color: rgba(255,255,255,0.5);
+}
+
+.agent-name {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: #ffffff;
+    margin: 0 0 0.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.agent-role {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* MIDDLE: contact info rows */
+.agent-contact-info {
+    padding: 1.8rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+body.dark-mode .agent-contact-info {
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.agent-info-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    transition: var(--transition);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.agent-info-row:hover {
+    background: var(--gray-100);
+    color: var(--accent-color);
+}
+
+.agent-info-row:hover .agent-info-icon {
+    background: var(--accent-color);
+    color: white;
+}
+
+body.dark-mode .agent-info-row {
+    color: #e0e0e0;
+}
+
+body.dark-mode .agent-info-row:hover {
+    background: #2a2a2a;
+    color: var(--accent-color);
+}
+
+.agent-info-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition);
+    color: var(--primary-color);
+}
+
+body.dark-mode .agent-info-icon {
+    background: rgba(255,255,255,0.08);
+    color: var(--accent-color);
+}
+
+/* BOTTOM: social + CTA */
+.agent-card-bottom {
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+}
+
+.social-links {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+}
+
+.social-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    opacity: 0.7;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.social-btn:hover {
+    opacity: 1;
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+body.dark-mode .social-btn {
+    background: #2a2a2a;
+    color: var(--white);
+}
+
+body.dark-mode .social-btn:hover {
+    background: var(--accent-color);
+    color: #121212;
+}
+
+.agent-cta-btn {
+    width: 100%;
+    text-align: center;
+    border-radius: 10px;
+    padding: 1rem 2rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
 @media (max-width: 1024px) {
     .contact-container {
         grid-template-columns: 1fr !important;
