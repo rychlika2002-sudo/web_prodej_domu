@@ -1015,6 +1015,13 @@ body.dark-mode #map {
     overflow-x: auto;
     scroll-behavior: smooth;
     scrollbar-width: none;
+    cursor: grab;
+    user-select: none; /* Prevent text/image selection while dragging */
+}
+
+.gallery-grid.grabbing {
+    cursor: grabbing;
+    scroll-behavior: auto; /* Disable smooth scroll while dragging for better responsiveness */
 }
 
 .gallery-grid::-webkit-scrollbar {

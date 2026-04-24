@@ -815,6 +815,49 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.addEventListener('touchend', stopContinuousScroll);
     }
 
+    // --- Drag-to-Scroll Logic for Gallery ---
+    let isDown = false;
+    let startX;
+    let scrollLeftInitial;
+    let moved = false;
+
+    if (galleryContainer) {
+        galleryContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            galleryContainer.classList.add('grabbing');
+            startX = e.pageX - galleryContainer.offsetLeft;
+            scrollLeftInitial = galleryContainer.scrollLeft;
+            moved = false;
+        });
+
+        galleryContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            galleryContainer.classList.remove('grabbing');
+        });
+
+        galleryContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            galleryContainer.classList.remove('grabbing');
+        });
+
+        galleryContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - galleryContainer.offsetLeft;
+            const walk = (x - startX) * 2; // Scroll speed multiplier
+            if (Math.abs(walk) > 5) moved = true;
+            galleryContainer.scrollLeft = scrollLeftInitial - walk;
+        });
+
+        // Prevent click if moved
+        galleryContainer.addEventListener('click', (e) => {
+            if (moved) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+    }
+
     const renderGallery = async () => {
         if (!galleryContainer) return;
         const images = [];
