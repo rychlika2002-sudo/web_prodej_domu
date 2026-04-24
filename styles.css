@@ -185,6 +185,7 @@ header {
 .header-right {
     display: flex;
     align-items: center;
+    gap: 1.5rem;
 }
 
 header.scrolled {
@@ -263,7 +264,6 @@ nav a:hover {
     height: 21px;
     cursor: pointer;
     z-index: 2001; /* Higher than header and admin */
-    margin-right: 1.5rem;
 }
 
 .menu-toggle span {
