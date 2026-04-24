@@ -998,20 +998,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const item = document.createElement('a');
                 item.href = partner.url || '#';
                 item.target = '_blank';
+                item.rel = 'noopener noreferrer';
                 item.className = 'partner-item';
-                item.style.cssText = 'display: flex; align-items: center; justify-content: center; padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: var(--transition); height: 80px;';
-                item.innerHTML = `<img src="${logoSrc}" alt="Partner" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: grayscale(1); opacity: 0.6; transition: var(--transition);">`;
                 
-                item.onmouseenter = () => {
-                    item.style.transform = 'translateY(-3px)';
-                    item.querySelector('img').style.filter = 'grayscale(0)';
-                    item.querySelector('img').style.opacity = '1';
-                };
-                item.onmouseleave = () => {
-                    item.style.transform = 'translateY(0)';
-                    item.querySelector('img').style.filter = 'grayscale(1)';
-                    item.querySelector('img').style.opacity = '0.6';
-                };
+                const img = document.createElement('img');
+                img.src = logoSrc;
+                img.alt = 'Partner';
+                img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain; filter: grayscale(1); opacity: 0.55; transition: all 0.35s ease;';
+                item.appendChild(img);
+                
+                item.addEventListener('mouseenter', () => {
+                    img.style.filter = 'grayscale(0) saturate(1.2)';
+                    img.style.opacity = '1';
+                    img.style.transform = 'scale(1.08)';
+                });
+                item.addEventListener('mouseleave', () => {
+                    img.style.filter = 'grayscale(1)';
+                    img.style.opacity = '0.55';
+                    img.style.transform = 'scale(1)';
+                });
                 
                 partnersGrid.appendChild(item);
             }
