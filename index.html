@@ -165,29 +165,42 @@
             <h2 id="editable-contact-title">Máte dotaz?</h2>
             <p id="editable-contact-text">Náš tým je vám k dispozici pro prohlídku nebo konzultaci.</p>
         </div>
-        <div style="max-width: 800px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 4rem; flex-wrap: wrap;">
-            <div class="agent-profile" style="text-align: center;">
-                <div class="agent-photo-circle" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin: 0 auto 1rem; border: 3px solid var(--accent-color); background: var(--gray-200); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);">
-                    <img id="agent-photo-display" src="" alt="Makléř" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                    <svg id="agent-photo-placeholder" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <div class="contact-container" style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;">
+            <!-- Left Column: Partners -->
+            <div class="partners-section" style="text-align: left;">
+                <h3 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2rem; opacity: 0.7;">Naši Partneři</h3>
+                <div id="partners-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: center;">
+                    <!-- Dynamically populated -->
                 </div>
-                <h4 id="editable-agent-name" style="font-size: 1.2rem; margin: 0; font-family: var(--font-heading);">Jan Novák</h4>
             </div>
-            <div class="agent-methods" style="text-align: left; border-left: 1px solid rgba(0,0,0,0.1); padding-left: 4rem;">
-                <p style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-color);" id="editable-contact-phone">+420 123 456 789</p>
-                <p><a href="mailto:info@modernibydleni.cz" id="editable-contact-email" style="font-size: 1.1rem; color: var(--accent-color); text-decoration: none; font-weight: 500;">info@modernibydleni.cz</a></p>
+
+            <!-- Right Column: Agent Contact -->
+            <div class="agent-section" style="border-left: 1px solid rgba(0,0,0,0.1); padding-left: 4rem;">
+                <h3 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2rem; opacity: 0.7;">Kontakt</h3>
+                <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                    <div class="agent-photo-circle" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent-color); background: var(--gray-200); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <img id="agent-photo-display" src="" alt="Makléř" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <svg id="agent-photo-placeholder" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div>
+                        <h4 id="editable-agent-name" style="font-size: 1.2rem; margin: 0; font-family: var(--font-heading);">Jan Novák</h4>
+                        <p style="font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0; color: var(--primary-color);" id="editable-contact-phone">+420 123 456 789</p>
+                        <p><a href="mailto:info@modernibydleni.cz" id="editable-contact-email" style="color: var(--accent-color); text-decoration: none; font-weight: 500;">info@modernibydleni.cz</a></p>
+                    </div>
+                </div>
                 
-                <div class="social-links" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                    <a href="#" id="fb-link" target="_blank" style="color: var(--primary-color); opacity: 0.6; transition: var(--transition);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-0.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
-                    </a>
-                    <a href="#" id="ig-link" target="_blank" style="color: var(--primary-color); opacity: 0.6; transition: var(--transition);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.266.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12s.014 3.667.072 4.947c.2 4.353 2.62 6.766 6.98 6.966 1.28.058 1.688.072 4.948.072s3.667-.014 4.947-.072c4.351-.2 6.764-2.612 6.965-6.966.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.2-4.354-2.612-6.77-6.965-6.966C15.667.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4.162 4.162 0 110-8.324 4.162 4.162 0 010 8.324zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                    </a>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                    <div class="social-links" style="display: flex; gap: 1rem;">
+                        <a href="#" id="fb-link" target="_blank" style="color: var(--primary-color); opacity: 0.6; transition: var(--transition);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-0.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
+                        </a>
+                        <a href="#" id="ig-link" target="_blank" style="color: var(--primary-color); opacity: 0.6; transition: var(--transition);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.266.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12s.014 3.667.072 4.947c.2 4.353 2.62 6.766 6.98 6.966 1.28.058 1.688.072 4.948.072s3.667-.014 4.947-.072c4.351-.2 6.764-2.612 6.965-6.966.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.2-4.354-2.612-6.77-6.965-6.966C15.667.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4.162 4.162 0 110-8.324 4.162 4.162 0 010 8.324zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        </a>
+                    </div>
+                    <a href="#contact" class="btn" id="editable-contact-btn">Nezávazná poptávka</a>
                 </div>
             </div>
-            <br>
-            <a href="#contact" class="btn" id="editable-contact-btn">Nezávazná poptávka</a>
         </div>
     </section>
 
@@ -254,6 +267,85 @@
         </div>
 
         <!-- Section: Content Main -->
+        <!-- Section: Content & Partners -->
+        <div class="admin-section accordion">
+            <div class="accordion-header">
+                <h3>🤝 Partneři & Bannery</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div id="admin-partners-list">
+                    <!-- Partner slots -->
+                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 1</label>
+                        <div class="control-group">
+                            <label>Logo (Upload)</label>
+                            <input type="file" id="partner-logo-1-upload" accept="image/*">
+                        </div>
+                        <div class="control-group">
+                            <label>Odkaz (URL)</label>
+                            <input type="text" id="partner-url-1-input" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 2</label>
+                        <div class="control-group">
+                            <label>Logo (Upload)</label>
+                            <input type="file" id="partner-logo-2-upload" accept="image/*">
+                        </div>
+                        <div class="control-group">
+                            <label>Odkaz (URL)</label>
+                            <input type="text" id="partner-url-2-input" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 3</label>
+                        <div class="control-group">
+                            <label>Logo (Upload)</label>
+                            <input type="file" id="partner-logo-3-upload" accept="image/*">
+                        </div>
+                        <div class="control-group">
+                            <label>Odkaz (URL)</label>
+                            <input type="text" id="partner-url-3-input" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 4</label>
+                        <div class="control-group">
+                            <label>Logo (Upload)</label>
+                            <input type="file" id="partner-logo-4-upload" accept="image/*">
+                        </div>
+                        <div class="control-group">
+                            <label>Odkaz (URL)</label>
+                            <input type="text" id="partner-url-4-input" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 5</label>
+                        <div class="control-group">
+                            <label>Logo (Upload)</label>
+                            <input type="file" id="partner-logo-5-upload" accept="image/*">
+                        </div>
+                        <div class="control-group">
+                            <label>Odkaz (URL)</label>
+                            <input type="text" id="partner-url-5-input" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 6</label>
+                        <div class="control-group">
+                            <label>Logo (Upload)</label>
+                            <input type="file" id="partner-logo-6-upload" accept="image/*">
+                        </div>
+                        <div class="control-group">
+                            <label>Odkaz (URL)</label>
+                            <input type="text" id="partner-url-6-input" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="admin-section accordion">
             <div class="accordion-header">
                 <h3>📝 Hlavní Obsah</h3>

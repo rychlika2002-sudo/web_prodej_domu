@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    let partnersData = [];
+    for(let i=1; i<=6; i++) {
+        partnersData.push({ id: i, logo: '', url: '' });
+    }
+
     const hexToRgba = (hex, opacity) => {
         let c;
         if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
@@ -763,99 +768,178 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToStorage(true);
     });
 
+    // --- Gallery Rendering & Interaction ---
+    const prevBtn = document.getElementById('gallery-prev');
+    const nextBtn = document.getElementById('gallery-next');
+
+    // Drag-to-scroll state
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragScrollLeft = 0;
+    let dragVelocity = 0;
+    let dragLastX = 0;
+    let dragLastTime = 0;
+    let dragMoved = false;
+    let momentumID = null;
+
+    const stopMomentum = () => {
+        if (momentumID) { cancelAnimationFrame(momentumID); momentumID = null; }
+    };
+
+    const applyMomentum = () => {
+        if (Math.abs(dragVelocity) > 0.3) {
+            galleryContainer.scrollLeft -= dragVelocity;
+            dragVelocity *= 0.92;
+            momentumID = requestAnimationFrame(applyMomentum);
+        } else {
+            dragVelocity = 0;
+            galleryContainer.classList.remove('grabbing');
+        }
+    };
+
+    const getColumnWidth = () => {
+        const firstItem = galleryContainer ? galleryContainer.querySelector('.gallery-item') : null;
+        if (firstItem) return firstItem.offsetWidth + 24; // 24 = gap (1.5rem)
+        return 340;
+    };
+
     const renderGalleryWithImages = (images) => {
         if (!galleryContainer) return;
         galleryContainer.innerHTML = '';
-        images.forEach(img => {
+        images.forEach((img, idx) => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
-            item.innerHTML = `<img src="${img}" alt="Galerie">`;
-            item.addEventListener('click', () => {
-                if(typeof window.openLightbox === 'function') window.openLightbox(img);
+            const imgEl = document.createElement('img');
+            imgEl.src = img;
+            imgEl.alt = 'Galerie';
+            imgEl.draggable = false; // prevent native drag
+            item.appendChild(imgEl);
+
+            // Lightbox only on real click (not drag)
+            item.addEventListener('click', (e) => {
+                if (!dragMoved) {
+                    if (typeof window.openLightbox === 'function') window.openLightbox(img);
+                }
             });
             galleryContainer.appendChild(item);
         });
 
         const hasOverflow = images.length > 4;
-        
         if (prevBtn) prevBtn.style.display = hasOverflow ? 'flex' : 'none';
         if (nextBtn) nextBtn.style.display = hasOverflow ? 'flex' : 'none';
     };
 
-    let scrollLoop = null;
-    
-    const startContinuousScroll = (amount) => {
-        if (!galleryContainer) return;
-        const scrollStep = () => {
-            galleryContainer.scrollBy({ left: amount, behavior: 'instant' });
-            scrollLoop = requestAnimationFrame(scrollStep);
-        };
-        scrollLoop = requestAnimationFrame(scrollStep);
-    };
-
-    const stopContinuousScroll = () => {
-        if (scrollLoop) cancelAnimationFrame(scrollLoop);
-    };
-
-    const prevBtn = document.getElementById('gallery-prev');
-    const nextBtn = document.getElementById('gallery-next');
-
-    if(prevBtn) {
-        prevBtn.addEventListener('mouseenter', () => startContinuousScroll(-6));
-        prevBtn.addEventListener('mouseleave', stopContinuousScroll);
-        // Mobile Support
-        prevBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startContinuousScroll(-6); });
-        prevBtn.addEventListener('touchend', stopContinuousScroll);
+    // Arrow buttons: click-to-scroll by one column width
+    if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stopMomentum();
+            galleryContainer.scrollBy({ left: -getColumnWidth(), behavior: 'smooth' });
+        });
+        prevBtn.addEventListener('mousedown', (e) => e.stopPropagation());
     }
-    if(nextBtn) {
-        nextBtn.addEventListener('mouseenter', () => startContinuousScroll(6));
-        nextBtn.addEventListener('mouseleave', stopContinuousScroll);
-        // Mobile Support
-        nextBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startContinuousScroll(6); });
-        nextBtn.addEventListener('touchend', stopContinuousScroll);
+    if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            stopMomentum();
+            galleryContainer.scrollBy({ left: getColumnWidth(), behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('mousedown', (e) => e.stopPropagation());
     }
 
-    // --- Drag-to-Scroll Logic for Gallery ---
-    let isDown = false;
-    let startX;
-    let scrollLeftInitial;
-    let moved = false;
-
+    // Drag-to-scroll: true 1:1 mouse tracking, no smooth scroll interference
     if (galleryContainer) {
+        // Remove smooth scroll during interaction (set via JS, not CSS)
         galleryContainer.addEventListener('mousedown', (e) => {
-            isDown = true;
+            // Only left mouse button
+            if (e.button !== 0) return;
+            isDragging = true;
+            dragMoved = false;
+            stopMomentum();
             galleryContainer.classList.add('grabbing');
-            startX = e.pageX - galleryContainer.offsetLeft;
-            scrollLeftInitial = galleryContainer.scrollLeft;
-            moved = false;
-        });
-
-        galleryContainer.addEventListener('mouseleave', () => {
-            isDown = false;
-            galleryContainer.classList.remove('grabbing');
-        });
-
-        galleryContainer.addEventListener('mouseup', () => {
-            isDown = false;
-            galleryContainer.classList.remove('grabbing');
-        });
-
-        galleryContainer.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
+            dragStartX = e.clientX;
+            dragScrollLeft = galleryContainer.scrollLeft;
+            dragLastX = e.clientX;
+            dragLastTime = performance.now();
+            dragVelocity = 0;
             e.preventDefault();
-            const x = e.pageX - galleryContainer.offsetLeft;
-            const walk = (x - startX) * 2; // Scroll speed multiplier
-            if (Math.abs(walk) > 5) moved = true;
-            galleryContainer.scrollLeft = scrollLeftInitial - walk;
         });
 
-        // Prevent click if moved
-        galleryContainer.addEventListener('click', (e) => {
-            if (moved) {
-                e.preventDefault();
-                e.stopPropagation();
+        // Use window to catch mouseup even if mouse leaves container
+        window.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            galleryContainer.classList.remove('grabbing');
+            // Start momentum if moved
+            if (dragMoved && Math.abs(dragVelocity) > 0.5) {
+                momentumID = requestAnimationFrame(applyMomentum);
+            } else {
+                dragVelocity = 0;
             }
-        }, true);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const dx = e.clientX - dragStartX;
+            if (Math.abs(dx) > 4) dragMoved = true;
+
+            // 1:1 scroll with mouse
+            galleryContainer.scrollLeft = dragScrollLeft - dx;
+
+            // Track velocity (pixels per ms, averaged over last frame)
+            const now = performance.now();
+            const dt = now - dragLastTime;
+            if (dt > 0) {
+                // Smooth velocity with exponential moving average
+                const instantVel = (e.clientX - dragLastX) / dt * 16;
+                dragVelocity = dragVelocity * 0.6 + instantVel * 0.4;
+            }
+            dragLastX = e.clientX;
+            dragLastTime = now;
+        });
+
+        // Touch support
+        let touchStartX = 0;
+        let touchScrollLeft = 0;
+        let touchLastX = 0;
+        let touchLastTime = 0;
+        let touchVelocity = 0;
+        let touchMoved = false;
+
+        galleryContainer.addEventListener('touchstart', (e) => {
+            stopMomentum();
+            touchStartX = e.touches[0].clientX;
+            touchScrollLeft = galleryContainer.scrollLeft;
+            touchLastX = touchStartX;
+            touchLastTime = performance.now();
+            touchVelocity = 0;
+            touchMoved = false;
+            dragMoved = false;
+        }, { passive: true });
+
+        galleryContainer.addEventListener('touchmove', (e) => {
+            const dx = e.touches[0].clientX - touchStartX;
+            if (Math.abs(dx) > 4) { touchMoved = true; dragMoved = true; }
+            galleryContainer.scrollLeft = touchScrollLeft - dx;
+
+            const now = performance.now();
+            const dt = now - touchLastTime;
+            if (dt > 0) {
+                const instantVel = (e.touches[0].clientX - touchLastX) / dt * 16;
+                touchVelocity = touchVelocity * 0.6 + instantVel * 0.4;
+            }
+            touchLastX = e.touches[0].clientX;
+            touchLastTime = now;
+        }, { passive: true });
+
+        galleryContainer.addEventListener('touchend', () => {
+            if (touchMoved && Math.abs(touchVelocity) > 0.5) {
+                dragVelocity = touchVelocity;
+                momentumID = requestAnimationFrame(applyMomentum);
+            }
+        });
     }
 
     const renderGallery = async () => {
@@ -886,12 +970,64 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToStorage(true);
     });
 
-    const agentNameInput = document.getElementById('agent-name-input');
-    const agentNameDisplay = document.getElementById('editable-agent-name');
+    // --- Partners Logic ---
+    const partnersGrid = document.getElementById('partners-grid');
+    
+    const renderPartners = async () => {
+        if (!partnersGrid) return;
+        partnersGrid.innerHTML = '';
+        
+        for (const partner of partnersData) {
+            if (partner.logo) {
+                let logoSrc = partner.logo;
+                if (logoSrc.startsWith('db:')) {
+                    const data = await MediaDB.load(logoSrc.split(':')[1]);
+                    if (data) logoSrc = data;
+                }
+                
+                const item = document.createElement('a');
+                item.href = partner.url || '#';
+                item.target = '_blank';
+                item.className = 'partner-item';
+                item.style.cssText = 'display: flex; align-items: center; justify-content: center; padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: var(--transition); height: 80px;';
+                item.innerHTML = `<img src="${logoSrc}" alt="Partner" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: grayscale(1); opacity: 0.6; transition: var(--transition);">`;
+                
+                item.onmouseenter = () => {
+                    item.style.transform = 'translateY(-3px)';
+                    item.querySelector('img').style.filter = 'grayscale(0)';
+                    item.querySelector('img').style.opacity = '1';
+                };
+                item.onmouseleave = () => {
+                    item.style.transform = 'translateY(0)';
+                    item.querySelector('img').style.filter = 'grayscale(1)';
+                    item.querySelector('img').style.opacity = '0.6';
+                };
+                
+                partnersGrid.appendChild(item);
+            }
+        }
+    };
 
-    agentNameInput.addEventListener('input', (e) => {
-        if (agentNameDisplay) agentNameDisplay.textContent = e.target.value;
-    });
+    // Partner Admin Listeners
+    for(let i=1; i<=6; i++) {
+        const logoInput = document.getElementById(`partner-logo-${i}-upload`);
+        const urlInput = document.getElementById(`partner-url-${i}-input`);
+        
+        if (logoInput) {
+            handleFileUpload(logoInput, (base64) => {
+                partnersData[i-1].logo = base64;
+                saveToStorage(true);
+                renderPartners();
+            });
+        }
+        
+        if (urlInput) {
+            urlInput.addEventListener('input', (e) => {
+                partnersData[i-1].url = e.target.value;
+                renderPartners(); // Live update links
+            });
+        }
+    }
 
     clearGalleryBtn.addEventListener('click', () => {
         if (confirm('Opravdu chcete smazat všechny fotky v galerii?')) {
@@ -1235,7 +1371,8 @@ document.addEventListener('DOMContentLoaded', () => {
             media: siteMedia,
             location: mapCoords,
             units: unitsData,
-            unitsConfig: unitsConfig
+            unitsConfig: unitsConfig,
+            partners: partnersData
         };
         try {
             localStorage.setItem('web_prodej_ultra_v3_config', JSON.stringify(config));
@@ -1339,6 +1476,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 mapCoords = config.location;
                 gpsLatInput.value = mapCoords.lat;
                 gpsLngInput.value = mapCoords.lng;
+            }
+
+            if (config.partners) {
+                partnersData = config.partners;
+                for(let i=1; i<=6; i++) {
+                    const urlInput = document.getElementById(`partner-url-${i}-input`);
+                    if (urlInput && partnersData[i-1]) urlInput.value = partnersData[i-1].url || '';
+                }
+                renderPartners();
             }
             
             // Apply map state and cadastral layers now that config is loaded
