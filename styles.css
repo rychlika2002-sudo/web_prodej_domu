@@ -182,6 +182,11 @@ header {
     transition: var(--transition);
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
 header.scrolled {
     height: 70px;
     padding: 0 5%;
@@ -258,6 +263,7 @@ nav a:hover {
     height: 21px;
     cursor: pointer;
     z-index: 2001; /* Higher than header and admin */
+    margin-right: 1.5rem;
 }
 
 .menu-toggle span {
