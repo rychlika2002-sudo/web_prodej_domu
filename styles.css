@@ -1519,6 +1519,19 @@ body.dark-mode #cookie-banner {
 }
 .cookie-btn-primary:hover { background: var(--accent-color); border-color: var(--accent-color); }
 
+body.dark-mode .cookie-btn-primary {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #121212;
+}
+body.dark-mode .cookie-btn-primary:hover {
+    background: #fff;
+    border-color: #fff;
+    color: #121212;
+}
+body.dark-mode .cookie-banner-text strong { color: #f0f0f0; }
+body.dark-mode .cookie-banner-text p { color: #aaa; opacity: 1; }
+
 .cookie-btn-outline {
     padding: 0.6rem 1.2rem;
     background: transparent;
@@ -1580,6 +1593,8 @@ body.dark-mode .cookie-modal-box { background: #1e1e1e; color: #e0e0e0; }
 }
 body.dark-mode .cookie-modal-header { border-bottom-color: #333; }
 .cookie-modal-header h2 { font-family: var(--font-heading); font-size: 1.2rem; margin: 0; }
+body.dark-mode .cookie-modal-header h2 { color: #f0f0f0; }
+body.dark-mode .cookie-modal-intro { color: #aaa; opacity: 1; }
 
 .cookie-modal-close {
     width: 34px;
