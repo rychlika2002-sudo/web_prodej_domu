@@ -1108,12 +1108,27 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--pin-color', pinColor);
         root.style.setProperty('--pin-color-rgba', hexToRgba(pinColor, 70));
 
-        if(unitsConfig.separateImages) {
+        let hasSeparateImg = false;
+        if (unitsConfig.separateImages) {
+            for (let i = 1; i <= unitsConfig.count; i++) {
+                if (siteMedia[`unit${i}`]) {
+                    hasSeparateImg = true;
+                    break;
+                }
+            }
+        }
+
+        if (unitsConfig.separateImages && hasSeparateImg) {
             overlay.classList.add('separate-mode');
-            if(mainImage) mainImage.style.display = 'none';
+            if (mainImage) mainImage.style.display = 'none';
         } else {
             overlay.classList.remove('separate-mode');
-            if(mainImage) mainImage.style.display = 'block';
+            if (mainImage) {
+                mainImage.style.display = 'block';
+                if (!mainImage.getAttribute('src') || mainImage.getAttribute('src') === '') {
+                    mainImage.src = 'triplex.jpg';
+                }
+            }
         }
 
         let htmlString = '';
@@ -1482,9 +1497,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     await updateHeroBackground();
                     
+                    let loadedTriplex = false;
                     if (siteMedia.triplex && siteMedia.triplex.startsWith('db:')) {
-                        const data = await MediaDB.load('triplex');
-                        if (data && triplexImage) triplexImage.src = data;
+                        try {
+                            const data = await MediaDB.load('triplex');
+                            if (data && triplexImage) {
+                                triplexImage.src = data;
+                                loadedTriplex = true;
+                            }
+                        } catch(e) {}
+                    } else if (siteMedia.triplex && triplexImage) {
+                        triplexImage.src = siteMedia.triplex;
+                        loadedTriplex = true;
+                    }
+                    if (!loadedTriplex && triplexImage) {
+                        triplexImage.src = 'triplex.jpg';
                     }
 
                     if (siteMedia.agent && siteMedia.agent.startsWith('db:')) {
