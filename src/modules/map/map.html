@@ -1,0 +1,38 @@
+<!-- Modul: Mapa & Katastr ČÚZK (Nezávislý geodatový modul) -->
+<section id="location" class="module-card-section map-module-container" style="position: relative; min-height: 560px; background: #e5e3df; overflow: hidden;">
+    
+    <!-- Plovoucí ovládací panel mapy -->
+    <div id="map-floating-bar" class="map-toolbar">
+        <div class="map-search-box">
+            <input type="text" id="map-search-input" placeholder="Hledat adresu, obec nebo parcelu v ČR..." aria-label="Hledat v mapě">
+            <button id="map-search-btn" class="map-tool-btn" title="Vyhledat v ČR">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+        </div>
+
+        <div class="map-layer-toggles">
+            <button class="layer-pill active" data-layer="base" id="layer-btn-base">🗺️ Základní</button>
+            <button class="layer-pill" data-layer="ortho" id="layer-btn-ortho">🛰️ Ortofoto</button>
+            <button class="layer-pill active" data-layer="cuzk" id="layer-btn-cuzk">📑 Katastr ČÚZK</button>
+        </div>
+
+        <div class="map-action-buttons">
+            <a id="btn-open-cuzk-kn" class="map-action-pill" target="_blank" rel="noopener" title="Otevřít Nahlížení do KN na ČÚZK pro aktuální souřadnice">
+                🏛️ Nahlížení do KN
+            </a>
+            <button id="btn-save-project-gps" class="map-action-pill highlight" title="Uložit aktuální střed mapy jako novou GPS pozici projektu">
+                📌 Uložit GPS projektu
+            </button>
+        </div>
+    </div>
+
+    <!-- Mapa samotná -->
+    <div id="map" style="width: 100%; height: 560px; min-height: 560px; display: block; z-index: 1;"></div>
+
+    <!-- Plovoucí stavový řádek v rohu mapy -->
+    <div id="map-info-badge" class="map-coords-badge">
+        <span id="map-coords-display">GPS: 50.0755° N, 14.4378° E</span>
+        <span class="map-badge-sep">|</span>
+        <span id="map-zoom-display">Zoom: 16</span>
+    </div>
+</section>

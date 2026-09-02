@@ -1,0 +1,56 @@
+<!-- Modul: Retence & Akumulace dešťových vod -->
+<div class="engineering-card-module" id="retention-module">
+    <div class="module-card-header">
+        <div class="module-title-box">
+            <span class="module-icon">🌧️</span>
+            <div>
+                <h3>Návrh akumulační a retenční nádrže dešťových vod</h3>
+                <p>Výpočet objemu nádrže dle ČSN 75 9010 a dotačního programu Dešťovka</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card-body grid-2col">
+        <div class="calc-panel">
+            <div class="input-row">
+                <label>Půdorysná plocha střechy (m²):</label>
+                <input type="number" id="ret-roof-area" class="form-input" value="160" min="10">
+            </div>
+            <div class="input-row">
+                <label>Typ střešního pláště (odtokový součinitel Ψ):</label>
+                <select id="ret-roof-type" class="form-select">
+                    <option value="0.9" selected>Šikmá střecha / tašky (Ψ = 0.90)</option>
+                    <option value="0.8">Plochá střecha se štěrkem (Ψ = 0.80)</option>
+                    <option value="0.5">Vegetační zelená střecha (Ψ = 0.50)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <label>Plocha zahrady k zalévání (m²):</label>
+                <input type="number" id="ret-garden-area" class="form-input" value="300" min="0">
+            </div>
+            <div class="input-row">
+                <label>Počet osob využívajících dešťovku (WC + praní):</label>
+                <input type="number" id="ret-people" class="form-input" value="4" min="0">
+            </div>
+            <button id="ret-calc-btn" class="btn" style="width: 100%; margin-top: 10px;">Navrhnout objem nádrže</button>
+        </div>
+
+        <div class="result-panel" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem;">
+            <h4 style="margin-bottom: 1rem; color: #2d3748;">💧 Doporučená velikost podzemní nádrže:</h4>
+            
+            <div class="stat-box" style="margin-bottom: 0.8rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Optimální užitný objem:</span>
+                <div id="ret-res-volume" style="font-size: 1.8rem; font-weight: 700; color: #0d9488;">6.0 m³ (6 000 l)</div>
+            </div>
+
+            <div class="stat-box" style="margin-bottom: 1rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Roční zisk dešťové vody:</span>
+                <div id="ret-res-annual" style="font-size: 1.4rem; font-weight: 700; color: #0f766e;">93.6 m³/rok</div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: #475569; line-height: 1.6;" id="ret-res-detail">
+                Při ročním úhrnu srážek 650 mm zachytí střecha 93.6 m³ vody. 21denní akumulační zásoba pokrývá zálivku i spotřebu domácnosti.
+            </div>
+        </div>
+    </div>
+</div>

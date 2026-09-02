@@ -1,0 +1,65 @@
+<!-- Modul: THU 2026 (Cenové ukazatele RTS / JKSO) -->
+<div class="engineering-card-module" id="thu-module">
+    <div class="module-card-header">
+        <div class="module-title-box">
+            <span class="module-icon">💰</span>
+            <div>
+                <h3>Cenové ukazatele THU 2026 (RTS / JKSO)</h3>
+                <p>Orientační propočet investičních a stavebních nákladů rodinného nebo bytového domu</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card-body grid-2col">
+        <div class="calc-panel">
+            <div class="input-row">
+                <label>Typ objektu (JKSO 801):</label>
+                <select id="thu-type" class="form-select">
+                    <option value="6800">Rodinný dům – standard (6 800 Kč/m³ OP)</option>
+                    <option value="8200" selected>Rodinný dům – nadstandard (8 200 Kč/m³ OP)</option>
+                    <option value="9800">Nízkoenergetický / Pasivní RD (9 800 Kč/m³ OP)</option>
+                    <option value="7500">Bytový dům – zděný (7 500 Kč/m³ OP)</option>
+                    <option value="8900">Bytový dům – železobeton (8 900 Kč/m³ OP)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <label>Obestavěný prostor OP (m³):</label>
+                <input type="number" id="thu-volume" class="form-input" value="620" min="10">
+            </div>
+            <div class="input-row">
+                <label>Lokalizační koeficient staveniště:</label>
+                <select id="thu-loc-koef" class="form-select">
+                    <option value="1.00">Standardní region (1.00)</option>
+                    <option value="1.08" selected>Jihočeský / Středočeský kraj (1.08)</option>
+                    <option value="1.18">Praha a okolí (1.18)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <label>Sazba DPH:</label>
+                <select id="thu-dph" class="form-select">
+                    <option value="0.12" selected>12 % (sociální bydlení do 350 m²)</option>
+                    <option value="0.21">21 % (základní sazba)</option>
+                </select>
+            </div>
+            <button id="thu-calc-btn" class="btn" style="width: 100%; margin-top: 10px;">Přepočítat THU 2026</button>
+        </div>
+
+        <div class="result-panel" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem;">
+            <h4 style="margin-bottom: 1rem; color: #2d3748;">📋 Odhadované stavební náklady:</h4>
+            
+            <div class="stat-box" style="margin-bottom: 0.8rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Cena bez DPH:</span>
+                <div id="thu-res-bez-dph" style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">5 491 000 Kč</div>
+            </div>
+
+            <div class="stat-box" style="margin-bottom: 1rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Cena včetně DPH:</span>
+                <div id="thu-res-s-dph" style="font-size: 1.8rem; font-weight: 700; color: #2563eb;">6 150 000 Kč</div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: #475569; line-height: 1.6;" id="thu-res-breakdown">
+                620 m³ × 8 200 Kč/m³ × koef. 1.08 + 12 % DPH
+            </div>
+        </div>
+    </div>
+</div>

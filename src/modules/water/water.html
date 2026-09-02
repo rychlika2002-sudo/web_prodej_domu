@@ -1,0 +1,61 @@
+<!-- Modul: Vnitřní vodovod -->
+<div class="engineering-card-module" id="water-module">
+    <div class="module-card-header">
+        <div class="module-title-box">
+            <span class="module-icon">💧</span>
+            <div>
+                <h3>Vnitřní vodovod – Výpočet a dimenzování potrubí</h3>
+                <p>Dimenzování přípojky a vnitřních rozvodů vody dle ČSN 75 5455</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card-body grid-2col">
+        <div class="calc-panel">
+            <h4 style="margin-bottom: 0.8rem; font-size: 0.95rem;">Počet zařizovacích předmětů:</h4>
+            <div class="input-row">
+                <label>Umyvadla / dřezy (q = 0.2 l/s):</label>
+                <input type="number" id="water-umyvadla" class="form-input" value="4" min="0">
+            </div>
+            <div class="input-row">
+                <label>Sprchy / vany (q = 0.3 l/s):</label>
+                <input type="number" id="water-vany" class="form-input" value="2" min="0">
+            </div>
+            <div class="input-row">
+                <label>WC nádržkové (q = 0.1 l/s):</label>
+                <input type="number" id="water-wc" class="form-input" value="2" min="0">
+            </div>
+            <div class="input-row">
+                <label>Pračka / myčka (q = 0.2 l/s):</label>
+                <input type="number" id="water-spotrebice" class="form-input" value="2" min="0">
+            </div>
+            <div class="input-row">
+                <label>Doporučená rychlost proudění v potrubí (m/s):</label>
+                <select id="water-speed" class="form-select">
+                    <option value="1.5" selected>1.5 m/s (standardní stoupací a ležaté)</option>
+                    <option value="2.0">2.0 m/s (přípojka)</option>
+                    <option value="1.0">1.0 m/s (tichý provoz)</option>
+                </select>
+            </div>
+            <button id="water-calc-btn" class="btn" style="width: 100%; margin-top: 10px;">Spočítat dimenze vodovodu</button>
+        </div>
+
+        <div class="result-panel" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem;">
+            <h4 style="margin-bottom: 1rem; color: #2d3748;">🚰 Výsledky hydraulického výpočtu:</h4>
+            
+            <div class="stat-box" style="margin-bottom: 0.8rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Výpočtový průtok Qd:</span>
+                <div id="water-res-qd" style="font-size: 1.5rem; font-weight: 700; color: #0284c7;">0.49 l/s (1.76 m³/h)</div>
+            </div>
+
+            <div class="stat-box" style="margin-bottom: 1rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Doporučená světlost přípojky:</span>
+                <div id="water-res-dn" style="font-size: 1.8rem; font-weight: 700; color: #0369a1;">DN 25 (PE 32×3.0)</div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: #475569; line-height: 1.6;" id="water-res-detail">
+                Vnitřní světlost d = 20.4 mm při rychlosti v = 1.50 m/s.
+            </div>
+        </div>
+    </div>
+</div>

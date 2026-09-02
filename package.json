@@ -1,0 +1,13 @@
+{
+  "name": "ard-modular-app",
+  "version": "1.0.0",
+  "description": "ARD Modularizovaná aplikace a web prodej domu s izolovanými kartami",
+  "main": "src/build.js",
+  "scripts": {
+    "build": "node src/build.js",
+    "dev": "node src/build.js --watch"
+  },
+  "keywords": ["ard", "modular", "real-estate", "cards"],
+  "author": "ARD",
+  "license": "ISC"
+}

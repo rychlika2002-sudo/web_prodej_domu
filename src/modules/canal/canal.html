@@ -1,0 +1,61 @@
+<!-- Modul: Vnitřní kanalizace -->
+<div class="engineering-card-module" id="canal-module">
+    <div class="module-card-header">
+        <div class="module-title-box">
+            <span class="module-icon">🚽</span>
+            <div>
+                <h3>Vnitřní kanalizace – Výpočet průtoku splaškových vod</h3>
+                <p>Výpočet průtoku Qww dle ČSN EN 12056-2 a stanovení dimenze svodu DN</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card-body grid-2col">
+        <div class="calc-panel">
+            <h4 style="margin-bottom: 0.8rem; font-size: 0.95rem;">Zařizovací předměty (DU - Design Units):</h4>
+            <div class="input-row">
+                <label>Umyvadlo / bidet (DU = 0.5 l/s):</label>
+                <input type="number" id="canal-umyvadla" class="form-input" value="4" min="0">
+            </div>
+            <div class="input-row">
+                <label>Sprcha / vana (DU = 0.8 l/s):</label>
+                <input type="number" id="canal-vany" class="form-input" value="2" min="0">
+            </div>
+            <div class="input-row">
+                <label>Dřez / myčka (DU = 0.8 l/s):</label>
+                <input type="number" id="canal-drezy" class="form-input" value="2" min="0">
+            </div>
+            <div class="input-row">
+                <label>WC s nádržkou (DU = 2.0 l/s):</label>
+                <input type="number" id="canal-wc" class="form-input" value="2" min="0">
+            </div>
+            <div class="input-row">
+                <label>Součinitel odtoku K:</label>
+                <select id="canal-k" class="form-select">
+                    <option value="0.5" selected>K = 0.5 (obytné budovy, RD, byty)</option>
+                    <option value="0.7">K = 0.7 (hotely, administrativní budovy)</option>
+                    <option value="1.0">K = 1.0 (veřejné toalety, školy)</option>
+                </select>
+            </div>
+            <button id="canal-calc-btn" class="btn" style="width: 100%; margin-top: 10px;">Spočítat průtok kanalizace</button>
+        </div>
+
+        <div class="result-panel" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem;">
+            <h4 style="margin-bottom: 1rem; color: #2d3748;">📏 Dimenze svodného potrubí:</h4>
+            
+            <div class="stat-box" style="margin-bottom: 0.8rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Průtok odpadních vod Qww:</span>
+                <div id="canal-res-qww" style="font-size: 1.5rem; font-weight: 700; color: #7c3aed;">1.52 l/s</div>
+            </div>
+
+            <div class="stat-box" style="margin-bottom: 1rem;">
+                <span style="font-size: 0.85rem; color: #64748b;">Doporučená dimenze ležatého svodu:</span>
+                <div id="canal-res-dn" style="font-size: 1.8rem; font-weight: 700; color: #6d28d9;">DN 110 (min. spád 2 %)</div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: #475569; line-height: 1.6;" id="canal-res-detail">
+                Celková suma DU = 9.20 l/s. Svod DN 110 má při spádu 2 % kapacitu Qmax = 4.20 l/s.
+            </div>
+        </div>
+    </div>
+</div>
