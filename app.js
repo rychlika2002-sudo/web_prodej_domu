@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let unitsConfig = {
         mode: 'slices',
         count: 3,
-        separateImages: false,
         hoverColorHex: '#c5a059',
         pinColorHex: '#c5a059',
         hoverOpacity: 40,
@@ -469,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pinColorInput = document.getElementById('pin-color-input');
     const unitsOpacityInput = document.getElementById('units-opacity-input');
     const unitsOpacityNumber = document.getElementById('units-opacity-number');
-    const unitsSeparateImagesInput = document.getElementById('units-separate-images-input');
 
     const widthSliders = {};
     const widthNumbers = {};
@@ -521,20 +519,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(unitsOpacityNumber) unitsOpacityNumber.value = unitsConfig.hoverOpacity;
         if(unitsColorInput) unitsColorInput.value = unitsConfig.hoverColorHex;
         if(pinColorInput) pinColorInput.value = unitsConfig.pinColorHex || '#c5a059';
-        
-        if(unitsSeparateImagesInput) unitsSeparateImagesInput.checked = unitsConfig.separateImages;
-
-        // Toggle separate image upload fields in admin
-        const separateInputs = document.querySelectorAll('.separate-image-upload');
-        separateInputs.forEach(el => {
-            el.style.display = unitsConfig.separateImages ? 'block' : 'none';
-        });
-        
-        // Hide the main single building image uploader dynamically
-        const triplexUploadGroup = document.getElementById('triplex-img-upload')?.closest('.control-group');
-        if(triplexUploadGroup) {
-            triplexUploadGroup.style.display = unitsConfig.separateImages ? 'none' : 'block';
-        }
     };
 
     if (unitsCountInput) {
@@ -579,13 +563,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderUnitZones();
             });
         }
-    }
-    if (unitsSeparateImagesInput) {
-        unitsSeparateImagesInput.addEventListener('change', (e) => {
-            unitsConfig.separateImages = e.target.checked;
-            updateAdminUnitsVisibility();
-            renderUnitZones();
-        });
     }
     if (unitsColorInput) {
         unitsColorInput.addEventListener('input', (e) => {
@@ -1108,26 +1085,10 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--pin-color', pinColor);
         root.style.setProperty('--pin-color-rgba', hexToRgba(pinColor, 70));
 
-        let hasSeparateImg = false;
-        if (unitsConfig.separateImages) {
-            for (let i = 1; i <= unitsConfig.count; i++) {
-                if (siteMedia[`unit${i}`]) {
-                    hasSeparateImg = true;
-                    break;
-                }
-            }
-        }
-
-        if (unitsConfig.separateImages && hasSeparateImg) {
-            overlay.classList.add('separate-mode');
-            if (mainImage) mainImage.style.display = 'none';
-        } else {
-            overlay.classList.remove('separate-mode');
-            if (mainImage) {
-                mainImage.style.display = 'block';
-                if (!mainImage.getAttribute('src') || mainImage.getAttribute('src') === '') {
-                    mainImage.src = 'triplex.jpg';
-                }
+        if (mainImage) {
+            mainImage.style.display = 'block';
+            if (!mainImage.getAttribute('src') || mainImage.getAttribute('src') === '') {
+                mainImage.src = 'triplex.jpg';
             }
         }
 
@@ -1139,8 +1100,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(!data) continue;
 
             const flexValue = unitsConfig.widths[i] || (100 / unitsConfig.count);
-
-            let bgHtml = '';
             let extraClass = '';
             let styleAttr = '';
 
@@ -1152,27 +1111,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 styleAttr = `style="left: ${px}%; top: ${py}%; --pin-scale: ${ps};"`;
             } else {
                 styleAttr = `style="flex: ${flexValue}"`;
-                if(unitsConfig.separateImages) {
-                    extraClass = 'bg-zone';
-                    let bgSource = siteMedia[`unit${i}`] || '';
-                    
-                    if (bgSource.startsWith('db:')) {
-                        try {
-                            const data = await MediaDB.load(`unit${i}`);
-                            if (data) bgSource = data;
-                            else bgSource = '';
-                        } catch(e) { bgSource = ''; }
-                    }
-
-                    if(bgSource) {
-                        bgHtml = `<div style="position: absolute; top:0; left:0; width:100%; height:100%; background-image: url('${bgSource}'); background-size: cover; background-position: center; z-index: -1;"></div>`;
-                    }
-                }
             }
 
             htmlString += `
                 <div class="unit-zone ${extraClass}" onclick="openUnit(${i})" ${styleAttr}>
-                    ${bgHtml}
                     ${isPins ? `<div class="pin-marker"><span>${String.fromCharCode(64 + i)}</span></div>` : ''}
                     <div class="unit-footer-compact">
                         <span class="unit-status ${data.status}" id="status-${i}">${data.statusText}</span>

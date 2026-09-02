@@ -748,13 +748,6 @@ body.dark-mode .card:hover .card-icon {
     z-index: 5; /* Zajišťuje, že štítky (Prodáno, atd.) a klikací plochy jsou VŽDY NAD stínovou maskou */
 }
 
-.unit-overlay.separate-mode {
-    position: relative;
-    width: 100vw;
-    max-width: 100%;
-    height: 80vh;
-}
-
 .unit-zone {
     flex: 1;
     cursor: pointer;
