@@ -1298,26 +1298,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Units Logic
     Object.keys(unitInputs).forEach(id => {
         const inputs = unitInputs[id];
+        if (!inputs) return;
         
-        inputs.status.addEventListener('change', (e) => {
-            const badge = document.getElementById(`status-${id}`);
-            if (badge) {
-                badge.className = `unit-status ${e.target.value}`;
-                badge.textContent = e.target.options[e.target.selectedIndex].text;
-            }
-            unitsData[id].status = e.target.value;
-            unitsData[id].statusText = e.target.options[e.target.selectedIndex].text;
-        });
+        if (inputs.status) {
+            inputs.status.addEventListener('change', (e) => {
+                const badge = document.getElementById(`status-${id}`);
+                if (badge) {
+                    badge.className = `unit-status ${e.target.value}`;
+                    badge.textContent = e.target.options[e.target.selectedIndex].text;
+                }
+                unitsData[id].status = e.target.value;
+                unitsData[id].statusText = e.target.options[e.target.selectedIndex].text;
+                saveToStorage(true);
+            });
+        }
 
-        inputs.price.addEventListener('input', (e) => unitsData[id].price = e.target.value);
-        inputs.layout.addEventListener('input', (e) => unitsData[id].layout = e.target.value);
-        inputs.area.addEventListener('input', (e) => unitsData[id].area = e.target.value);
-        inputs.garden.addEventListener('input', (e) => unitsData[id].garden = e.target.value);
-        inputs.parking.addEventListener('input', (e) => unitsData[id].parking = e.target.value);
-        inputs.desc.addEventListener('input', (e) => unitsData[id].desc = e.target.value);
+        if (inputs.price) inputs.price.addEventListener('input', (e) => { unitsData[id].price = e.target.value; saveToStorage(true); });
+        if (inputs.layout) inputs.layout.addEventListener('input', (e) => { unitsData[id].layout = e.target.value; saveToStorage(true); });
+        if (inputs.area) inputs.area.addEventListener('input', (e) => { unitsData[id].area = e.target.value; saveToStorage(true); });
+        if (inputs.garden) inputs.garden.addEventListener('input', (e) => { unitsData[id].garden = e.target.value; saveToStorage(true); });
+        if (inputs.parking) inputs.parking.addEventListener('input', (e) => { unitsData[id].parking = e.target.value; saveToStorage(true); });
+        if (inputs.desc) inputs.desc.addEventListener('input', (e) => { unitsData[id].desc = e.target.value; saveToStorage(true); });
 
-        handleFileUpload(inputs.pdfKarta, (base64) => unitsData[id].pdfKarta = base64);
-        handleFileUpload(inputs.pdfStandardy, (base64) => unitsData[id].pdfStandardy = base64);
+        if (inputs.pdfKarta) handleFileUpload(inputs.pdfKarta, (base64) => { unitsData[id].pdfKarta = base64; saveToStorage(true); });
+        if (inputs.pdfStandardy) handleFileUpload(inputs.pdfStandardy, (base64) => { unitsData[id].pdfStandardy = base64; saveToStorage(true); });
     });
 
     // --- Modal Logic ---

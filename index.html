@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.0.0">
+    <link rel="stylesheet" href="styles.css?v=5.0.1">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -643,23 +643,14 @@
                     </div>
                 </div>
 
-                <div style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
+                <div id="admin-unit-1-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                     <h4>Etapa A</h4>
-                    <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
-                        <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
-                        <div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Zleva (X) %</span>
-                                <input type="range" id="pin-x-1-input" min="0" max="100" value="50">
-                            </div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Shora (Y) %</span>
-                                <input type="range" id="pin-y-1-input" min="0" max="100" value="50">
-                            </div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Velikost %</span>
-                                <input type="range" id="pin-s-1-input" min="20" max="200" value="100">
-                            </div>
+                    <div class="control-group pin-coord-group" style="display: none;">
+                        <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-1-input" min="0" max="100" value="50"></div>
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-1-input" min="0" max="100" value="50"></div>
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-1-input" min="20" max="200" value="100"></div>
                         </div>
                     </div>
                     <div class="control-group separate-image-upload" style="display: none; background: #fafafa; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-color);"><label>Obrázek (Nahradí výřez centrální fotky)</label><input type="file" id="unit-img-1-upload" accept="image/*"></div>
@@ -676,21 +667,12 @@
 
                 <div id="admin-unit-2-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                     <h4>Etapa B</h4>
-                    <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
-                        <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
-                        <div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Zleva (X) %</span>
-                                <input type="range" id="pin-x-2-input" min="0" max="100" value="50">
-                            </div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Shora (Y) %</span>
-                                <input type="range" id="pin-y-2-input" min="0" max="100" value="50">
-                            </div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Velikost %</span>
-                                <input type="range" id="pin-s-2-input" min="20" max="200" value="100">
-                            </div>
+                    <div class="control-group pin-coord-group" style="display: none;">
+                        <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-2-input" min="0" max="100" value="50"></div>
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-2-input" min="0" max="100" value="50"></div>
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-2-input" min="20" max="200" value="100"></div>
                         </div>
                     </div>
                     <div class="control-group separate-image-upload" style="display: none; background: #fafafa; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-color);"><label>Obrázek (Nahradí výřez centrální fotky)</label><input type="file" id="unit-img-2-upload" accept="image/*"></div>
@@ -707,21 +689,12 @@
 
                 <div id="admin-unit-3-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                     <h4>Etapa C</h4>
-                    <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
-                        <label style="color: #2980b9;">Pozice Bodu na obrázku (Osa X a Y)</label>
-                        <div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Zleva (X) %</span>
-                                <input type="range" id="pin-x-3-input" min="0" max="100" value="50">
-                            </div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Shora (Y) %</span>
-                                <input type="range" id="pin-y-3-input" min="0" max="100" value="50">
-                            </div>
-                            <div style="flex: 1;">
-                                <span style="font-size: 0.8rem;">Velikost %</span>
-                                <input type="range" id="pin-s-3-input" min="20" max="200" value="100">
-                            </div>
+                    <div class="control-group pin-coord-group" style="display: none;">
+                        <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-3-input" min="0" max="100" value="50"></div>
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-3-input" min="0" max="100" value="50"></div>
+                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-3-input" min="20" max="200" value="100"></div>
                         </div>
                     </div>
                     <div class="control-group separate-image-upload" style="display: none; background: #fafafa; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-color);"><label>Obrázek (Nahradí výřez centrální fotky)</label><input type="file" id="unit-img-3-upload" accept="image/*"></div>
@@ -737,12 +710,12 @@
                 </div>
 
                 <div id="admin-unit-container-4-9">
-                    <!-- Unit 4-9 Loop -->
+                    <!-- Unit 4 -->
                     <div id="admin-unit-4-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 4</h4>
-                        <div class="control-group pin-coord-group" style="display: none; background: #e8f4f8; padding: 10px; border-radius: 4px; border-left: 3px solid #3498db; margin-bottom: 10px;">
-                            <label style="color: #2980b9;">Pozice Bodu (X a Y)</label>
-                            <div>
+                        <div class="control-group pin-coord-group" style="display: none;">
+                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                            <div style="display: flex; gap: 10px;">
                                 <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-4-input" min="0" max="100" value="50"></div>
                                 <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-4-input" min="0" max="100" value="50"></div>
                                 <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-4-input" min="20" max="200" value="100"></div>
@@ -756,67 +729,123 @@
                         <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-4-input"></div>
                         <div class="control-group"><label>Parkování</label><input type="text" id="parking-4-input"></div>
                         <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-4-input"></textarea></div>
-                        <div class="control-group"><label>Karta (PDF)</label><input type="file" id="pdf-karta-4-upload" accept="application/pdf"></div>
-                        <div class="control-group"><label>Standardy (PDF)</label><input type="file" id="pdf-standardy-4-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-4-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-4-upload" accept="application/pdf"></div>
                     </div>
-                    <!-- Repeat for 5-9 with simplified template -->
+
+                    <!-- Unit 5 -->
                     <div id="admin-unit-5-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 5</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-5-input" min="0" max="100" value="50"><input type="range" id="pin-y-5-input" min="0" max="100" value="50"><input type="range" id="pin-s-5-input" min="20" max="200" value="100"></div></div>
-                        <div class="control-group separate-image-upload" style="display: none;"><input type="file" id="unit-img-5-upload" accept="image/*"></div>
+                        <div class="control-group pin-coord-group" style="display: none;">
+                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-5-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-5-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-5-input" min="20" max="200" value="100"></div>
+                            </div>
+                        </div>
+                        <div class="control-group separate-image-upload" style="display: none;"><label>Obrázek</label><input type="file" id="unit-img-5-upload" accept="image/*"></div>
                         <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-5-input"></div>
                         <div class="control-group"><label>Dispozice</label><input type="text" id="layout-5-input"></div>
-                        <div class="control-group"><label>Plocha</label><input type="text" id="area-5-input"></div>
-                        <div class="control-group"><label>Zahrada</label><input type="text" id="garden-5-input"></div>
+                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-5-input"></div>
+                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-5-input"></div>
                         <div class="control-group"><label>Parkování</label><input type="text" id="parking-5-input"></div>
                         <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-5-input"></textarea></div>
-                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-5-upload" accept="application/pdf"></div>
-                        <div class="control-group"><label>Standardy</label><input type="file" id="pdf-standardy-5-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-5-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-5-upload" accept="application/pdf"></div>
                     </div>
-                    <!-- 6 -->
+
+                    <!-- Unit 6 -->
                     <div id="admin-unit-6-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 6</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-6-input" min="0" max="100" value="50"><input type="range" id="pin-y-6-input" min="0" max="100" value="50"><input type="range" id="pin-s-6-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;">
+                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-6-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-6-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-6-input" min="20" max="200" value="100"></div>
+                            </div>
+                        </div>
+                        <div class="control-group separate-image-upload" style="display: none;"><label>Obrázek</label><input type="file" id="unit-img-6-upload" accept="image/*"></div>
                         <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-6-input"></div>
-                        <div class="control-group"><label>Plocha</label><input type="text" id="area-6-input"></div>
+                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-6-input"></div>
+                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-6-input"></div>
+                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-6-input"></div>
+                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-6-input"></div>
                         <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-6-input"></textarea></div>
-                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-6-upload" accept="application/pdf"></div>
-                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-6-upload" accept="image/*"><input type="text" id="layout-6-input"><input type="text" id="garden-6-input"><input type="text" id="parking-6-input"><input type="file" id="pdf-standardy-6-upload"></div>
+                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-6-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-6-upload" accept="application/pdf"></div>
                     </div>
-                    <!-- 7 -->
+
+                    <!-- Unit 7 -->
                     <div id="admin-unit-7-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 7</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-7-input" min="0" max="100" value="50"><input type="range" id="pin-y-7-input" min="0" max="100" value="50"><input type="range" id="pin-s-7-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;">
+                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-7-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-7-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-7-input" min="20" max="200" value="100"></div>
+                            </div>
+                        </div>
+                        <div class="control-group separate-image-upload" style="display: none;"><label>Obrázek</label><input type="file" id="unit-img-7-upload" accept="image/*"></div>
                         <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-7-input"></div>
-                        <div class="control-group"><label>Plocha</label><input type="text" id="area-7-input"></div>
+                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-7-input"></div>
+                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-7-input"></div>
+                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-7-input"></div>
+                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-7-input"></div>
                         <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-7-input"></textarea></div>
-                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-7-upload" accept="application/pdf"></div>
-                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-7-upload" accept="image/*"><input type="text" id="layout-7-input"><input type="text" id="garden-7-input"><input type="text" id="parking-7-input"><input type="file" id="pdf-standardy-7-upload"></div>
+                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-7-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-7-upload" accept="application/pdf"></div>
                     </div>
-                    <!-- 8 -->
+
+                    <!-- Unit 8 -->
                     <div id="admin-unit-8-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 8</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-8-input" min="0" max="100" value="50"><input type="range" id="pin-y-8-input" min="0" max="100" value="50"><input type="range" id="pin-s-8-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;">
+                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-8-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-8-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-8-input" min="20" max="200" value="100"></div>
+                            </div>
+                        </div>
+                        <div class="control-group separate-image-upload" style="display: none;"><label>Obrázek</label><input type="file" id="unit-img-8-upload" accept="image/*"></div>
                         <div class="control-group"><label>Stav</label><select id="status-8-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-8-input"></div>
-                        <div class="control-group"><label>Plocha</label><input type="text" id="area-8-input"></div>
+                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-8-input"></div>
+                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-8-input"></div>
+                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-8-input"></div>
+                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-8-input"></div>
                         <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-8-input"></textarea></div>
-                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-8-upload" accept="application/pdf"></div>
-                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-8-upload" accept="image/*"><input type="text" id="layout-8-input"><input type="text" id="garden-8-input"><input type="text" id="parking-8-input"><input type="file" id="pdf-standardy-8-upload"></div>
+                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-8-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-8-upload" accept="application/pdf"></div>
                     </div>
-                    <!-- 9 -->
+
+                    <!-- Unit 9 -->
                     <div id="admin-unit-9-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 9</h4>
-                        <div class="control-group pin-coord-group" style="display: none;"><div><input type="range" id="pin-x-9-input" min="0" max="100" value="50"><input type="range" id="pin-y-9-input" min="0" max="100" value="50"><input type="range" id="pin-s-9-input" min="20" max="200" value="100"></div></div>
+                        <div class="control-group pin-coord-group" style="display: none;">
+                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-9-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-9-input" min="0" max="100" value="50"></div>
+                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-9-input" min="20" max="200" value="100"></div>
+                            </div>
+                        </div>
+                        <div class="control-group separate-image-upload" style="display: none;"><label>Obrázek</label><input type="file" id="unit-img-9-upload" accept="image/*"></div>
                         <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-9-input"></div>
-                        <div class="control-group"><label>Plocha</label><input type="text" id="area-9-input"></div>
+                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-9-input"></div>
+                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-9-input"></div>
+                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-9-input"></div>
+                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-9-input"></div>
                         <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-9-input"></textarea></div>
-                        <div class="control-group"><label>Karta</label><input type="file" id="pdf-karta-9-upload" accept="application/pdf"></div>
-                        <div class="control-group" style="display:none;"><input type="file" id="unit-img-9-upload" accept="image/*"><input type="text" id="layout-9-input"><input type="text" id="garden-9-input"><input type="text" id="parking-9-input"><input type="file" id="pdf-standardy-9-upload"></div>
+                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-9-upload" accept="application/pdf"></div>
+                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-9-upload" accept="application/pdf"></div>
                     </div>
                 </div>
             </div>
@@ -870,6 +899,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.0.0"></script>
+    <script src="app.js?v=5.0.1"></script>
 </body>
 </html>
