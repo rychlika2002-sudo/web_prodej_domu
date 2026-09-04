@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const escapeHtml = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     // --- Data Model for Units ---
     let unitsData = {
         1: { name: 'Jednotka 1', desc: 'Luxusní bytová jednotka s vlastní zahradou a dvěma parkovacími místy.', layout: '5+kk', area: '145', garden: '210', parking: '2 místa', price: '8 490 000 Kč', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
@@ -407,6 +408,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const fbLinkInput = document.getElementById('fb-link-input');
     const igLinkInput = document.getElementById('ig-link-input');
     const agentNameInput = document.getElementById('agent-name-input');
+    const agentAddressInput = document.getElementById('agent-address-input');
+    const agentIcoInput = document.getElementById('agent-ico-input');
+    const agentHoursInput = document.getElementById('agent-hours-input');
 
     // Unit Admin Inputs Mapping
     const unitInputs = {};
@@ -1417,6 +1421,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const agentPhotoDisplay = document.getElementById('agent-photo-display');
     const agentPhotoPlaceholder = document.getElementById('agent-photo-placeholder');
 
+    
+    // Broker info listeners
+    if (agentAddressInput) {
+        agentAddressInput.addEventListener('input', (e) => {
+            const el = document.getElementById('editable-agent-address');
+            const row = document.getElementById('editable-agent-address-row');
+            if (el) el.textContent = e.target.value;
+            if (row) row.style.display = e.target.value ? 'flex' : 'none';
+        });
+    }
+    if (agentIcoInput) {
+        agentIcoInput.addEventListener('input', (e) => {
+            const el = document.getElementById('editable-agent-ico');
+            const row = document.getElementById('editable-agent-ico-row');
+            if (el) el.textContent = e.target.value;
+            if (row) row.style.display = e.target.value ? 'flex' : 'none';
+        });
+    }
+    if (agentHoursInput) {
+        agentHoursInput.addEventListener('input', (e) => {
+            const el = document.getElementById('editable-agent-hours');
+            const row = document.getElementById('editable-agent-hours-row');
+            if (el) el.textContent = e.target.value;
+            if (row) row.style.display = e.target.value ? 'flex' : 'none';
+        });
+    }
     // Agent name live-update
     if (agentNameInput) {
         agentNameInput.addEventListener('input', (e) => {
@@ -1917,29 +1947,230 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inputs.pdfStandardy) handleFileUpload(inputs.pdfStandardy, (base64) => { unitsData[id].pdfStandardy = base64; saveToStorage(true); });
     });
 
+    
+    // --- Helper for Unit Dynamic Fields ---
+    const ensureUnitDynamicFields = (u) => {
+        if (!u) return;
+        if (!u.customSpecs || !Array.isArray(u.customSpecs)) {
+            u.customSpecs = [];
+            if (u.layout) u.customSpecs.push({ label: 'Dispozice', value: u.layout });
+            if (u.area) u.customSpecs.push({ label: 'Užitná plocha', value: u.area.includes('m²') ? u.area : `${u.area} m²` });
+            if (u.garden) u.customSpecs.push({ label: 'Zahrada', value: u.garden.includes('m²') ? u.garden : `${u.garden} m²` });
+            if (u.parking) u.customSpecs.push({ label: 'Parkování', value: u.parking });
+            if (u.price) u.customSpecs.push({ label: 'Cena', value: u.price });
+            if (u.customSpecs.length === 0) {
+                u.customSpecs = [
+                    { label: 'Dispozice', value: '' },
+                    { label: 'Užitná plocha', value: '' },
+                    { label: 'Zahrada', value: '' },
+                    { label: 'Parkování', value: '' },
+                    { label: 'Cena', value: '' }
+                ];
+            }
+        }
+        if (!u.customFiles || !Array.isArray(u.customFiles)) {
+            u.customFiles = [];
+            if (u.pdfKarta) u.customFiles.push({ name: 'Karta bytu (PDF)', url: u.pdfKarta, fileName: 'karta_bytu.pdf' });
+            if (u.pdfStandardy) u.customFiles.push({ name: 'Standardy bytu (PDF)', url: u.pdfStandardy, fileName: 'standardy.pdf' });
+            if (u.customFiles.length === 0) {
+                u.customFiles = [
+                    { name: 'Karta bytu (PDF)', url: '', fileName: '' },
+                    { name: 'Standardy bytu (PDF)', url: '', fileName: '' }
+                ];
+            }
+        }
+    };
+
+    window.renderUnitAdminDynamic = (unitId) => {
+        const data = unitsData[unitId];
+        if (!data) return;
+        ensureUnitDynamicFields(data);
+
+        const specsContainer = document.getElementById(`unit-${unitId}-specs-list`);
+        if (specsContainer) {
+            specsContainer.innerHTML = '';
+            data.customSpecs.forEach((spec, idx) => {
+                const row = document.createElement('div');
+                row.className = 'unit-spec-row';
+                row.innerHTML = `
+                    <input type="text" class="unit-spec-key-input admin-input" value="${escapeHtml(spec.label || '')}" placeholder="Název (např. Zahrada)" onchange="window.updateUnitSpec(${unitId}, ${idx}, 'label', this.value)">
+                    <input type="text" class="unit-spec-val-input admin-input" value="${escapeHtml(spec.value || '')}" placeholder="Hodnota (např. 210 m²)" onchange="window.updateUnitSpec(${unitId}, ${idx}, 'value', this.value)">
+                    <button type="button" class="btn-remove-row" title="Smazat parametr" onclick="window.removeUnitSpec(${unitId}, ${idx})">✕</button>
+                `;
+                specsContainer.appendChild(row);
+            });
+        }
+
+        const filesContainer = document.getElementById(`unit-${unitId}-files-list`);
+        if (filesContainer) {
+            filesContainer.innerHTML = '';
+            data.customFiles.forEach((file, idx) => {
+                const row = document.createElement('div');
+                row.className = 'unit-file-row';
+                const hasFile = !!file.url;
+                row.innerHTML = `
+                    <input type="text" class="unit-file-name-input admin-input" value="${escapeHtml(file.name || '')}" placeholder="Název souboru (např. Půdorys)" onchange="window.updateUnitFileName(${unitId}, ${idx}, this.value)">
+                    <label class="unit-file-upload-btn" title="${hasFile ? (file.fileName || 'Nahraný soubor') : 'Nahrát soubor'}">
+                        <span>${hasFile ? '✅ ' + (file.fileName || 'Nahráno') : '📎 Vybrat soubor'}</span>
+                        <input type="file" style="display:none;" onchange="window.uploadUnitFile(${unitId}, ${idx}, this)">
+                    </label>
+                    <button type="button" class="btn-remove-row" title="Smazat dokument" onclick="window.removeUnitFile(${unitId}, ${idx})">✕</button>
+                `;
+                filesContainer.appendChild(row);
+            });
+        }
+    };
+
+    window.renderAllUnitsAdminDynamic = () => {
+        for (let i = 1; i <= 9; i++) {
+            window.renderUnitAdminDynamic(i);
+        }
+    };
+
+    window.addUnitSpec = (unitId) => {
+        if (!unitsData[unitId]) return;
+        ensureUnitDynamicFields(unitsData[unitId]);
+        unitsData[unitId].customSpecs.push({ label: 'Nový parametr', value: '' });
+        window.renderUnitAdminDynamic(unitId);
+        saveToStorage(true);
+    };
+
+    window.updateUnitSpec = (unitId, idx, key, val) => {
+        if (!unitsData[unitId]) return;
+        ensureUnitDynamicFields(unitsData[unitId]);
+        if (unitsData[unitId].customSpecs[idx]) {
+            unitsData[unitId].customSpecs[idx][key] = val;
+            const lbl = (unitsData[unitId].customSpecs[idx].label || '').toLowerCase();
+            if (key === 'value') {
+                if (lbl.includes('cena')) unitsData[unitId].price = val;
+                if (lbl.includes('dispozice')) unitsData[unitId].layout = val;
+                if (lbl.includes('plocha')) unitsData[unitId].area = val.replace(/[^0-9]/g, '');
+                if (lbl.includes('zahrada')) unitsData[unitId].garden = val.replace(/[^0-9]/g, '');
+                if (lbl.includes('park')) unitsData[unitId].parking = val;
+            }
+        }
+        saveToStorage(true);
+        renderUnitZones();
+    };
+
+    window.removeUnitSpec = (unitId, idx) => {
+        if (!unitsData[unitId]) return;
+        ensureUnitDynamicFields(unitsData[unitId]);
+        unitsData[unitId].customSpecs.splice(idx, 1);
+        window.renderUnitAdminDynamic(unitId);
+        saveToStorage(true);
+        renderUnitZones();
+    };
+
+    window.addUnitFile = (unitId) => {
+        if (!unitsData[unitId]) return;
+        ensureUnitDynamicFields(unitsData[unitId]);
+        unitsData[unitId].customFiles.push({ name: 'Nový dokument (PDF)', url: '', fileName: '' });
+        window.renderUnitAdminDynamic(unitId);
+        saveToStorage(true);
+    };
+
+    window.updateUnitFileName = (unitId, idx, name) => {
+        if (!unitsData[unitId]) return;
+        ensureUnitDynamicFields(unitsData[unitId]);
+        if (unitsData[unitId].customFiles[idx]) {
+            unitsData[unitId].customFiles[idx].name = name;
+        }
+        saveToStorage(true);
+    };
+
+    window.uploadUnitFile = (unitId, idx, inputEl) => {
+        if (!inputEl || !inputEl.files || !inputEl.files[0]) return;
+        const file = inputEl.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (!unitsData[unitId]) return;
+            ensureUnitDynamicFields(unitsData[unitId]);
+            if (!unitsData[unitId].customFiles[idx]) {
+                unitsData[unitId].customFiles[idx] = { name: file.name.replace(/\.[^/.]+$/, ''), url: '', fileName: '' };
+            }
+            unitsData[unitId].customFiles[idx].url = e.target.result;
+            unitsData[unitId].customFiles[idx].fileName = file.name;
+            window.renderUnitAdminDynamic(unitId);
+            saveToStorage(true);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.removeUnitFile = (unitId, idx) => {
+        if (!unitsData[unitId]) return;
+        ensureUnitDynamicFields(unitsData[unitId]);
+        unitsData[unitId].customFiles.splice(idx, 1);
+        window.renderUnitAdminDynamic(unitId);
+        saveToStorage(true);
+    };
+
     // --- Modal Logic ---
-    window.openUnit = (id) => {
+        window.openUnit = (id) => {
         const data = unitsData[id];
-        document.getElementById('modal-unit-name').textContent = data.name;
-        document.getElementById('modal-unit-desc').textContent = data.desc;
-        document.getElementById('spec-layout').textContent = data.layout;
-        document.getElementById('spec-area').textContent = data.area;
-        document.getElementById('spec-garden').textContent = data.garden;
-        document.getElementById('spec-parking').textContent = data.parking;
-        document.getElementById('spec-price').textContent = data.price;
-        
-        const btnKarta = document.getElementById('btn-karta-bytu');
-        const btnStandardy = document.getElementById('btn-standardy');
+        if (!data) return;
+        ensureUnitDynamicFields(data);
 
-        btnKarta.href = data.pdfKarta || '#';
-        btnKarta.style.opacity = data.pdfKarta ? '1' : '0.5';
-        btnKarta.download = `karta_bytu_${data.name.replace(' ', '_')}.pdf`;
+        const modalUnitName = document.getElementById('modal-unit-name');
+        const modalUnitDesc = document.getElementById('modal-unit-desc');
+        if (modalUnitName) modalUnitName.textContent = data.name || `Jednotka ${id}`;
+        if (modalUnitDesc) modalUnitDesc.textContent = data.desc || '';
 
-        btnStandardy.href = data.pdfStandardy || '#';
-        btnStandardy.style.opacity = data.pdfStandardy ? '1' : '0.5';
-        btnStandardy.download = `standardy_${data.name.replace(' ', '_')}.pdf`;
+        // Dynamic specs in modal
+        const specTable = document.getElementById('modal-spec-table') || document.querySelector('#unit-modal .spec-table');
+        if (specTable) {
+            specTable.innerHTML = '';
+            if (data.customSpecs && data.customSpecs.length > 0) {
+                data.customSpecs.forEach(spec => {
+                    if (spec.label || spec.value) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${escapeHtml(spec.label || '')}</td><td><strong>${escapeHtml(spec.value || '')}</strong></td>`;
+                        specTable.appendChild(tr);
+                    }
+                });
+            } else {
+                if (data.layout) specTable.innerHTML += `<tr><td>Dispozice</td><td><strong>${escapeHtml(data.layout)}</strong></td></tr>`;
+                if (data.area) specTable.innerHTML += `<tr><td>Užitná plocha</td><td><strong>${escapeHtml(data.area)} m²</strong></td></tr>`;
+                if (data.garden) specTable.innerHTML += `<tr><td>Zahrada</td><td><strong>${escapeHtml(data.garden)} m²</strong></td></tr>`;
+                if (data.parking) specTable.innerHTML += `<tr><td>Parkování</td><td><strong>${escapeHtml(data.parking)}</strong></td></tr>`;
+                if (data.price) specTable.innerHTML += `<tr><td>Cena</td><td><strong>${escapeHtml(data.price)}</strong></td></tr>`;
+            }
+        }
+
+        // Dynamic files in modal
+        const docContainer = document.getElementById('modal-doc-buttons') || document.querySelector('#unit-modal .doc-buttons');
+        if (docContainer) {
+            docContainer.innerHTML = '';
+            if (data.customFiles && data.customFiles.length > 0) {
+                data.customFiles.forEach(f => {
+                    const btn = document.createElement('a');
+                    btn.className = 'btn-secondary';
+                    btn.style.display = 'inline-flex';
+                    btn.style.alignItems = 'center';
+                    btn.style.gap = '8px';
+                    btn.style.marginRight = '8px';
+                    btn.style.marginBottom = '8px';
+                    btn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <span>${escapeHtml(f.name || 'Dokument ke stažení')}</span>
+                    `;
+                    if (f.url) {
+                        btn.href = f.url;
+                        btn.download = f.fileName || `${(f.name || 'dokument').replace(/\s+/g, '_')}.pdf`;
+                        btn.target = '_blank';
+                    } else {
+                        btn.href = '#';
+                        btn.style.opacity = '0.45';
+                        btn.style.cursor = 'not-allowed';
+                        btn.title = 'Dokument zatím nebyl nahrán';
+                        btn.onclick = (e) => { e.preventDefault(); alert('Tento dokument zatím není nahraný v administraci.'); };
+                    }
+                    docContainer.appendChild(btn);
+                });
+            }
+        }
         
-        modal.classList.add('active');
+        if (modal) modal.classList.add('active');
     };
 
     window.closeModal = () => modal.classList.remove('active');
@@ -1994,6 +2225,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 fbLink: fbLinkInput.value,
                 igLink: igLinkInput.value,
                 agentName: agentNameInput.value,
+                agentAddress: agentAddressInput ? agentAddressInput.value : '',
+                agentIco: agentIcoInput ? agentIcoInput.value : '',
+                agentHours: agentHoursInput ? agentHoursInput.value : '',
                 projectCards: projectCards
             },
             media: siteMedia,
@@ -2179,6 +2413,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const agentNameDisplay = document.getElementById('editable-agent-name');
                 if (agentNameDisplay) agentNameDisplay.textContent = c.agentName || 'Jan Novák';
                 if (agentNameInput) agentNameInput.value = c.agentName || '';
+
+                if (c.agentAddress !== undefined) {
+                    if (agentAddressInput) agentAddressInput.value = c.agentAddress;
+                    const addrEl = document.getElementById('editable-agent-address');
+                    const addrRow = document.getElementById('editable-agent-address-row');
+                    if (addrEl) addrEl.textContent = c.agentAddress;
+                    if (addrRow) addrRow.style.display = c.agentAddress ? 'flex' : 'none';
+                }
+                if (c.agentIco !== undefined) {
+                    if (agentIcoInput) agentIcoInput.value = c.agentIco;
+                    const icoEl = document.getElementById('editable-agent-ico');
+                    const icoRow = document.getElementById('editable-agent-ico-row');
+                    if (icoEl) icoEl.textContent = c.agentIco;
+                    if (icoRow) icoRow.style.display = c.agentIco ? 'flex' : 'none';
+                }
+                if (c.agentHours !== undefined) {
+                    if (agentHoursInput) agentHoursInput.value = c.agentHours;
+                    const hoursEl = document.getElementById('editable-agent-hours');
+                    const hoursRow = document.getElementById('editable-agent-hours-row');
+                    if (hoursEl) hoursEl.textContent = c.agentHours;
+                    if (hoursRow) hoursRow.style.display = c.agentHours ? 'flex' : 'none';
+                }
+
                 if (contactTitleInput) contactTitleInput.value = c.contactTitle || '';
                 if (contactTextInput) contactTextInput.value = c.contactText || '';
                 if (contactPhoneInput) contactPhoneInput.value = c.contactPhone || '';
@@ -2282,12 +2539,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeEditingUnit) {
             const ptsEl = document.getElementById(`polygon-live-pts-${activeEditingUnit}`);
             if (ptsEl) ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
+            const nameEl = document.getElementById('polygon-editor-active-unit-name');
+            const countEl = document.getElementById('polygon-editor-live-count');
+            if (nameEl) nameEl.textContent = `Jednotka ${activeEditingUnit}`;
+            if (countEl) countEl.textContent = `${currentPolygonPoints.length} bodů`;
         }
 
         const pointsString = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
 
         if (currentPolygonPoints.length > 0) {
-            // Preview polygon
             const previewPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             previewPoly.setAttribute('class', 'editor-polygon-preview');
             previewPoly.setAttribute('points', pointsString);
@@ -2373,6 +2633,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.startPolygonEditor = (unitIndex) => {
+        if (editorToolbar) {
+            editorToolbar.style.display = 'flex';
+            if (editorActiveUnitText) editorActiveUnitText.textContent = `Jednotka ${unitIndex}`;
+        }
         activeEditingUnit = unitIndex;
         window.isPolygonEditingActive = true;
         
@@ -2401,6 +2665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const closePolygonEditor = () => {
+        if (editorToolbar) editorToolbar.style.display = 'none';
         window.isPolygonEditingActive = false;
         activeEditingUnit = null;
         currentPolygonPoints = [];
@@ -2412,6 +2677,27 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAdminUnitsVisibility();
         renderUnitZones();
     };
+
+    
+    // Keyboard shortcuts for polygon editor
+    window.addEventListener('keydown', (e) => {
+        if (!window.isPolygonEditingActive) return;
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            window.saveCurrentPolygon();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            window.closePolygonEditor();
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            window.undoPolygonPoint();
+        }
+    });
+
+    if (editorBtnSave) editorBtnSave.addEventListener('click', window.saveCurrentPolygon);
+    if (editorBtnUndo) editorBtnUndo.addEventListener('click', window.undoPolygonPoint);
+    if (editorBtnClear) editorBtnClear.addEventListener('click', window.clearCurrentPoints);
+    if (editorBtnCancel) editorBtnCancel.addEventListener('click', window.closePolygonEditor);
 
     window.closePolygonEditor = () => {
         closePolygonEditor();
@@ -2511,6 +2797,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try { renderWebCards(); } catch(e) { console.error('renderWebCards error:', e); }
         try { renderAdminCards(); } catch(e) { console.error('renderAdminCards error:', e); }
         try { updateAdminUnitsVisibility(); } catch(e) { console.error('updateAdminUnitsVisibility error:', e); }
+        try { window.renderAllUnitsAdminDynamic(); } catch(e) { console.error('renderAllUnitsAdminDynamic error:', e); }
         try { await renderUnitZones(); } catch(e) { console.error('renderUnitZones error:', e); }
         try { await renderGallery(); } catch(e) { console.error('renderGallery error:', e); }
         try { renderPartners(); } catch(e) { console.error('renderPartners error:', e); }

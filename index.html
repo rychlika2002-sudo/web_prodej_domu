@@ -78,7 +78,21 @@
         </div>
         
         <div class="units-scroll-wrapper" id="units-scroll-wrapper">
-            <div class="units-container" id="units-main-container">
+            <div id="polygon-editor-toolbar" class="polygon-editor-toolbar" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: var(--gold-color); color: #fff; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;" id="polygon-editor-active-unit-name">Kreslení polygonu</span>
+                            <span style="font-size: 0.82rem; opacity: 0.9;" id="polygon-editor-live-count">0 bodů</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button type="button" class="btn" style="background: #27ae60; color: #fff; font-weight: 700; padding: 6px 14px; font-size: 0.85rem;" onclick="window.saveCurrentPolygon()">💾 ULOŽIT POLYGON</button>
+                            <button type="button" class="btn" style="background: #f39c12; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" onclick="window.undoPolygonPoint()">↩️ Zpět</button>
+                            <button type="button" class="btn" style="background: #e74c3c; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" onclick="window.clearCurrentPoints()">🗑️ Smazat body</button>
+                            <button type="button" class="btn" style="background: #7f8c8d; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" onclick="window.closePolygonEditor()">❌ Zavřít</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="units-container" id="units-main-container">
                 <div class="units-viewport-canvas" id="units-viewport-canvas">
                     <img src="triplex.jpg" alt="Trojdomek" class="units-image" onerror="if(this.src!=='triplex.jpg')this.src='triplex.jpg';">
                     
@@ -117,7 +131,7 @@
                 <p id="modal-unit-desc" style="margin-bottom: 2rem;">Luxusní bytová jednotka s vlastní zahradou a dvěma parkovacími místy.</p>
                 
                 <h3>Specifikace</h3>
-                <table class="spec-table">
+                <table class="spec-table" id="modal-spec-table">
                     <tr><td>Dispozice</td><td id="spec-layout">5+kk</td></tr>
                     <tr><td>Užitná plocha</td><td id="spec-area">145 m²</td></tr>
                     <tr><td>Zahrada</td><td id="spec-garden">210 m²</td></tr>
@@ -125,7 +139,7 @@
                     <tr><td>Cena</td><td id="spec-price">8 490 000 Kč</td></tr>
                 </table>
 
-                <div class="doc-buttons">
+                <div class="doc-buttons" id="modal-doc-buttons">
                     <a href="#" class="btn-secondary" id="btn-karta-bytu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         Karta bytu (PDF)
@@ -218,6 +232,24 @@
                         </span>
                         <span id="editable-contact-email">info@modernibydleni.cz</span>
                     </a>
+                    <div class="agent-info-row" id="editable-agent-address-row" style="display: none;">
+                        <span class="agent-info-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </span>
+                        <span id="editable-agent-address"></span>
+                    </div>
+                    <div class="agent-info-row" id="editable-agent-ico-row" style="display: none;">
+                        <span class="agent-info-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        </span>
+                        <span>IČO: <strong id="editable-agent-ico"></strong></span>
+                    </div>
+                    <div class="agent-info-row" id="editable-agent-hours-row" style="display: none;">
+                        <span class="agent-info-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </span>
+                        <span id="editable-agent-hours"></span>
+                    </div>
                 </div>
                 <div class="agent-card-bottom">
                     <div class="social-links">
@@ -568,6 +600,18 @@
                     <input type="text" id="contact-email-input">
                 </div>
                 <div class="control-group">
+                    <label>Adresa makléře / kanceláře</label>
+                    <input type="text" id="agent-address-input" placeholder="Václavské náměstí 1, Praha 1">
+                </div>
+                <div class="control-group">
+                    <label>IČO makléře</label>
+                    <input type="text" id="agent-ico-input" placeholder="12345678">
+                </div>
+                <div class="control-group">
+                    <label>Otevírací doba / Dostupnost</label>
+                    <input type="text" id="agent-hours-input" placeholder="Po–Pá: 8:00 – 18:00">
+                </div>
+                <div class="control-group">
                     <label>Facebook Link (URL)</label>
                     <input type="text" id="fb-link-input" placeholder="https://facebook.com/...">
                 </div>
@@ -874,14 +918,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-1-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-1-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-1-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-1-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-1-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-1-input" placeholder="2 místa"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-1-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-1-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-1-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-1-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-1-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(1)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-1-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(1)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <div id="admin-unit-2-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
@@ -971,14 +1028,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-2-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-2-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-2-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-2-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-2-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-2-input" placeholder="2 místa"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-2-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-2-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-2-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-2-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-2-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(2)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-2-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(2)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <div id="admin-unit-3-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
@@ -1068,14 +1138,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-3-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-3-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-3-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-3-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-3-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-3-input" placeholder="2 místa"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-3-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-3-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-3-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-3-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-3-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(3)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-3-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(3)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <div id="admin-unit-container-4-9">
@@ -1167,14 +1250,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-4-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-4-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-4-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-4-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-4-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-4-input"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-4-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-4-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-4-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-4-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-4-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(4)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-4-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(4)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <!-- Unit 5 -->
@@ -1265,14 +1361,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-5-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-5-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-5-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-5-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-5-input"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-5-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-5-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-5-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-5-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-5-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(5)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-5-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(5)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <!-- Unit 6 -->
@@ -1363,14 +1472,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                        <div class="control-group"><label>Cena</label><input type="text" id="price-6-input"></div>
-                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-6-input"></div>
-                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-6-input"></div>
-                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-6-input"></div>
-                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-6-input"></div>
-                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-6-input"></textarea></div>
-                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-6-upload" accept="application/pdf"></div>
-                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-6-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-6-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-6-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(6)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-6-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(6)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                     </div>
 
                     <!-- Unit 7 -->
@@ -1461,14 +1583,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-7-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-7-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-7-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-7-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-7-input"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-7-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-7-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-7-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-7-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-7-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(7)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-7-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(7)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <!-- Unit 8 -->
@@ -1559,14 +1694,27 @@
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-8-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                    <div class="control-group"><label>Cena</label><input type="text" id="price-8-input"></div>
-                    <div class="control-group"><label>Dispozice</label><input type="text" id="layout-8-input"></div>
-                    <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-8-input"></div>
-                    <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-8-input"></div>
-                    <div class="control-group"><label>Parkování</label><input type="text" id="parking-8-input"></div>
-                    <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-8-input"></textarea></div>
-                    <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-8-upload" accept="application/pdf"></div>
-                    <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-8-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-8-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-8-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(8)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-8-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(8)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                 </div>
 
                 <!-- Unit 9 -->
@@ -1657,14 +1805,27 @@
                         </div>
                     </div>
                         <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
-                        <div class="control-group"><label>Cena</label><input type="text" id="price-9-input"></div>
-                        <div class="control-group"><label>Dispozice</label><input type="text" id="layout-9-input"></div>
-                        <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-9-input"></div>
-                        <div class="control-group"><label>Zahrada (m²)</label><input type="text" id="garden-9-input"></div>
-                        <div class="control-group"><label>Parkování</label><input type="text" id="parking-9-input"></div>
-                        <div class="control-group"><label>Popis</label><textarea class="admin-input" id="desc-9-input"></textarea></div>
-                        <div class="control-group"><label>Karta bytu (PDF Upload)</label><input type="file" id="pdf-karta-9-upload" accept="application/pdf"></div>
-                        <div class="control-group"><label>Standardy (PDF Upload)</label><input type="file" id="pdf-standardy-9-upload" accept="application/pdf"></div>
+                    <div class="control-group"><label>Popis jednotky</label><textarea class="admin-input" id="desc-9-input" style="height: 50px;"></textarea></div>
+
+                    <!-- Dynamické Parametry & Specifikace (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📋 Parametry & Specifikace</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Cena, Dispozice, Zahrada...</span>
+                        </div>
+                        <div id="unit-9-specs-list" class="unit-specs-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitSpec(9)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(197, 160, 89, 0.2); color: inherit; border: 1px dashed var(--gold-color); width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat parametr</button>
+                    </div>
+
+                    <!-- Dynamické Dokumenty ke stažení (+/-) -->
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 8px; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-weight: 600; font-size: 0.8rem; margin: 0;">📁 Dokumenty ke stažení (PDF)</label>
+                            <span style="font-size: 0.72rem; opacity: 0.6;">Karta bytu, Půdorys...</span>
+                        </div>
+                        <div id="unit-9-files-list" class="unit-files-builder"></div>
+                        <button type="button" class="btn" onclick="window.addUnitFile(9)" style="font-size: 0.75rem; padding: 4px 8px; background: rgba(52, 152, 219, 0.15); color: inherit; border: 1px dashed #3498db; width: 100%; font-weight: 600; margin-top: 4px;">➕ Přidat dokument ke stažení</button>
+                    </div>
                     </div>
                 </div>
             </div>
