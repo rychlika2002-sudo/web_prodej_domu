@@ -190,18 +190,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let map;
     let marker;
     let mapCoords = { lat: 50.0755, lng: 14.4378 };
-    const DEFAULT_ZOOM = 18;
+    const DEFAULT_ZOOM = 17;
 
     let tileLayer;
-    let cadastralLayer;
     const initMap = (lat, lng) => {
         lat = parseFloat(lat);
         lng = parseFloat(lng);
         if (isNaN(lat)) lat = 50.0755;
         if (isNaN(lng)) lng = 14.4378;
         const diag = document.getElementById('map-diagnostic');
-        const tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-        const attribution = '&copy; OpenStreetMap contributors &copy; CARTO';
+        const tileUrl = 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+        const attribution = '&copy; Google Maps';
 
         try {
             if (typeof L === 'undefined') throw new Error('Leaflet knihovna (L) není načtena. Zkontrolujte připojení k internetu.');
@@ -210,10 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const mapContainer = document.getElementById('map');
                 if (!mapContainer) throw new Error('Kontejner #map nebyl nalezen v DOMu.');
 
-                map = L.map('map', { scrollWheelZoom: false }).setView([lat, lng], DEFAULT_ZOOM);
+                map = L.map('map', { 
+                    scrollWheelZoom: false,
+                    zoomControl: true 
+                }).setView([lat, lng], DEFAULT_ZOOM);
+
                 tileLayer = L.tileLayer(tileUrl, {
-                    attribution: attribution,
-                    maxZoom: 19
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    maxZoom: 20,
+                    attribution: attribution
                 }).addTo(map);
             } else {
                 if (map.getCenter().lat !== lat || map.getCenter().lng !== lng) {
@@ -232,73 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     iconAnchor: [20, 36]
                 });
                 marker = L.marker([lat, lng], { icon: redPinIcon }).addTo(map);
-            }
-
-            // Cadastral Layer
-            if (!cadastralLayer) {
-                cadastralLayer = L.tileLayer.wms('https://services.cuzk.gov.cz/wms/wms.asp', {
-                    layers: 'KN',
-                    format: 'image/png',
-                    transparent: true,
-                    version: '1.3.0',
-                    attribution: 'Katastrální mapa &copy; ČÚZK',
-                    minZoom: 15,
-                    maxZoom: 20
-                });
-            }
-
-            const cadastralInput = document.getElementById('cadastral-map-input');
-
-            if (!window.cadastralControlAdded) {
-                const CadastralControl = L.Control.extend({
-                    options: { position: 'topleft' },
-                    onAdd: function () {
-                        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                        container.id = 'cadastral-toggle-btn';
-                        container.style.backgroundColor = 'white';
-                        container.style.width = '34px';
-                        container.style.height = '34px';
-                        container.style.lineHeight = '34px';
-                        container.style.textAlign = 'center';
-                        container.style.cursor = 'pointer';
-                        container.style.fontSize = '18px';
-                        container.innerHTML = '🗺️';
-                        container.title = 'Přepnout katastrální mapu';
-                        
-                        L.DomEvent.disableClickPropagation(container);
-
-                        container.onclick = function(){
-                            if(map.hasLayer(cadastralLayer)){
-                                map.removeLayer(cadastralLayer);
-                                container.style.backgroundColor = 'white';
-                                if (cadastralInput) cadastralInput.checked = false;
-                            } else {
-                                map.addLayer(cadastralLayer);
-                                container.style.backgroundColor = '#e0e0e0';
-                                if (cadastralInput) cadastralInput.checked = true;
-                            }
-                        };
-                        
-                        // Initial state
-                        if (cadastralInput && cadastralInput.checked) {
-                            map.addLayer(cadastralLayer);
-                            container.style.backgroundColor = '#e0e0e0';
-                        }
-                        
-                        return container;
-                    }
-                });
-                map.addControl(new CadastralControl());
-                window.cadastralControlAdded = true;
-            } else {
-                const btn = document.getElementById('cadastral-toggle-btn');
-                if (cadastralInput && cadastralInput.checked) {
-                    if (!map.hasLayer(cadastralLayer)) map.addLayer(cadastralLayer);
-                    if (btn) btn.style.backgroundColor = '#e0e0e0';
-                } else if (cadastralInput && !cadastralInput.checked) {
-                    if (map.hasLayer(cadastralLayer)) map.removeLayer(cadastralLayer);
-                    if (btn) btn.style.backgroundColor = 'white';
-                }
             }
 
             if (diag) diag.style.display = 'none';
@@ -923,13 +860,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderGallery = async () => {
         if (!galleryContainer) return;
         const images = [];
-        for (const key of siteMedia.gallery) {
+        const list = (siteMedia.gallery && siteMedia.gallery.length > 0) ? siteMedia.gallery : ['gallery-1.jpg', 'gallery-2.jpg'];
+        for (const key of list) {
             if (key.startsWith('db:')) {
                 const data = await MediaDB.load(key.split(':')[1]);
                 if (data) images.push(data);
             } else {
                 images.push(key);
             }
+        }
+        if (images.length === 0) {
+            images.push('gallery-1.jpg', 'gallery-2.jpg');
         }
         renderGalleryWithImages(images);
     };
@@ -1548,6 +1489,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (gardenDisplay) gardenDisplay.textContent = unitsData[id].garden ? unitsData[id].garden + ' m²' : '---';
                 }
             });
+        } else {
+            // First time initialization: render default UI components
+            updateAdminUnitsVisibility();
+            renderUnitZones();
+            await renderGallery();
+            renderPartners();
         }
         // Final update with correct coordinates if they were loaded
         initMap(mapCoords.lat, mapCoords.lng);
@@ -1560,6 +1507,8 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadFromStorage();
         renderWebCards();
         renderAdminCards();
+        renderUnitZones();
+        await renderGallery();
     })();
 });
 
