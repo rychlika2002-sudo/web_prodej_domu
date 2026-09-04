@@ -1526,6 +1526,11 @@ textarea.admin-input {
     cursor: crosshair !important;
 }
 
+.units-svg-overlay.editor-active #units-svg-polygons-layer,
+.units-svg-overlay.editor-active #units-svg-polygons-layer polygon {
+    pointer-events: none !important;
+}
+
 .unit-polygon {
     pointer-events: auto;
     cursor: pointer;
@@ -1713,29 +1718,29 @@ body.dark-mode .polygon-unit-popover {
 }
 
 .editor-handle {
-    r: 4.5;
-    fill: rgba(197, 160, 89, 0.45);
+    r: 9;
+    fill: #f39c12;
     stroke: #ffffff;
-    stroke-width: 1.2px;
-    cursor: crosshair;
+    stroke-width: 2.5px;
+    cursor: grab;
     pointer-events: auto;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
     transition: r 0.15s ease, fill 0.15s ease, stroke-width 0.15s ease;
 }
 
 .editor-handle:hover {
-    r: 6.5;
-    fill: rgba(230, 126, 34, 0.85);
+    r: 12;
+    fill: #e67e22;
     stroke: #ffffff;
-    stroke-width: 1.5px;
+    stroke-width: 3px;
     cursor: grab;
 }
 
 .editor-handle.dragging {
-    r: 7;
+    r: 13;
     fill: #e74c3c;
     stroke: #ffffff;
-    stroke-width: 1.8px;
+    stroke-width: 3.5px;
     cursor: grabbing;
 }
 
