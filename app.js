@@ -428,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const polygonSoldColorInput = document.getElementById('polygon-sold-color-input');
     const polygonReservedOpacityInput = document.getElementById('polygon-reserved-opacity-input');
     const polygonReservedOpacityNumber = document.getElementById('polygon-reserved-opacity-number');
+    const polygonShowStrokeInput = document.getElementById('polygon-show-stroke-input');
     const polygonStrokeColorInput = document.getElementById('polygon-stroke-color-input');
     const polygonStrokeWidthInput = document.getElementById('polygon-stroke-width-input');
     const polygonStrokeWidthNumber = document.getElementById('polygon-stroke-width-number');
@@ -550,8 +551,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if(polygonReservedOpacityInput) polygonReservedOpacityInput.value = unitsConfig.reservedOpacity || 40;
         if(polygonReservedOpacityNumber) polygonReservedOpacityNumber.value = unitsConfig.reservedOpacity || 40;
         if(polygonStrokeColorInput) polygonStrokeColorInput.value = unitsConfig.strokeColorHex || '#ffffff';
-        if(polygonStrokeWidthInput) polygonStrokeWidthInput.value = unitsConfig.strokeWidth || 2;
-        if(polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = unitsConfig.strokeWidth || 2;
+        if(polygonStrokeWidthInput) polygonStrokeWidthInput.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
+        if(polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
+        if(polygonShowStrokeInput) polygonShowStrokeInput.checked = unitsConfig.showStroke !== false;
     };
 
     if (unitsCountInput) {
@@ -673,6 +675,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderUnitZones();
         });
     }
+    if (polygonShowStrokeInput) {
+        polygonShowStrokeInput.addEventListener('change', (e) => {
+            unitsConfig.showStroke = e.target.checked;
+            renderUnitZones();
+        });
+    }
     if (polygonStrokeColorInput) {
         polygonStrokeColorInput.addEventListener('input', (e) => {
             unitsConfig.strokeColorHex = e.target.value;
@@ -681,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (polygonStrokeWidthInput) {
         polygonStrokeWidthInput.addEventListener('input', (e) => {
-            const val = parseInt(e.target.value) || 2;
+            const val = parseInt(e.target.value) || 0;
             unitsConfig.strokeWidth = val;
             if (polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = val;
             renderUnitZones();
@@ -689,9 +697,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (polygonStrokeWidthNumber) {
         polygonStrokeWidthNumber.addEventListener('input', (e) => {
-            let val = parseInt(e.target.value) || 1;
+            let val = parseInt(e.target.value) || 0;
             if (val > 10) val = 10;
-            if (val < 1) val = 1;
+            if (val < 0) val = 0;
             unitsConfig.strokeWidth = val;
             if (polygonStrokeWidthInput) polygonStrokeWidthInput.value = val;
             renderUnitZones();
@@ -1420,9 +1428,10 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--polygon-reserved-fill', reservedRgba);
         root.style.setProperty('--polygon-reserved-color', unitsConfig.reservedColorHex || '#e67e22');
         root.style.setProperty('--polygon-sold-fill', soldRgba);
-        root.style.setProperty('--polygon-sold-color', unitsConfig.soldColorHex || '#e74c3c');
-        root.style.setProperty('--polygon-stroke-color', unitsConfig.strokeColorHex || '#ffffff');
-        root.style.setProperty('--polygon-stroke-width', (unitsConfig.strokeWidth || 2) + 'px');
+        const showStroke = unitsConfig.showStroke !== false && (unitsConfig.strokeWidth === undefined || unitsConfig.strokeWidth > 0);
+        const strokeW = showStroke ? (unitsConfig.strokeWidth !== undefined ? unitsConfig.strokeWidth : 2) : 0;
+        root.style.setProperty('--polygon-stroke-color', showStroke ? (unitsConfig.strokeColorHex || '#ffffff') : 'transparent');
+        root.style.setProperty('--polygon-stroke-width', strokeW + 'px');
 
         if (mainImage) {
             mainImage.style.display = 'block';
@@ -1465,15 +1474,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const cx = countPts > 0 ? (sumX / countPts) : 500;
                 const cy = countPts > 0 ? (sumY / countPts) : 500;
-
-                // Create Polygon Label/Badge
-                const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                labelGroup.setAttribute('class', 'unit-polygon-label-group');
-                labelGroup.setAttribute('transform', `translate(${cx}, ${cy})`);
-                labelGroup.innerHTML = `
-                    <rect x="-24" y="-12" width="48" height="24" class="unit-polygon-badge"></rect>
-                    <text class="unit-polygon-text">${i}</text>
-                `;
 
                 // Interactivity for Polygon
                 poly.addEventListener('mouseenter', (e) => {
@@ -1528,7 +1528,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (svgPolygonsLayer) {
                     svgPolygonsLayer.appendChild(poly);
-                    svgPolygonsLayer.appendChild(labelGroup);
                 }
             }
         } else {
