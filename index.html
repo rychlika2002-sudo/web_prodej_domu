@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=6.0.1">
+    <link rel="stylesheet" href="styles.css?v=6.0.2">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -872,7 +872,7 @@
                             <span id="polygon-status-1" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-1" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(1)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-1" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(1)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(1)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-1" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -982,7 +982,7 @@
                             <span id="polygon-status-2" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-2" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(2)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-2" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(2)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(2)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-2" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1092,7 +1092,7 @@
                             <span id="polygon-status-3" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-3" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(3)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-3" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(3)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(3)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-3" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1204,7 +1204,7 @@
                             <span id="polygon-status-4" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-4" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(4)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-4" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(4)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(4)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-4" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1315,7 +1315,7 @@
                             <span id="polygon-status-5" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-5" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(5)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-5" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(5)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(5)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-5" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1426,7 +1426,7 @@
                             <span id="polygon-status-6" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-6" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(6)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-6" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(6)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(6)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-6" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1537,7 +1537,7 @@
                             <span id="polygon-status-7" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-7" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(7)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-7" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(7)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(7)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-7" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1648,7 +1648,7 @@
                             <span id="polygon-status-8" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-8" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(8)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-8" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(8)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(8)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-8" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1759,7 +1759,7 @@
                             <span id="polygon-status-9" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
                         </div>
                         <div id="polygon-idle-controls-9" style="display: flex; gap: 8px;">
-                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(9)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" id="polygon-main-btn-9" class="btn" style="flex: 1; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 600; transition: all 0.2s ease;" onclick="window.togglePolygonEditor(9)">✏️ Kreslit / Upravit polygon</button>
                             <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(9)" title="Smazat polygon">🗑️</button>
                         </div>
                         <div id="polygon-active-controls-9" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
@@ -1879,6 +1879,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=6.0.1"></script>
+    <script src="app.js?v=6.0.2"></script>
 </body>
 </html>

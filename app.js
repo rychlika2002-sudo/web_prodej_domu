@@ -523,11 +523,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const idleCtrl = document.getElementById(`polygon-idle-controls-${i}`);
             const activeCtrl = document.getElementById(`polygon-active-controls-${i}`);
+            const mainBtn = document.getElementById(`polygon-main-btn-${i}`);
             const ptsEl = document.getElementById(`polygon-live-pts-${i}`);
             const isThisActive = window.isPolygonEditingActive && activeEditingUnit === i;
 
-            if (idleCtrl) idleCtrl.style.display = isThisActive ? 'none' : 'flex';
+            if (idleCtrl) idleCtrl.style.display = 'flex';
             if (activeCtrl) activeCtrl.style.display = isThisActive ? 'flex' : 'none';
+
+            if (mainBtn) {
+                if (isThisActive) {
+                    mainBtn.innerHTML = '💾 ULOŽIT ZMĚNY POLYGONU';
+                    mainBtn.style.background = '#27ae60';
+                    mainBtn.style.color = '#ffffff';
+                    mainBtn.style.fontWeight = '700';
+                    mainBtn.style.boxShadow = '0 0 10px rgba(39, 174, 96, 0.4)';
+                } else {
+                    mainBtn.innerHTML = '✏️ Kreslit / Upravit polygon';
+                    mainBtn.style.background = 'var(--accent-color, #c5a059)';
+                    mainBtn.style.color = '#ffffff';
+                    mainBtn.style.fontWeight = '600';
+                    mainBtn.style.boxShadow = 'none';
+                }
+            }
+
             if (isThisActive && ptsEl) {
                 ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
             }
@@ -2646,6 +2664,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 svgEditorLayer.appendChild(circle);
             });
+        }
+    };
+
+    window.togglePolygonEditor = (unitIndex) => {
+        if (window.isPolygonEditingActive && activeEditingUnit === unitIndex) {
+            window.saveCurrentPolygon();
+        } else {
+            window.startPolygonEditor(unitIndex);
         }
     };
 
