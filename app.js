@@ -2491,8 +2491,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Interactive Polygon Editor ---
     let activeEditingUnit = null;
     let currentPolygonPoints = [];
-    let isDraggingHandle = false;
-    let draggedPointIndex = -1;
+    let isPolygonDragging = false;
+    let polygonDragIndex = -1;
+    let polyDragStartX = 0;
+    let polyDragStartY = 0;
+    let polyHasDragged = false;
+    let polyIgnoreNextClick = false;
     window.isPolygonEditingActive = false;
 
     const editorToolbar = document.getElementById('polygon-editor-toolbar');
@@ -2531,11 +2535,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return bestIdx;
     };
 
-    const renderEditorLayer = () => {
-        if (!svgEditorLayer) return;
-        svgEditorLayer.innerHTML = '';
-        if (!window.isPolygonEditingActive) return;
-
+    const updateLiveIndicators = () => {
         if (activeEditingUnit) {
             const ptsEl = document.getElementById(`polygon-live-pts-${activeEditingUnit}`);
             if (ptsEl) ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
@@ -2543,13 +2543,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const countEl = document.getElementById('polygon-editor-live-count');
             if (nameEl) nameEl.textContent = `Jednotka ${activeEditingUnit}`;
             if (countEl) countEl.textContent = `${currentPolygonPoints.length} bodů`;
+            if (editorActiveUnitText) editorActiveUnitText.textContent = `Jednotka ${activeEditingUnit} (${currentPolygonPoints.length} bodů)`;
         }
+    };
+
+    const renderEditorLayer = () => {
+        if (!svgEditorLayer) return;
+        svgEditorLayer.innerHTML = '';
+        if (!window.isPolygonEditingActive) return;
+
+        updateLiveIndicators();
 
         const pointsString = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
 
         if (currentPolygonPoints.length > 0) {
+            // Preview polygon
             const previewPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             previewPoly.setAttribute('class', 'editor-polygon-preview');
+            previewPoly.setAttribute('id', 'live-editor-polygon-preview');
             previewPoly.setAttribute('points', pointsString);
             svgEditorLayer.appendChild(previewPoly);
 
@@ -2562,15 +2573,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const edgeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     edgeLine.setAttribute('class', 'editor-edge-line');
+                    edgeLine.setAttribute('id', `editor-edge-${i}`);
                     edgeLine.setAttribute('x1', p1.x);
                     edgeLine.setAttribute('y1', p1.y);
                     edgeLine.setAttribute('x2', p2.x);
                     edgeLine.setAttribute('y2', p2.y);
-                    edgeLine.setAttribute('title', 'Kliknutím přidáte nový úchopový bod sem na hranu');
+                    edgeLine.setAttribute('title', 'Kliknutím sem přidáte nový bod na hranu');
 
                     edgeLine.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (isDraggingHandle) return;
+                        if (isPolygonDragging || polyIgnoreNextClick) return;
                         const rect = svgOverlay.getBoundingClientRect();
                         const x = Math.max(0, Math.min(1000, Math.round(((e.clientX - rect.left) / rect.width) * 1000)));
                         const y = Math.max(0, Math.min(1000, Math.round(((e.clientY - rect.top) / rect.height) * 1000)));
@@ -2586,25 +2598,28 @@ document.addEventListener('DOMContentLoaded', () => {
             // Vertices handles (Unlimited points, drag to move, right-click/double-click to delete)
             currentPolygonPoints.forEach((p, index) => {
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('class', 'editor-handle' + (draggedPointIndex === index ? ' dragging' : ''));
+                circle.setAttribute('class', 'editor-handle' + (polygonDragIndex === index ? ' dragging' : ''));
+                circle.setAttribute('id', `editor-handle-${index}`);
                 circle.setAttribute('cx', p.x);
                 circle.setAttribute('cy', p.y);
                 circle.setAttribute('data-point-index', index);
-                circle.setAttribute('title', `Bod ${index + 1} (Uchopte pro posun / Pravý klik pro smazání)`);
+                circle.setAttribute('title', `Bod ${index + 1} (Uchopte a táhněte pro posun / Dvojklik pro smazání)`);
 
-                circle.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
+                const startHandleDrag = (clientX, clientY, e) => {
                     if (e.button === 2) return;
-                    isDraggingHandle = true;
-                    draggedPointIndex = index;
-                    renderEditorLayer();
-                });
-                circle.addEventListener('touchstart', (e) => {
                     e.stopPropagation();
-                    isDraggingHandle = true;
-                    draggedPointIndex = index;
-                    renderEditorLayer();
-                }, { passive: true });
+                    isPolygonDragging = true;
+                    polygonDragIndex = index;
+                    polyDragStartX = clientX;
+                    polyDragStartY = clientY;
+                    polyHasDragged = false;
+                    circle.classList.add('dragging');
+                };
+
+                circle.addEventListener('mousedown', (e) => startHandleDrag(e.clientX, e.clientY, e));
+                circle.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 0) startHandleDrag(e.touches[0].clientX, e.touches[0].clientY, e);
+                }, { passive: false });
 
                 // Right click deletes vertex
                 circle.addEventListener('contextmenu', (e) => {
@@ -2624,6 +2639,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (currentPolygonPoints.length > 3) {
                         currentPolygonPoints.splice(index, 1);
                         renderEditorLayer();
+                    } else {
+                        alert('Polygon musí mít minimálně 3 body.');
                     }
                 });
 
@@ -2633,12 +2650,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.startPolygonEditor = (unitIndex) => {
-        if (editorToolbar) {
-            editorToolbar.style.display = 'flex';
-            if (editorActiveUnitText) editorActiveUnitText.textContent = `Jednotka ${unitIndex}`;
-        }
         activeEditingUnit = unitIndex;
         window.isPolygonEditingActive = true;
+        isPolygonDragging = false;
+        polygonDragIndex = -1;
+        polyHasDragged = false;
+        polyIgnoreNextClick = false;
+
+        if (editorToolbar) {
+            editorToolbar.style.display = 'flex';
+        }
         
         // Parse existing points
         currentPolygonPoints = [];
@@ -2669,35 +2690,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.isPolygonEditingActive = false;
         activeEditingUnit = null;
         currentPolygonPoints = [];
-        isDraggingHandle = false;
-        draggedPointIndex = -1;
+        isPolygonDragging = false;
+        polygonDragIndex = -1;
+        polyHasDragged = false;
+        polyIgnoreNextClick = false;
         if (unitsMainContainer) unitsMainContainer.classList.remove('editor-crosshair-canvas');
         if (svgOverlay) svgOverlay.classList.remove('editor-active');
         if (svgEditorLayer) svgEditorLayer.innerHTML = '';
         updateAdminUnitsVisibility();
         renderUnitZones();
     };
-
-    
-    // Keyboard shortcuts for polygon editor
-    window.addEventListener('keydown', (e) => {
-        if (!window.isPolygonEditingActive) return;
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            window.saveCurrentPolygon();
-        } else if (e.key === 'Escape') {
-            e.preventDefault();
-            window.closePolygonEditor();
-        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
-            e.preventDefault();
-            window.undoPolygonPoint();
-        }
-    });
-
-    if (editorBtnSave) editorBtnSave.addEventListener('click', window.saveCurrentPolygon);
-    if (editorBtnUndo) editorBtnUndo.addEventListener('click', window.undoPolygonPoint);
-    if (editorBtnClear) editorBtnClear.addEventListener('click', window.clearCurrentPoints);
-    if (editorBtnCancel) editorBtnCancel.addEventListener('click', window.closePolygonEditor);
 
     window.closePolygonEditor = () => {
         closePolygonEditor();
@@ -2710,8 +2712,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!unitsConfig.polygons) unitsConfig.polygons = {};
-        unitsConfig.polygons[activeEditingUnit] = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+        const ptsStr = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+        unitsConfig.polygons[activeEditingUnit] = ptsStr;
+        unitsConfig.mode = 'polygons';
+        
+        // Force save to localStorage
         saveToStorage(true);
+        
         const unitSaved = activeEditingUnit;
         closePolygonEditor();
         updateAdminUnitsVisibility();
@@ -2743,11 +2750,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Keyboard shortcuts for polygon editor
+    window.addEventListener('keydown', (e) => {
+        if (!window.isPolygonEditingActive) return;
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            window.saveCurrentPolygon();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            window.closePolygonEditor();
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            window.undoPolygonPoint();
+        }
+    });
+
+    if (editorBtnSave) editorBtnSave.addEventListener('click', window.saveCurrentPolygon);
+    if (editorBtnUndo) editorBtnUndo.addEventListener('click', window.undoPolygonPoint);
+    if (editorBtnClear) editorBtnClear.addEventListener('click', window.clearCurrentPoints);
+    if (editorBtnCancel) editorBtnCancel.addEventListener('click', window.closePolygonEditor);
+
     // SVG click to add points
     if (svgOverlay) {
         svgOverlay.addEventListener('click', (e) => {
             if (!window.isPolygonEditingActive) return;
-            if (isDraggingHandle) return;
+            if (isPolygonDragging || polyIgnoreNextClick) {
+                polyIgnoreNextClick = false;
+                return;
+            }
 
             const rect = svgOverlay.getBoundingClientRect();
             const x = Math.max(0, Math.min(1000, Math.round(((e.clientX - rect.left) / rect.width) * 1000)));
@@ -2759,26 +2789,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle dragging points across window
+    // Smooth handle dragging across window without DOM teardown
     const handleMove = (clientX, clientY) => {
-        if (!window.isPolygonEditingActive || !isDraggingHandle || draggedPointIndex === -1 || !svgOverlay) return;
+        if (!window.isPolygonEditingActive || !isPolygonDragging || polygonDragIndex === -1 || !svgOverlay) return;
+        
+        const dist = Math.hypot(clientX - polyDragStartX, clientY - polyDragStartY);
+        if (dist > 3) polyHasDragged = true;
+
         const rect = svgOverlay.getBoundingClientRect();
         const x = Math.max(0, Math.min(1000, Math.round(((clientX - rect.left) / rect.width) * 1000)));
         const y = Math.max(0, Math.min(1000, Math.round(((clientY - rect.top) / rect.height) * 1000)));
 
-        currentPolygonPoints[draggedPointIndex] = { x, y };
-        renderEditorLayer();
+        currentPolygonPoints[polygonDragIndex] = { x, y };
+
+        // Fast update existing elements in DOM directly
+        const circle = document.getElementById(`editor-handle-${polygonDragIndex}`);
+        if (circle) {
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+        }
+
+        const previewPoly = document.getElementById('live-editor-polygon-preview');
+        if (previewPoly) {
+            previewPoly.setAttribute('points', currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' '));
+        }
+
+        // Update connected lines
+        const prevIdx = (polygonDragIndex - 1 + currentPolygonPoints.length) % currentPolygonPoints.length;
+        const prevLine = document.getElementById(`editor-edge-${prevIdx}`);
+        if (prevLine) {
+            prevLine.setAttribute('x2', x);
+            prevLine.setAttribute('y2', y);
+        }
+
+        const currLine = document.getElementById(`editor-edge-${polygonDragIndex}`);
+        if (currLine) {
+            currLine.setAttribute('x1', x);
+            currLine.setAttribute('y1', y);
+        }
     };
 
     window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
     window.addEventListener('touchmove', (e) => {
-        if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
+        if (e.touches.length > 0) {
+            if (isPolygonDragging) e.preventDefault();
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: false });
 
     const stopDragging = () => {
-        if (isDraggingHandle) {
-            isDraggingHandle = false;
-            draggedPointIndex = -1;
+        if (isPolygonDragging) {
+            if (polyHasDragged) {
+                polyIgnoreNextClick = true;
+                setTimeout(() => { polyIgnoreNextClick = false; }, 150);
+            }
+            isPolygonDragging = false;
+            polygonDragIndex = -1;
             renderEditorLayer();
         }
     };
@@ -2786,7 +2852,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('touchend', stopDragging);
 
     if (saveBtn) saveBtn.addEventListener('click', () => saveToStorage(false));
-    
+
     // Start the loading sequence safely
     (async () => {
         try {
