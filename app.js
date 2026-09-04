@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Data Model for Units ---
     let unitsData = {
-        1: { name: 'Etapa A', desc: 'Luxusní bytová jednotka s vlastní zahradou a dvěma parkovacími místy.', layout: '5+kk', area: '145', garden: '210', parking: '2 místa', price: '8 490 000 Kč', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
-        2: { name: 'Etapa B', desc: 'Moderní rodinné bydlení s prostornou terasou v patře.', layout: '4+kk', area: '132', garden: '180', parking: '2 místa', price: '7 990 000 Kč', status: 'status-reserved', statusText: 'Rezervováno', pdfKarta: '', pdfStandardy: '' },
-        3: { name: 'Etapa C', desc: 'Útulný dům ideální pro mladou rodinu s výhledem do zeleně.', layout: '4+kk', area: '128', garden: '150', parking: '2 místa', price: '7 490 000 Kč', status: 'status-sold', statusText: 'Prodáno', pdfKarta: '', pdfStandardy: '' },
+        1: { name: 'Jednotka 1', desc: 'Luxusní bytová jednotka s vlastní zahradou a dvěma parkovacími místy.', layout: '5+kk', area: '145', garden: '210', parking: '2 místa', price: '8 490 000 Kč', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
+        2: { name: 'Jednotka 2', desc: 'Moderní rodinné bydlení s prostornou terasou v patře.', layout: '4+kk', area: '132', garden: '180', parking: '2 místa', price: '7 990 000 Kč', status: 'status-reserved', statusText: 'Rezervováno', pdfKarta: '', pdfStandardy: '' },
+        3: { name: 'Jednotka 3', desc: 'Útulný dům ideální pro mladou rodinu s výhledem do zeleně.', layout: '4+kk', area: '128', garden: '150', parking: '2 místa', price: '7 490 000 Kč', status: 'status-sold', statusText: 'Prodáno', pdfKarta: '', pdfStandardy: '' },
         4: { name: 'Jednotka 4', desc: '', layout: '', area: '', garden: '', parking: '', price: '', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
         5: { name: 'Jednotka 5', desc: '', layout: '', area: '', garden: '', parking: '', price: '', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
         6: { name: 'Jednotka 6', desc: '', layout: '', area: '', garden: '', parking: '', price: '', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
@@ -1056,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             htmlString += `
                 <div class="unit-zone ${extraClass}" onclick="openUnit(${i})" ${styleAttr}>
-                    ${isPins ? `<div class="pin-marker"><span>${String.fromCharCode(64 + i)}</span></div>` : ''}
+                    ${isPins ? `<div class="pin-marker"><span>${i}</span></div>` : ''}
                     <div class="unit-footer-compact">
                         <span class="unit-status ${data.status}" id="status-${i}">${data.statusText}</span>
                         <span class="unit-label">${data.name.toUpperCase()}</span>
@@ -1430,7 +1430,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Apply map state and cadastral layers now that config is loaded
             initMap(mapCoords.lat, mapCoords.lng);
-            if (config.units) unitsData = config.units;
+            if (config.units) {
+                unitsData = config.units;
+                for(let i=1; i<=9; i++) {
+                    if (unitsData[i]) {
+                        if (!unitsData[i].name || unitsData[i].name.startsWith('Etapa') || unitsData[i].name.startsWith('Segment')) {
+                            unitsData[i].name = `Jednotka ${i}`;
+                        }
+                    }
+                }
+            }
 
             // Agent info (text)
             const agentNameDisplay = document.getElementById('editable-agent-name');
