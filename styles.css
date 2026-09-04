@@ -966,22 +966,10 @@ body.dark-mode .card:hover .card-icon {
 .units-scroll-wrapper {
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden; /* Prevent horizontal scrollbars completely */
     margin: 0;
     padding: 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) transparent;
     border-radius: 0;
-}
-
-.units-scroll-wrapper::-webkit-scrollbar {
-    height: 6px;
-}
-
-.units-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
-    border-radius: 3px;
 }
 
 .units-container {
@@ -989,11 +977,17 @@ body.dark-mode .card:hover .card-icon {
     min-width: 100%;
     margin: 0;
     position: relative;
-    overflow: hidden;
-    transition: width 0.2s ease;
+    overflow: hidden; /* Strictly crop anything outside the viewport */
     border: none;
     border-radius: 0;
     box-sizing: border-box;
+}
+
+.units-viewport-canvas {
+    width: 100%;
+    position: relative;
+    transform-origin: center center;
+    transition: transform 0.15s ease-out;
 }
 
 /* Stínová a přechodová maska sjednocená pro levý i pravý okraj */
@@ -1525,12 +1519,19 @@ textarea.admin-input {
     z-index: 6;
 }
 
+/* When editor is active, clicks on the SVG canvas add points */
+.units-svg-overlay.editor-active,
+.editor-crosshair-canvas .units-svg-overlay {
+    pointer-events: auto !important;
+    cursor: crosshair !important;
+}
+
 .unit-polygon {
     pointer-events: auto;
     cursor: pointer;
     fill: rgba(0, 0, 0, 0);
-    stroke: transparent;
-    stroke-width: 0;
+    stroke: var(--polygon-stroke-idle, transparent);
+    stroke-width: var(--polygon-stroke-width-idle, 0px);
     stroke-linejoin: round;
     stroke-linecap: round;
     transition: fill 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease, filter 0.25s ease;
@@ -1538,28 +1539,26 @@ textarea.admin-input {
 
 .unit-polygon:hover {
     fill: var(--unit-hover-color, rgba(197, 160, 89, 0.45)) !important;
-    stroke: var(--polygon-stroke-color, #ffffff) !important;
-    stroke-width: var(--polygon-stroke-width, 2.5px) !important;
+    stroke: var(--polygon-stroke-hover, #ffffff) !important;
+    stroke-width: var(--polygon-stroke-width-hover, 2.5px) !important;
     filter: url(#polygon-glow);
 }
 
 /* Persistent status styling for Reserved & Sold */
 .unit-polygon.status-reserved {
     fill: var(--polygon-reserved-fill, rgba(230, 126, 34, 0.4));
-    stroke: var(--polygon-reserved-color, #e67e22);
-    stroke-width: 1.5px;
+    stroke: var(--polygon-reserved-color, #e67e22) !important;
+    stroke-width: 1.5px !important;
 }
 
 .unit-polygon.status-sold {
     fill: var(--polygon-sold-fill, rgba(231, 76, 60, 0.45));
-    stroke: var(--polygon-sold-color, #e74c3c);
-    stroke-width: 1.5px;
+    stroke: var(--polygon-sold-color, #e74c3c) !important;
+    stroke-width: 1.5px !important;
 }
 
 .unit-polygon.status-available {
     fill: rgba(0, 0, 0, 0);
-    stroke: transparent;
-    stroke-width: 0;
 }
 
 .unit-polygon-label-group {

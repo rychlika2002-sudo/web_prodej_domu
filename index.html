@@ -79,22 +79,24 @@
         
         <div class="units-scroll-wrapper" id="units-scroll-wrapper">
             <div class="units-container" id="units-main-container">
-                <img src="triplex.jpg" alt="Trojdomek" class="units-image" onerror="if(this.src!=='triplex.jpg')this.src='triplex.jpg';">
-                
-                <!-- SVG Overlay pro Variantu 3 (Polygony) -->
-                <svg class="units-svg-overlay" id="units-svg-overlay" viewBox="0 0 1000 1000" preserveAspectRatio="none" style="display: none;">
-                    <defs>
-                        <filter id="polygon-glow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.35"/>
-                        </filter>
-                    </defs>
-                    <g id="units-svg-polygons-layer"></g>
-                    <g id="units-svg-editor-layer"></g>
-                </svg>
+                <div class="units-viewport-canvas" id="units-viewport-canvas">
+                    <img src="triplex.jpg" alt="Trojdomek" class="units-image" onerror="if(this.src!=='triplex.jpg')this.src='triplex.jpg';">
+                    
+                    <!-- SVG Overlay pro Variantu 3 (Polygony) -->
+                    <svg class="units-svg-overlay" id="units-svg-overlay" viewBox="0 0 1000 1000" preserveAspectRatio="none" style="display: none;">
+                        <defs>
+                            <filter id="polygon-glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.35"/>
+                            </filter>
+                        </defs>
+                        <g id="units-svg-polygons-layer"></g>
+                        <g id="units-svg-editor-layer"></g>
+                    </svg>
 
-                <!-- Běžný overlay pro Variantu 1 (pruhy) a Variantu 2 (piny) -->
-                <div class="unit-overlay" id="unit-overlay">
-                    <!-- Dynamicky vyplňováno JavaScriptem podle administrace -->
+                    <!-- Běžný overlay pro Variantu 1 (pruhy) a Variantu 2 (piny) -->
+                    <div class="unit-overlay" id="unit-overlay">
+                        <!-- Dynamicky vyplňováno JavaScriptem podle administrace -->
+                    </div>
                 </div>
 
                 <!-- Plovoucí infokarta pro Variantu 3 na hover -->
@@ -305,16 +307,50 @@
                     <label>Obrázek Trojdomku (Upload)</label>
                     <input type="file" id="triplex-img-upload" accept="image/*">
                 </div>
-                <div class="control-group compact-slider-row" style="margin-top: 8px; margin-bottom: 12px; background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 10px;">
-                    <label style="font-size: 0.82rem; margin-bottom: 6px; font-weight: 600; color: var(--gold-color);">🔍 Velikost / Přiblížení domu (Zoom)</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="range" id="triplex-zoom-input" min="60" max="250" value="100" class="compact-range-slider" style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                            <input type="number" id="triplex-zoom-number" min="60" max="250" value="100" class="slider-num-input">
-                            <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                <!-- Nastavení přiblížení a pozice Trojdomku -->
+                <div class="control-group" style="margin-top: 8px; margin-bottom: 14px; background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 8px; padding: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="font-size: 0.85rem; margin: 0; font-weight: 700; color: var(--gold-color);">🖼️ Přiblížení a Pozice domu na webu</label>
+                        <button type="button" class="btn" id="triplex-reset-transform-btn" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(0,0,0,0.1); color: inherit; cursor: pointer;" title="Resetovat přiblížení a pozici na střed">↺ Reset</button>
+                    </div>
+
+                    <!-- Zoom -->
+                    <div class="compact-slider-row" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="margin: 0; font-size: 0.78rem; width: 85px; flex-shrink: 0;">🔍 Přiblížení</label>
+                            <input type="range" id="triplex-zoom-input" min="100" max="250" value="100" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                <input type="number" id="triplex-zoom-number" min="100" max="250" value="100" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <small style="display: block; opacity: 0.7; font-size: 0.73rem; margin-top: 4px;">Nastavte jak velký / přiblížený se bude dům zobrazovat na webu.</small>
+
+                    <!-- Posun X -->
+                    <div class="compact-slider-row" style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="margin: 0; font-size: 0.78rem; width: 85px; flex-shrink: 0;">↔️ Osa X (Vlevo/Vpravo)</label>
+                            <input type="range" id="triplex-posx-input" min="-50" max="50" value="0" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                <input type="number" id="triplex-posx-number" min="-50" max="50" value="0" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Posun Y -->
+                    <div class="compact-slider-row" style="margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="margin: 0; font-size: 0.78rem; width: 85px; flex-shrink: 0;">↕️ Osa Y (Nahoru/Dolů)</label>
+                            <input type="range" id="triplex-posy-input" min="-50" max="50" value="0" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                <input type="number" id="triplex-posy-number" min="-50" max="50" value="0" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <small style="display: block; opacity: 0.7; font-size: 0.72rem; margin-top: 6px;">Web zachová plnou šířku a ořízne obraz přesně podle vašeho nastavení bez postranních posuvníků.</small>
                 </div>
                 <hr style="margin: 1rem 0; opacity: 0.1;">
                 <h4>Galerie Obrázků (Flexibilní)</h4>
@@ -655,9 +691,13 @@
                             </div>
                         </div>
 
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; margin-top: 6px; padding: 6px 8px; background: rgba(0,0,0,0.03); border-radius: 6px;">
-                            <label style="font-size: 0.8rem; margin: 0; font-weight: 600; cursor: pointer;" for="polygon-show-stroke-input">Zobrazit rámeček / obrys při najetí myší</label>
-                            <input type="checkbox" id="polygon-show-stroke-input" checked style="width: auto; margin: 0; cursor: pointer;">
+                        <div class="control-group" style="margin-bottom: 10px; margin-top: 6px;">
+                            <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Zobrazení rámečku / obrysu jednotek:</label>
+                            <select id="polygon-stroke-mode-input" style="width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15); font-weight: 600; font-size: 0.83rem;">
+                                <option value="hover">1. Pouze při najetí myší (Hover rámeček)</option>
+                                <option value="always">2. Trvalý rámeček (Svítí na webu stále)</option>
+                                <option value="none">3. Vypnuto (Bez rámečku / pouze barevná výplň)</option>
+                            </select>
                         </div>
 
                         <div id="polygon-stroke-controls-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
@@ -668,8 +708,8 @@
                             <div class="control-group compact-slider-row" style="margin-bottom: 0;">
                                 <label style="font-size: 0.78rem; margin-bottom: 4px;">Tloušťka obrysu</label>
                                 <div style="display: flex; align-items: center; gap: 6px;">
-                                    <input type="range" id="polygon-stroke-width-input" min="0" max="8" value="2" class="compact-range-slider" style="flex: 1;">
-                                    <input type="number" id="polygon-stroke-width-number" min="0" max="8" value="2" class="slider-num-input" style="width: 36px !important;">
+                                    <input type="range" id="polygon-stroke-width-input" min="1" max="8" value="2" class="compact-range-slider" style="flex: 1;">
+                                    <input type="number" id="polygon-stroke-width-number" min="1" max="8" value="2" class="slider-num-input" style="width: 36px !important;">
                                 </div>
                             </div>
                         </div>

@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const polygonSoldColorInput = document.getElementById('polygon-sold-color-input');
     const polygonReservedOpacityInput = document.getElementById('polygon-reserved-opacity-input');
     const polygonReservedOpacityNumber = document.getElementById('polygon-reserved-opacity-number');
-    const polygonShowStrokeInput = document.getElementById('polygon-show-stroke-input');
+    const polygonStrokeModeInput = document.getElementById('polygon-stroke-mode-input');
     const polygonStrokeColorInput = document.getElementById('polygon-stroke-color-input');
     const polygonStrokeWidthInput = document.getElementById('polygon-stroke-width-input');
     const polygonStrokeWidthNumber = document.getElementById('polygon-stroke-width-number');
@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(polygonStrokeColorInput) polygonStrokeColorInput.value = unitsConfig.strokeColorHex || '#ffffff';
         if(polygonStrokeWidthInput) polygonStrokeWidthInput.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
         if(polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
-        if(polygonShowStrokeInput) polygonShowStrokeInput.checked = unitsConfig.showStroke !== false;
+        if(polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode || 'hover';
     };
 
     if (unitsCountInput) {
@@ -675,9 +675,9 @@ document.addEventListener('DOMContentLoaded', () => {
             renderUnitZones();
         });
     }
-    if (polygonShowStrokeInput) {
-        polygonShowStrokeInput.addEventListener('change', (e) => {
-            unitsConfig.showStroke = e.target.checked;
+    if (polygonStrokeModeInput) {
+        polygonStrokeModeInput.addEventListener('change', (e) => {
+            unitsConfig.strokeMode = e.target.value; // 'hover', 'always', 'none'
             renderUnitZones();
         });
     }
@@ -952,34 +952,95 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Triplex House Image Zoom / Size System ---
+    // --- Triplex House Image Zoom & Position System ---
     const triplexZoomInput = document.getElementById('triplex-zoom-input');
     const triplexZoomNumber = document.getElementById('triplex-zoom-number');
-    const unitsMainContainer = document.getElementById('units-main-container');
+    const triplexPosxInput = document.getElementById('triplex-posx-input');
+    const triplexPosxNumber = document.getElementById('triplex-posx-number');
+    const triplexPosyInput = document.getElementById('triplex-posy-input');
+    const triplexPosyNumber = document.getElementById('triplex-posy-number');
+    const triplexResetTransformBtn = document.getElementById('triplex-reset-transform-btn');
+    const unitsViewportCanvas = document.getElementById('units-viewport-canvas');
 
-    window.setUnitsZoom = (level, save = false) => {
-        const zoomVal = Math.min(250, Math.max(50, Math.round(Number(level) || 100)));
+    window.applyTriplexTransform = (save = false) => {
         if (!unitsConfig) unitsConfig = {};
-        unitsConfig.zoom = zoomVal;
+        const zoom = (unitsConfig.zoom !== undefined) ? Number(unitsConfig.zoom) : 100;
+        const posX = (unitsConfig.posX !== undefined) ? Number(unitsConfig.posX) : 0;
+        const posY = (unitsConfig.posY !== undefined) ? Number(unitsConfig.posY) : 0;
 
-        if (triplexZoomInput) triplexZoomInput.value = zoomVal;
-        if (triplexZoomNumber) triplexZoomNumber.value = zoomVal;
-
-        if (unitsMainContainer) {
-            if (zoomVal === 100) {
-                unitsMainContainer.style.width = '100%';
-            } else {
-                unitsMainContainer.style.width = `${zoomVal}%`;
-            }
+        if (unitsViewportCanvas) {
+            unitsViewportCanvas.style.transform = `scale(${zoom / 100}) translate(${posX}%, ${posY}%)`;
         }
+
+        if (triplexZoomInput) triplexZoomInput.value = zoom;
+        if (triplexZoomNumber) triplexZoomNumber.value = zoom;
+        if (triplexPosxInput) triplexPosxInput.value = posX;
+        if (triplexPosxNumber) triplexPosxNumber.value = posX;
+        if (triplexPosyInput) triplexPosyInput.value = posY;
+        if (triplexPosyNumber) triplexPosyNumber.value = posY;
 
         if (save && typeof saveToStorage === 'function') {
             saveToStorage(true);
         }
     };
 
-    if (triplexZoomInput) triplexZoomInput.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
-    if (triplexZoomNumber) triplexZoomNumber.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
+    window.setUnitsZoom = (level, save = false) => {
+        if (!unitsConfig) unitsConfig = {};
+        unitsConfig.zoom = Math.min(250, Math.max(100, Math.round(Number(level) || 100)));
+        window.applyTriplexTransform(save);
+    };
+
+    if (triplexZoomInput) {
+        triplexZoomInput.addEventListener('input', (e) => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.zoom = Number(e.target.value);
+            window.applyTriplexTransform(true);
+        });
+    }
+    if (triplexZoomNumber) {
+        triplexZoomNumber.addEventListener('input', (e) => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.zoom = Number(e.target.value);
+            window.applyTriplexTransform(true);
+        });
+    }
+    if (triplexPosxInput) {
+        triplexPosxInput.addEventListener('input', (e) => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.posX = Number(e.target.value);
+            window.applyTriplexTransform(true);
+        });
+    }
+    if (triplexPosxNumber) {
+        triplexPosxNumber.addEventListener('input', (e) => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.posX = Number(e.target.value);
+            window.applyTriplexTransform(true);
+        });
+    }
+    if (triplexPosyInput) {
+        triplexPosyInput.addEventListener('input', (e) => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.posY = Number(e.target.value);
+            window.applyTriplexTransform(true);
+        });
+    }
+    if (triplexPosyNumber) {
+        triplexPosyNumber.addEventListener('input', (e) => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.posY = Number(e.target.value);
+            window.applyTriplexTransform(true);
+        });
+    }
+    if (triplexResetTransformBtn) {
+        triplexResetTransformBtn.addEventListener('click', () => {
+            if (!unitsConfig) unitsConfig = {};
+            unitsConfig.zoom = 100;
+            unitsConfig.posX = 0;
+            unitsConfig.posY = 0;
+            window.applyTriplexTransform(true);
+        });
+    }
 
     // Accordion Logic
     document.querySelectorAll('.accordion-header').forEach(header => {
@@ -1428,10 +1489,26 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--polygon-reserved-fill', reservedRgba);
         root.style.setProperty('--polygon-reserved-color', unitsConfig.reservedColorHex || '#e67e22');
         root.style.setProperty('--polygon-sold-fill', soldRgba);
-        const showStroke = unitsConfig.showStroke !== false && (unitsConfig.strokeWidth === undefined || unitsConfig.strokeWidth > 0);
-        const strokeW = showStroke ? (unitsConfig.strokeWidth !== undefined ? unitsConfig.strokeWidth : 2) : 0;
-        root.style.setProperty('--polygon-stroke-color', showStroke ? (unitsConfig.strokeColorHex || '#ffffff') : 'transparent');
-        root.style.setProperty('--polygon-stroke-width', strokeW + 'px');
+        const strokeMode = unitsConfig.strokeMode || 'hover'; // 'always', 'hover', 'none'
+        const strokeColor = unitsConfig.strokeColorHex || '#ffffff';
+        const strokeW = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
+
+        if (strokeMode === 'always') {
+            root.style.setProperty('--polygon-stroke-idle', strokeColor);
+            root.style.setProperty('--polygon-stroke-width-idle', `${strokeW}px`);
+            root.style.setProperty('--polygon-stroke-hover', strokeColor);
+            root.style.setProperty('--polygon-stroke-width-hover', `${Math.max(strokeW, 2.5)}px`);
+        } else if (strokeMode === 'hover') {
+            root.style.setProperty('--polygon-stroke-idle', 'transparent');
+            root.style.setProperty('--polygon-stroke-width-idle', '0px');
+            root.style.setProperty('--polygon-stroke-hover', strokeColor);
+            root.style.setProperty('--polygon-stroke-width-hover', `${strokeW}px`);
+        } else { // 'none'
+            root.style.setProperty('--polygon-stroke-idle', 'transparent');
+            root.style.setProperty('--polygon-stroke-width-idle', '0px');
+            root.style.setProperty('--polygon-stroke-hover', 'transparent');
+            root.style.setProperty('--polygon-stroke-width-hover', '0px');
+        }
 
         if (mainImage) {
             mainImage.style.display = 'block';
@@ -1872,8 +1949,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (widthNumbers[i] && unitsConfig.widths && unitsConfig.widths[i]) widthNumbers[i].value = unitsConfig.widths[i];
                     }
 
-                    if (typeof window.setUnitsZoom === 'function') {
-                        window.setUnitsZoom(unitsConfig.zoom || 100, false);
+                    if (polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode || 'hover';
+                    if (polygonStrokeColorInput) polygonStrokeColorInput.value = unitsConfig.strokeColorHex || '#ffffff';
+                    if (polygonStrokeWidthInput) polygonStrokeWidthInput.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
+                    if (polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
+                    if (polygonReservedColorInput) polygonReservedColorInput.value = unitsConfig.reservedColorHex || '#e67e22';
+                    if (polygonSoldColorInput) polygonSoldColorInput.value = unitsConfig.soldColorHex || '#e74c3c';
+                    if (polygonReservedOpacityInput) polygonReservedOpacityInput.value = unitsConfig.reservedOpacity || 40;
+                    if (polygonReservedOpacityNumber) polygonReservedOpacityNumber.value = unitsConfig.reservedOpacity || 40;
+
+                    if (typeof window.applyTriplexTransform === 'function') {
+                        window.applyTriplexTransform(false);
                     }
                 }
 
@@ -2171,7 +2257,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        if (svgOverlay) svgOverlay.style.display = 'block';
+        if (svgOverlay) {
+            svgOverlay.style.display = 'block';
+            svgOverlay.classList.add('editor-active');
+        }
         if (unitsMainContainer) unitsMainContainer.classList.add('editor-crosshair-canvas');
 
         updateAdminUnitsVisibility();
@@ -2189,6 +2278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isDraggingHandle = false;
         draggedPointIndex = -1;
         if (unitsMainContainer) unitsMainContainer.classList.remove('editor-crosshair-canvas');
+        if (svgOverlay) svgOverlay.classList.remove('editor-active');
         if (svgEditorLayer) svgEditorLayer.innerHTML = '';
         updateAdminUnitsVisibility();
         renderUnitZones();
