@@ -594,43 +594,7 @@ body.dark-mode .admin-head-btn:hover {
     color: #121212;
 }
 
-.admin-quick-nav {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-}
 
-body.dark-mode .admin-quick-nav {
-    border-bottom-color: rgba(255,255,255,0.1);
-}
-
-.admin-nav-pill {
-    background: rgba(197, 160, 89, 0.1);
-    color: var(--primary-color);
-    border: 1px solid rgba(197, 160, 89, 0.3);
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-body.dark-mode .admin-nav-pill {
-    color: #f0f0f0;
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.admin-nav-pill:hover {
-    background: var(--accent-color);
-    color: #ffffff;
-    border-color: var(--accent-color);
-    transform: translateY(-1px);
-}
 
 @media (max-width: 550px) {
     #admin-panel {
@@ -999,68 +963,8 @@ body.dark-mode .card:hover .card-icon {
     padding: 0 5%;
 }
 
-/* --- Units Zoom Toolbar & Scroll Wrapper --- */
-.units-zoom-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 0 auto 1.2rem auto;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    padding: 6px 14px;
-    border-radius: 30px;
-    width: fit-content;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    z-index: 10;
-    position: relative;
-}
-
-body.dark-mode .units-zoom-toolbar {
-    background: rgba(30, 30, 30, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.units-zoom-btn {
-    background: transparent;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    padding: 5px 10px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-body.dark-mode .units-zoom-btn {
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.units-zoom-btn:hover {
-    background: var(--accent-color);
-    color: #fff;
-    border-color: var(--accent-color);
-    transform: scale(1.05);
-}
-
-.units-zoom-badge {
-    font-size: 0.82rem;
-    font-weight: 700;
-    min-width: 48px;
-    text-align: center;
-    color: var(--gold-color);
-    cursor: pointer;
-    user-select: none;
-}
-
 .units-scroll-wrapper {
-    width: 100vw;
+    width: 100%;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1072,17 +976,17 @@ body.dark-mode .units-zoom-btn {
 }
 
 .units-scroll-wrapper::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
 }
 
 .units-scroll-wrapper::-webkit-scrollbar-thumb {
     background: var(--accent-color);
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .units-container {
-    width: 100vw;
-    max-width: 100%;
+    width: 100%;
+    min-width: 100%;
     margin: 0;
     position: relative;
     overflow: hidden;
@@ -1092,28 +996,43 @@ body.dark-mode .units-zoom-btn {
     box-sizing: border-box;
 }
 
-/* Stínová maska je definována přes ::before, aby ležela POD štítky (z-index: 1) */
+/* Stínová a přechodová maska sjednocená pro levý i pravý okraj */
 .units-container::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     box-shadow: 
-        inset 0 0 30px 15px var(--bg-color),
-        inset 0 0 150px 20px var(--bg-color);
+        inset 0 0 35px 15px var(--bg-color),
+        inset 0 0 120px 25px var(--bg-color);
     pointer-events: none;
     z-index: 1; 
+}
+
+/* Plynulý postranní přechod do barvy pozadí vlevo i vpravo */
+.units-container::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to right, 
+        var(--bg-color) 0%, 
+        rgba(0,0,0,0) 3.5%, 
+        rgba(0,0,0,0) 96.5%, 
+        var(--bg-color) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
 }
 
 .units-image {
     display: block;
     width: 100%;
-    max-width: 100%;
+    min-width: 100%;
     height: auto;
-    max-height: 96vh; 
     object-fit: cover;
     position: relative;
     z-index: 0;
     border-radius: 0;
+    margin: 0;
 }
 
 .unit-overlay {

@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.4.0">
+    <link rel="stylesheet" href="styles.css?v=5.4.2">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -75,14 +75,6 @@
         <div class="section-title">
             <h2>Vyberte si svou jednotku</h2>
             <p>Klikněte na část domu pro detailní specifikace a rezervaci prohlídky.</p>
-        </div>
-        
-        <div class="units-zoom-toolbar" id="units-zoom-toolbar">
-            <button type="button" class="units-zoom-btn" id="zoom-out-btn" title="Oddálit zobrazení domu">🔍−</button>
-            <span class="units-zoom-badge" id="zoom-level-badge" title="Klikněte pro reset na 100%">100%</span>
-            <button type="button" class="units-zoom-btn" id="zoom-in-btn" title="Přiblížit zobrazení domu">🔍+</button>
-            <button type="button" class="units-zoom-btn" id="zoom-reset-btn" title="Resetovat na výchozí velikost">↺ 100%</button>
-            <button type="button" class="units-zoom-btn" id="zoom-fullscreen-btn" title="Přepnout zobrazení přes celou obrazovku">⛶ Celá obrazovka</button>
         </div>
         
         <div class="units-scroll-wrapper" id="units-scroll-wrapper">
@@ -282,16 +274,6 @@
             </div>
         </div>
 
-        <!-- Quick Navigation Pills -->
-        <div class="admin-quick-nav">
-            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-design')">🎨 Vzhled</button>
-            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-units')">🏠 Jednotky</button>
-            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-map')">📍 Mapa & GPS</button>
-            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-backup')">💾 Záloha</button>
-            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-agent')">👤 Makléř</button>
-            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-cookies')">🍪 Cookies</button>
-        </div>
-        
         <!-- Section: Design -->
         <div class="admin-section accordion" id="sec-design">
             <div class="accordion-header">
@@ -327,6 +309,17 @@
                 <div class="control-group">
                     <label>Obrázek Trojdomku (Upload)</label>
                     <input type="file" id="triplex-img-upload" accept="image/*">
+                </div>
+                <div class="control-group compact-slider-row" style="margin-top: 8px; margin-bottom: 12px; background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 10px;">
+                    <label style="font-size: 0.82rem; margin-bottom: 6px; font-weight: 600; color: var(--gold-color);">🔍 Velikost / Přiblížení domu (Zoom)</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="triplex-zoom-input" min="60" max="250" value="100" class="compact-range-slider" style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                            <input type="number" id="triplex-zoom-number" min="60" max="250" value="100" class="slider-num-input">
+                            <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                        </div>
+                    </div>
+                    <small style="display: block; opacity: 0.7; font-size: 0.73rem; margin-top: 4px;">Nastavte jak velký / přiblížený se bude dům zobrazovat na webu.</small>
                 </div>
                 <hr style="margin: 1rem 0; opacity: 0.1;">
                 <h4>Galerie Obrázků (Flexibilní)</h4>
@@ -620,17 +613,6 @@
                                 <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="control-group compact-slider-row" style="margin-bottom: 1.2rem; background: rgba(197, 160, 89, 0.06); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 8px; padding: 10px;">
-                        <label style="font-size: 0.82rem; margin-bottom: 6px; font-weight: 600; color: var(--gold-color);">🔍 Výchozí velikost / Přiblížení domu (Zoom)</label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="range" id="units-zoom-input" min="60" max="250" value="100" class="compact-range-slider" style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                                <input type="number" id="units-zoom-number" min="60" max="250" value="100" class="slider-num-input">
-                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
-                            </div>
-                        </div>
-                        <small style="display: block; opacity: 0.7; font-size: 0.73rem; margin-top: 4px;">Nastavte velikost zobrazení domu na webu. Lze kdykoliv přiblížit i přímo tlačítky nad domem.</small>
                     </div>
 
                     <!-- Nastavení pro Varianta 3 (Polygony) -->
@@ -1458,6 +1440,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.4.1"></script>
+    <script src="app.js?v=5.4.2"></script>
 </body>
 </html>

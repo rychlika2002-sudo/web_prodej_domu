@@ -944,15 +944,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Interactive Units Zoom System ---
-    const zoomInBtn = document.getElementById('zoom-in-btn');
-    const zoomOutBtn = document.getElementById('zoom-out-btn');
-    const zoomResetBtn = document.getElementById('zoom-reset-btn');
-    const zoomFullscreenBtn = document.getElementById('zoom-fullscreen-btn');
-    const zoomBadge = document.getElementById('zoom-level-badge');
-    const unitsZoomInput = document.getElementById('units-zoom-input');
-    const unitsZoomNumber = document.getElementById('units-zoom-number');
-    const unitsScrollWrapper = document.getElementById('units-scroll-wrapper');
+    // --- Triplex House Image Zoom / Size System ---
+    const triplexZoomInput = document.getElementById('triplex-zoom-input');
+    const triplexZoomNumber = document.getElementById('triplex-zoom-number');
     const unitsMainContainer = document.getElementById('units-main-container');
 
     window.setUnitsZoom = (level, save = false) => {
@@ -960,17 +954,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!unitsConfig) unitsConfig = {};
         unitsConfig.zoom = zoomVal;
 
-        if (zoomBadge) zoomBadge.textContent = `${zoomVal}%`;
-        if (unitsZoomInput) unitsZoomInput.value = zoomVal;
-        if (unitsZoomNumber) unitsZoomNumber.value = zoomVal;
+        if (triplexZoomInput) triplexZoomInput.value = zoomVal;
+        if (triplexZoomNumber) triplexZoomNumber.value = zoomVal;
 
         if (unitsMainContainer) {
             if (zoomVal === 100) {
                 unitsMainContainer.style.width = '100%';
-                unitsMainContainer.style.maxWidth = '1920px';
             } else {
                 unitsMainContainer.style.width = `${zoomVal}%`;
-                unitsMainContainer.style.maxWidth = 'none';
             }
         }
 
@@ -979,24 +970,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (zoomInBtn) zoomInBtn.addEventListener('click', () => window.setUnitsZoom((unitsConfig.zoom || 100) + 20, false));
-    if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => window.setUnitsZoom((unitsConfig.zoom || 100) - 20, false));
-    if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => window.setUnitsZoom(100, false));
-    if (zoomBadge) zoomBadge.addEventListener('click', () => window.setUnitsZoom(100, false));
-    if (unitsZoomInput) unitsZoomInput.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
-    if (unitsZoomNumber) unitsZoomNumber.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
-
-    if (zoomFullscreenBtn) {
-        zoomFullscreenBtn.addEventListener('click', () => {
-            const targetEl = unitsScrollWrapper || unitsMainContainer;
-            if (!document.fullscreenElement) {
-                if (targetEl.requestFullscreen) targetEl.requestFullscreen();
-                else if (targetEl.webkitRequestFullscreen) targetEl.webkitRequestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        });
-    }
+    if (triplexZoomInput) triplexZoomInput.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
+    if (triplexZoomNumber) triplexZoomNumber.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
 
     // Accordion Logic
     document.querySelectorAll('.accordion-header').forEach(header => {
