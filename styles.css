@@ -1369,6 +1369,229 @@ textarea.admin-input {
     transform: translateX(-50%) translateY(0);
 }
 
+/* --- Variant 3: SVG Polygons & Editor --- */
+.units-svg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.unit-polygon {
+    pointer-events: auto;
+    cursor: pointer;
+    fill: rgba(0, 0, 0, 0);
+    stroke: var(--polygon-stroke-color, #ffffff);
+    stroke-width: var(--polygon-stroke-width, 2px);
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: fill 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease, filter 0.25s ease;
+}
+
+.unit-polygon:hover {
+    fill: var(--unit-hover-color, rgba(197, 160, 89, 0.45)) !important;
+    stroke: #ffffff !important;
+    stroke-width: 3.5px !important;
+    filter: url(#polygon-glow);
+}
+
+/* Persistent status styling for Reserved & Sold */
+.unit-polygon.status-reserved {
+    fill: var(--polygon-reserved-fill, rgba(230, 126, 34, 0.4));
+    stroke: var(--polygon-reserved-color, #e67e22);
+}
+
+.unit-polygon.status-sold {
+    fill: var(--polygon-sold-fill, rgba(231, 76, 60, 0.45));
+    stroke: var(--polygon-sold-color, #e74c3c);
+}
+
+.unit-polygon.status-available {
+    fill: rgba(0, 0, 0, 0);
+}
+
+.unit-polygon-label-group {
+    pointer-events: none;
+    user-select: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.unit-polygon-badge {
+    fill: rgba(0, 0, 0, 0.75);
+    rx: 12;
+    ry: 12;
+}
+
+.unit-polygon-text {
+    fill: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+    font-family: inherit;
+}
+
+/* Floating Card for Polygon Mode */
+.polygon-unit-popover {
+    position: absolute;
+    z-index: 40;
+    pointer-events: none;
+    background: #ffffff;
+    color: #1e293b;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    border: 1px solid rgba(0,0,0,0.08);
+    min-width: 200px;
+    max-width: 280px;
+    transform: translate(-50%, -100%) translateY(-12px);
+    transition: opacity 0.15s ease;
+    opacity: 0;
+}
+
+.polygon-unit-popover.active {
+    opacity: 1;
+}
+
+body.dark-mode .polygon-unit-popover {
+    background: #1e1e1e;
+    color: #f1f5f9;
+    border-color: #333;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+.polygon-unit-popover .popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 8px;
+}
+
+.polygon-unit-popover .popover-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.polygon-unit-popover .popover-price {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent-color, #c5a059);
+    margin-bottom: 4px;
+}
+
+.polygon-unit-popover .popover-specs {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Polygon Editor Toolbar & Canvas */
+.polygon-editor-toolbar {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(12px);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    max-width: 92%;
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translate(-50%, -20px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.editor-toolbar-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 3px;
+}
+
+.editor-toolbar-header strong {
+    color: var(--accent-color, #c5a059);
+}
+
+.editor-hint {
+    font-size: 0.78rem;
+    opacity: 0.75;
+}
+
+.editor-toolbar-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.editor-toolbar-actions button {
+    padding: 0.45rem 0.9rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    border: none !important;
+}
+
+.btn-editor-save { background: #27ae60 !important; color: white !important; }
+.btn-editor-save:hover { background: #219150 !important; }
+
+.btn-editor-undo { background: #3498db !important; color: white !important; }
+.btn-editor-undo:hover { background: #2980b9 !important; }
+
+.btn-editor-clear { background: #e67e22 !important; color: white !important; }
+.btn-editor-clear:hover { background: #d35400 !important; }
+
+.btn-editor-cancel { background: #475569 !important; color: white !important; }
+.btn-editor-cancel:hover { background: #334155 !important; }
+
+/* SVG Editor Layer Styles */
+.editor-polygon-preview {
+    fill: rgba(197, 160, 89, 0.35);
+    stroke: var(--accent-color, #c5a059);
+    stroke-width: 2.5px;
+    stroke-dasharray: 6 4;
+}
+
+.editor-handle {
+    r: 9;
+    fill: var(--accent-color, #c5a059);
+    stroke: #ffffff;
+    stroke-width: 2.5px;
+    cursor: grab;
+    pointer-events: auto;
+    transition: transform 0.15s ease, r 0.15s ease;
+}
+
+.editor-handle:hover, .editor-handle.dragging {
+    r: 12;
+    fill: #e67e22;
+    cursor: grabbing;
+}
+
+.editor-crosshair-canvas {
+    cursor: crosshair !important;
+}
+
 @media (max-width: 768px) {
     .modal-content {
         grid-template-columns: 1fr;

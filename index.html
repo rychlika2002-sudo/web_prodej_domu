@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.1.8">
+    <link rel="stylesheet" href="styles.css?v=5.1.9">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -77,10 +77,40 @@
             <p>Klikněte na část domu pro detailní specifikace a rezervaci prohlídky.</p>
         </div>
         
-        <div class="units-container">
+        <div class="units-container" id="units-main-container">
             <img src="triplex.jpg" alt="Trojdomek" class="units-image" onerror="if(this.src!=='triplex.jpg')this.src='triplex.jpg';">
+            
+            <!-- SVG Overlay pro Variantu 3 (Polygony) -->
+            <svg class="units-svg-overlay" id="units-svg-overlay" viewBox="0 0 1000 1000" preserveAspectRatio="none" style="display: none;">
+                <defs>
+                    <filter id="polygon-glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.35"/>
+                    </filter>
+                </defs>
+                <g id="units-svg-polygons-layer"></g>
+                <g id="units-svg-editor-layer"></g>
+            </svg>
+
+            <!-- Běžný overlay pro Variantu 1 (pruhy) a Variantu 2 (piny) -->
             <div class="unit-overlay" id="unit-overlay">
                 <!-- Dynamicky vyplňováno JavaScriptem podle administrace -->
+            </div>
+
+            <!-- Plovoucí infokarta pro Variantu 3 na hover -->
+            <div id="polygon-unit-popover" class="polygon-unit-popover" style="display: none;"></div>
+
+            <!-- Ovládací panel editoru polygonů na obrázku -->
+            <div id="polygon-editor-toolbar" class="polygon-editor-toolbar" style="display: none;">
+                <div class="editor-toolbar-header">
+                    <span id="editor-active-unit-text">✏️ Kreslení tvaru pro: <strong>Jednotka 1</strong></span>
+                    <span class="editor-hint">Klikáním do obrázku zadávejte vrcholy obrysu domu. Body můžete i přetahovat myší.</span>
+                </div>
+                <div class="editor-toolbar-actions">
+                    <button type="button" class="btn btn-editor-save" id="editor-btn-save">💾 Uložit polygon</button>
+                    <button type="button" class="btn btn-editor-undo" id="editor-btn-undo">↩️ Zpět (Undo)</button>
+                    <button type="button" class="btn btn-editor-clear" id="editor-btn-clear">🗑️ Smazat body</button>
+                    <button type="button" class="btn btn-editor-cancel" id="editor-btn-cancel">❌ Zavřít editor</button>
+                </div>
             </div>
         </div>
     </section>
@@ -552,6 +582,7 @@
                         <select id="units-mode-input">
                             <option value="slices">Varianta 1: Svislé pruhy (Řadovky)</option>
                             <option value="pins">Varianta 2: Volné body (Piny na mapě/dronu)</option>
+                            <option value="polygons">Varianta 3: Polygony / Kreslení tvarů (SVG)</option>
                         </select>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">
@@ -571,6 +602,47 @@
                             <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
                                 <input type="number" id="units-opacity-number" min="0" max="100" value="40" class="slider-num-input">
                                 <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nastavení pro Variantu 3 (Polygony) -->
+                    <div id="admin-polygon-settings" style="display: none; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 12px; margin-bottom: 1.2rem;">
+                        <h5 style="margin-top: 0; margin-bottom: 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Nastavení Polygonů (Varianta 3)</h5>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                            <div class="control-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.78rem;">Barva rezervováno</label>
+                                <input type="color" id="polygon-reserved-color-input" value="#e67e22" style="height: 36px; padding: 2px;">
+                            </div>
+                            <div class="control-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.78rem;">Barva prodáno</label>
+                                <input type="color" id="polygon-sold-color-input" value="#e74c3c" style="height: 36px; padding: 2px;">
+                            </div>
+                        </div>
+
+                        <div class="control-group compact-slider-row" style="margin-bottom: 8px;">
+                            <label style="font-size: 0.78rem; margin-bottom: 4px;">Trvalé podbarvení rezervace</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" id="polygon-reserved-opacity-input" min="5" max="100" value="40" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="polygon-reserved-opacity-number" min="5" max="100" value="40" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
+                            <div class="control-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.78rem;">Barva obrysu</label>
+                                <input type="color" id="polygon-stroke-color-input" value="#ffffff" style="height: 36px; padding: 2px;">
+                            </div>
+                            <div class="control-group compact-slider-row" style="margin-bottom: 0;">
+                                <label style="font-size: 0.78rem; margin-bottom: 4px;">Tloušťka obrysu</label>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <input type="range" id="polygon-stroke-width-input" min="1" max="8" value="2" class="compact-range-slider" style="flex: 1;">
+                                    <input type="number" id="polygon-stroke-width-number" min="1" max="8" value="2" class="slider-num-input" style="width: 36px !important;">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -701,6 +773,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="control-group polygon-coord-group" id="polygon-coord-group-1" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                            <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(1)">✏️ Kreslit / Upravit</button>
+                            <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(1)">🗑️ Smazat</button>
+                        </div>
+                        <div id="polygon-status-1" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
+                    </div>
                     <div class="control-group"><label>Stav</label><select id="status-1-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-1-input"></div>
                     <div class="control-group"><label>Dispozice</label><input type="text" id="layout-1-input"></div>
@@ -747,6 +827,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="control-group polygon-coord-group" id="polygon-coord-group-2" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                            <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(2)">✏️ Kreslit / Upravit</button>
+                            <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(2)">🗑️ Smazat</button>
+                        </div>
+                        <div id="polygon-status-2" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
+                    </div>
                     <div class="control-group"><label>Stav</label><select id="status-2-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-2-input"></div>
                     <div class="control-group"><label>Dispozice</label><input type="text" id="layout-2-input"></div>
@@ -792,6 +880,14 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="control-group polygon-coord-group" id="polygon-coord-group-3" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                            <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(3)">✏️ Kreslit / Upravit</button>
+                            <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(3)">🗑️ Smazat</button>
+                        </div>
+                        <div id="polygon-status-3" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-3-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-3-input"></div>
@@ -841,6 +937,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="control-group polygon-coord-group" id="polygon-coord-group-4" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(4)">✏️ Kreslit / Upravit</button>
+                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(4)">🗑️ Smazat</button>
+                            </div>
+                            <div id="polygon-status-4" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
+                        </div>
                         <div class="control-group"><label>Stav</label><select id="status-4-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-4-input"></div>
                         <div class="control-group"><label>Dispozice</label><input type="text" id="layout-4-input"></div>
@@ -887,6 +991,14 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="control-group polygon-coord-group" id="polygon-coord-group-5" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(5)">✏️ Kreslit / Upravit</button>
+                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(5)">🗑️ Smazat</button>
+                            </div>
+                            <div id="polygon-status-5" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-5-input"></div>
@@ -935,6 +1047,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="control-group polygon-coord-group" id="polygon-coord-group-6" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(6)">✏️ Kreslit / Upravit</button>
+                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(6)">🗑️ Smazat</button>
+                            </div>
+                            <div id="polygon-status-6" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
+                        </div>
                         <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-6-input"></div>
                         <div class="control-group"><label>Dispozice</label><input type="text" id="layout-6-input"></div>
@@ -981,6 +1101,14 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="control-group polygon-coord-group" id="polygon-coord-group-7" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(7)">✏️ Kreslit / Upravit</button>
+                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(7)">🗑️ Smazat</button>
+                            </div>
+                            <div id="polygon-status-7" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-7-input"></div>
@@ -1029,6 +1157,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="control-group polygon-coord-group" id="polygon-coord-group-8" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(8)">✏️ Kreslit / Upravit</button>
+                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(8)">🗑️ Smazat</button>
+                            </div>
+                            <div id="polygon-status-8" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
+                        </div>
                         <div class="control-group"><label>Stav</label><select id="status-8-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-8-input"></div>
                         <div class="control-group"><label>Dispozice</label><input type="text" id="layout-8-input"></div>
@@ -1075,6 +1211,14 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="control-group polygon-coord-group" id="polygon-coord-group-9" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 0.82rem;">Polygon Jednotky (Tvar na obrázku):</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <button type="button" class="btn" style="flex: 1; min-width: 130px; padding: 0.45rem 0.6rem; font-size: 0.8rem; background: var(--accent-color); color: #fff;" onclick="window.startPolygonEditor(9)">✏️ Kreslit / Upravit</button>
+                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(9)">🗑️ Smazat</button>
+                            </div>
+                            <div id="polygon-status-9" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-9-input"></div>
@@ -1138,6 +1282,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.1.8"></script>
+    <script src="app.js?v=5.1.9"></script>
 </body>
 </html>

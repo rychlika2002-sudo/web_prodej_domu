@@ -18,11 +18,23 @@ document.addEventListener('DOMContentLoaded', () => {
         hoverColorHex: '#c5a059',
         pinColorHex: '#c5a059',
         hoverOpacity: 40,
+        reservedColorHex: '#e67e22',
+        reservedOpacity: 40,
+        soldColorHex: '#e74c3c',
+        soldOpacity: 45,
+        strokeColorHex: '#ffffff',
+        strokeWidth: 2,
         widths: { 1: 33.3, 2: 33.3, 3: 33.3, 4: 25, 5: 20, 6: 16, 7: 14, 8: 12, 9: 11 },
         pins: { 
             1: {x: 50, y: 50, s: 100}, 2: {x: 50, y: 50, s: 100}, 3: {x: 50, y: 50, s: 100}, 
             4: {x: 50, y: 50, s: 100}, 5: {x: 50, y: 50, s: 100}, 6: {x: 50, y: 50, s: 100},
             7: {x: 50, y: 50, s: 100}, 8: {x: 50, y: 50, s: 100}, 9: {x: 50, y: 50, s: 100}
+        },
+        polygons: {
+            1: "25,395 325,350 330,750 30,780",
+            2: "338,348 640,345 640,745 342,750",
+            3: "655,345 970,390 960,780 655,745",
+            4: "", 5: "", 6: "", 7: "", 8: "", 9: ""
         }
     };
 
@@ -406,15 +418,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const unitsOpacityInput = document.getElementById('units-opacity-input');
     const unitsOpacityNumber = document.getElementById('units-opacity-number');
 
+    // Polygon Config Inputs
+    const adminPolygonSettings = document.getElementById('admin-polygon-settings');
+    const polygonReservedColorInput = document.getElementById('polygon-reserved-color-input');
+    const polygonSoldColorInput = document.getElementById('polygon-sold-color-input');
+    const polygonReservedOpacityInput = document.getElementById('polygon-reserved-opacity-input');
+    const polygonReservedOpacityNumber = document.getElementById('polygon-reserved-opacity-number');
+    const polygonStrokeColorInput = document.getElementById('polygon-stroke-color-input');
+    const polygonStrokeWidthInput = document.getElementById('polygon-stroke-width-input');
+    const polygonStrokeWidthNumber = document.getElementById('polygon-stroke-width-number');
+
     const widthSliders = {};
     const widthNumbers = {};
     const widthContainers = {};
     const adminUnitBlocks = {};
+    const polygonCoordGroups = {};
+    const polygonStatusLabels = {};
+
     for(let i=1; i<=9; i++) {
         widthSliders[i] = document.getElementById(`units-width-${i}-input`);
         widthNumbers[i] = document.getElementById(`units-width-${i}-number`);
         widthContainers[i] = document.getElementById(`units-width-${i}-container`);
         adminUnitBlocks[i] = document.getElementById(`admin-unit-${i}-block`);
+        polygonCoordGroups[i] = document.getElementById(`polygon-coord-group-${i}`);
+        polygonStatusLabels[i] = document.getElementById(`polygon-status-${i}`);
     }
 
     const unitsModeInput = document.getElementById('units-mode-input');
@@ -433,10 +460,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateAdminUnitsVisibility = () => {
         const mode = unitsConfig.mode || 'slices';
         if(unitsModeInput) unitsModeInput.value = mode;
+        const isSlices = mode === 'slices';
         const isPins = mode === 'pins';
+        const isPolygons = mode === 'polygons';
 
         const pinCoordGroups = document.querySelectorAll('.pin-coord-group');
         pinCoordGroups.forEach(el => el.style.display = isPins ? 'block' : 'none');
+
+        if(adminPolygonSettings) adminPolygonSettings.style.display = isPolygons ? 'block' : 'none';
 
         const c = unitsConfig.count;
         if(unitsCountDisplay) unitsCountDisplay.textContent = c;
@@ -445,8 +476,19 @@ document.addEventListener('DOMContentLoaded', () => {
         for(let i=1; i<=9; i++) {
             const isVisible = i <= c;
             
-            if(widthContainers[i]) widthContainers[i].style.display = (isVisible && !isPins && c > 1) ? 'block' : 'none';
+            if(widthContainers[i]) widthContainers[i].style.display = (isVisible && isSlices && c > 1) ? 'block' : 'none';
             if(adminUnitBlocks[i]) adminUnitBlocks[i].style.display = isVisible ? 'block' : 'none';
+            if(polygonCoordGroups[i]) polygonCoordGroups[i].style.display = (isVisible && isPolygons) ? 'block' : 'none';
+
+            if(polygonStatusLabels[i]) {
+                const poly = unitsConfig.polygons && unitsConfig.polygons[i] ? unitsConfig.polygons[i].trim() : '';
+                if(poly) {
+                    const ptsCount = poly.split(/\s+/).filter(Boolean).length;
+                    polygonStatusLabels[i].innerHTML = `Stav: <span style="color: #27ae60; font-weight: 600;">✓ Polygon (${ptsCount} bodů)</span>`;
+                } else {
+                    polygonStatusLabels[i].innerHTML = `Stav: <span style="opacity: 0.6;">Žádný polygon</span>`;
+                }
+            }
 
             if(widthNumbers[i]) widthNumbers[i].value = unitsConfig.widths[i];
             if(widthSliders[i]) widthSliders[i].value = unitsConfig.widths[i];
@@ -465,8 +507,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if(unitsOpacityNumber) unitsOpacityNumber.value = unitsConfig.hoverOpacity;
+        if(unitsOpacityInput) unitsOpacityInput.value = unitsConfig.hoverOpacity;
         if(unitsColorInput) unitsColorInput.value = unitsConfig.hoverColorHex;
         if(pinColorInput) pinColorInput.value = unitsConfig.pinColorHex || '#c5a059';
+
+        if(polygonReservedColorInput) polygonReservedColorInput.value = unitsConfig.reservedColorHex || '#e67e22';
+        if(polygonSoldColorInput) polygonSoldColorInput.value = unitsConfig.soldColorHex || '#e74c3c';
+        if(polygonReservedOpacityInput) polygonReservedOpacityInput.value = unitsConfig.reservedOpacity || 40;
+        if(polygonReservedOpacityNumber) polygonReservedOpacityNumber.value = unitsConfig.reservedOpacity || 40;
+        if(polygonStrokeColorInput) polygonStrokeColorInput.value = unitsConfig.strokeColorHex || '#ffffff';
+        if(polygonStrokeWidthInput) polygonStrokeWidthInput.value = unitsConfig.strokeWidth || 2;
+        if(polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = unitsConfig.strokeWidth || 2;
     };
 
     if (unitsCountInput) {
@@ -483,6 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!unitsConfig.pins) {
                 unitsConfig.pins = {};
                 for(let i=1; i<=9; i++) unitsConfig.pins[i] = {x: 50, y: 50, s: 100};
+            }
+            if (!unitsConfig.polygons) {
+                unitsConfig.polygons = {};
+                for(let i=1; i<=9; i++) unitsConfig.polygons[i] = '';
             }
             updateAdminUnitsVisibility();
             renderUnitZones();
@@ -533,6 +588,66 @@ document.addEventListener('DOMContentLoaded', () => {
     if (unitsColorInput) {
         unitsColorInput.addEventListener('input', (e) => {
             unitsConfig.hoverColorHex = e.target.value;
+            renderUnitZones();
+        });
+    }
+    if (pinColorInput) {
+        pinColorInput.addEventListener('input', (e) => {
+            unitsConfig.pinColorHex = e.target.value;
+            renderUnitZones();
+        });
+    }
+    if (polygonReservedColorInput) {
+        polygonReservedColorInput.addEventListener('input', (e) => {
+            unitsConfig.reservedColorHex = e.target.value;
+            renderUnitZones();
+        });
+    }
+    if (polygonSoldColorInput) {
+        polygonSoldColorInput.addEventListener('input', (e) => {
+            unitsConfig.soldColorHex = e.target.value;
+            renderUnitZones();
+        });
+    }
+    if (polygonReservedOpacityInput) {
+        polygonReservedOpacityInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value) || 40;
+            unitsConfig.reservedOpacity = val;
+            if (polygonReservedOpacityNumber) polygonReservedOpacityNumber.value = val;
+            renderUnitZones();
+        });
+    }
+    if (polygonReservedOpacityNumber) {
+        polygonReservedOpacityNumber.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value) || 0;
+            if (val > 100) val = 100;
+            if (val < 0) val = 0;
+            unitsConfig.reservedOpacity = val;
+            if (polygonReservedOpacityInput) polygonReservedOpacityInput.value = val;
+            renderUnitZones();
+        });
+    }
+    if (polygonStrokeColorInput) {
+        polygonStrokeColorInput.addEventListener('input', (e) => {
+            unitsConfig.strokeColorHex = e.target.value;
+            renderUnitZones();
+        });
+    }
+    if (polygonStrokeWidthInput) {
+        polygonStrokeWidthInput.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value) || 2;
+            unitsConfig.strokeWidth = val;
+            if (polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = val;
+            renderUnitZones();
+        });
+    }
+    if (polygonStrokeWidthNumber) {
+        polygonStrokeWidthNumber.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value) || 1;
+            if (val > 10) val = 10;
+            if (val < 1) val = 1;
+            unitsConfig.strokeWidth = val;
+            if (polygonStrokeWidthInput) polygonStrokeWidthInput.value = val;
             renderUnitZones();
         });
     }
@@ -1045,6 +1160,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderUnitZones = async () => {
         const overlay = document.getElementById('unit-overlay');
+        const svgOverlay = document.getElementById('units-svg-overlay');
+        const svgPolygonsLayer = document.getElementById('units-svg-polygons-layer');
+        const popover = document.getElementById('polygon-unit-popover');
         const mainImage = document.querySelector('.units-image');
         if (!overlay) return;
         overlay.innerHTML = '';
@@ -1055,6 +1173,16 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--pin-color', pinColor);
         root.style.setProperty('--pin-color-rgba', hexToRgba(pinColor, 70));
 
+        // Polygon custom properties
+        const reservedRgba = hexToRgba(unitsConfig.reservedColorHex || '#e67e22', unitsConfig.reservedOpacity || 40);
+        const soldRgba = hexToRgba(unitsConfig.soldColorHex || '#e74c3c', unitsConfig.soldOpacity || 45);
+        root.style.setProperty('--polygon-reserved-fill', reservedRgba);
+        root.style.setProperty('--polygon-reserved-color', unitsConfig.reservedColorHex || '#e67e22');
+        root.style.setProperty('--polygon-sold-fill', soldRgba);
+        root.style.setProperty('--polygon-sold-color', unitsConfig.soldColorHex || '#e74c3c');
+        root.style.setProperty('--polygon-stroke-color', unitsConfig.strokeColorHex || '#ffffff');
+        root.style.setProperty('--polygon-stroke-width', (unitsConfig.strokeWidth || 2) + 'px');
+
         if (mainImage) {
             mainImage.style.display = 'block';
             if (!mainImage.getAttribute('src') || mainImage.getAttribute('src') === '') {
@@ -1062,47 +1190,151 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        let htmlString = '';
+        const isPolygons = unitsConfig.mode === 'polygons';
         const isPins = unitsConfig.mode === 'pins';
 
-        for(let i=1; i<=unitsConfig.count; i++) {
-            const data = unitsData[i];
-            if(!data) continue;
+        if (isPolygons) {
+            overlay.style.display = 'none';
+            if (svgOverlay) svgOverlay.style.display = 'block';
+            if (svgPolygonsLayer) svgPolygonsLayer.innerHTML = '';
 
-            const flexValue = unitsConfig.widths[i] || (100 / unitsConfig.count);
-            let extraClass = '';
-            let styleAttr = '';
+            for (let i = 1; i <= unitsConfig.count; i++) {
+                const data = unitsData[i];
+                if (!data) continue;
 
-            if(isPins) {
-                extraClass = 'unit-pin-mode';
-                const px = unitsConfig.pins[i] ? unitsConfig.pins[i].x : 50;
-                const py = unitsConfig.pins[i] ? unitsConfig.pins[i].y : 50;
-                const ps = unitsConfig.pins[i] && unitsConfig.pins[i].s ? unitsConfig.pins[i].s / 100 : 1;
-                styleAttr = `style="left: ${px}%; top: ${py}%; --pin-scale: ${ps};"`;
-            } else {
-                styleAttr = `style="flex: ${flexValue}"`;
+                const pointsStr = (unitsConfig.polygons && unitsConfig.polygons[i]) ? unitsConfig.polygons[i].trim() : '';
+                if (!pointsStr) continue;
+
+                // Create SVG Polygon
+                const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                poly.setAttribute('class', `unit-polygon ${data.status}`);
+                poly.setAttribute('points', pointsStr);
+                poly.setAttribute('data-unit', i);
+                
+                // Parse points to find centroid
+                const rawPairs = pointsStr.split(/\s+/).filter(Boolean);
+                let sumX = 0, sumY = 0, countPts = 0;
+                rawPairs.forEach(p => {
+                    const [px, py] = p.split(',').map(Number);
+                    if (!isNaN(px) && !isNaN(py)) {
+                        sumX += px;
+                        sumY += py;
+                        countPts++;
+                    }
+                });
+                const cx = countPts > 0 ? (sumX / countPts) : 500;
+                const cy = countPts > 0 ? (sumY / countPts) : 500;
+
+                // Create Polygon Label/Badge
+                const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                labelGroup.setAttribute('class', 'unit-polygon-label-group');
+                labelGroup.setAttribute('transform', `translate(${cx}, ${cy})`);
+                labelGroup.innerHTML = `
+                    <rect x="-24" y="-12" width="48" height="24" class="unit-polygon-badge"></rect>
+                    <text class="unit-polygon-text">${i}</text>
+                `;
+
+                // Interactivity for Polygon
+                poly.addEventListener('mouseenter', (e) => {
+                    if (window.isPolygonEditingActive) return;
+                    if (popover) {
+                        const containerRect = document.getElementById('units-main-container').getBoundingClientRect();
+                        const clientX = (cx / 1000) * containerRect.width;
+                        const clientY = (cy / 1000) * containerRect.height;
+                        
+                        popover.innerHTML = `
+                            <div class="popover-header">
+                                <h4 class="popover-title">${data.name}</h4>
+                                <span class="unit-status ${data.status}" style="margin:0; padding: 3px 8px; font-size: 0.68rem;">${data.statusText}</span>
+                            </div>
+                            <div class="popover-price">${data.price || 'Cena na vyžádání'}</div>
+                            <div class="popover-specs">
+                                <span>${data.layout || ''}</span>
+                                ${data.area ? `<span>• ${data.area} m²</span>` : ''}
+                                ${data.garden ? `<span>• Zahrada ${data.garden} m²</span>` : ''}
+                            </div>
+                        `;
+                        popover.style.left = `${clientX}px`;
+                        popover.style.top = `${clientY}px`;
+                        popover.style.display = 'block';
+                        popover.classList.add('active');
+                    }
+                });
+
+                poly.addEventListener('mousemove', (e) => {
+                    if (window.isPolygonEditingActive) return;
+                    if (popover) {
+                        const containerRect = document.getElementById('units-main-container').getBoundingClientRect();
+                        const posX = e.clientX - containerRect.left;
+                        const posY = e.clientY - containerRect.top;
+                        popover.style.left = `${posX}px`;
+                        popover.style.top = `${posY}px`;
+                    }
+                });
+
+                poly.addEventListener('mouseleave', () => {
+                    if (popover) {
+                        popover.classList.remove('active');
+                        popover.style.display = 'none';
+                    }
+                });
+
+                poly.addEventListener('click', (e) => {
+                    if (window.isPolygonEditingActive) return;
+                    if (popover) popover.style.display = 'none';
+                    openUnit(i);
+                });
+
+                if (svgPolygonsLayer) {
+                    svgPolygonsLayer.appendChild(poly);
+                    svgPolygonsLayer.appendChild(labelGroup);
+                }
             }
+        } else {
+            if (svgOverlay) svgOverlay.style.display = 'none';
+            if (popover) popover.style.display = 'none';
+            overlay.style.display = 'flex';
 
-            htmlString += `
-                <div class="unit-zone ${extraClass}" onclick="openUnit(${i})" ${styleAttr}>
-                    ${isPins ? `<div class="pin-marker"><span>${i}</span></div>` : ''}
-                    <div class="unit-footer-compact">
-                        <span class="unit-status ${data.status}" id="status-${i}">${data.statusText}</span>
-                        <span class="unit-label">${data.name.toUpperCase()}</span>
-                    </div>
-                    <div class="unit-details-compact">
-                        <span id="unit-price-${i}-display" class="price">${data.price || '---'}</span>
-                        <span id="unit-layout-${i}-display" class="layout">${data.layout || '---'}</span>
-                        <div class="specs-mini">
-                            <span class="spec-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span id="unit-area-${i}-display">${data.area ? data.area + ' m²' : '---'}</span></span>
-                            <span class="spec-divider">|</span>
-                            <span class="spec-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 8a7 7 0 0 1-9 10z"></path></svg><span id="unit-garden-${i}-display">${data.garden ? data.garden + ' m²' : '---'}</span></span>
+            let htmlString = '';
+            for(let i=1; i<=unitsConfig.count; i++) {
+                const data = unitsData[i];
+                if(!data) continue;
+
+                const flexValue = unitsConfig.widths[i] || (100 / unitsConfig.count);
+                let extraClass = '';
+                let styleAttr = '';
+
+                if(isPins) {
+                    extraClass = 'unit-pin-mode';
+                    const px = unitsConfig.pins[i] ? unitsConfig.pins[i].x : 50;
+                    const py = unitsConfig.pins[i] ? unitsConfig.pins[i].y : 50;
+                    const ps = unitsConfig.pins[i] && unitsConfig.pins[i].s ? unitsConfig.pins[i].s / 100 : 1;
+                    styleAttr = `style="left: ${px}%; top: ${py}%; --pin-scale: ${ps};"`;
+                } else {
+                    styleAttr = `style="flex: ${flexValue}"`;
+                }
+
+                htmlString += `
+                    <div class="unit-zone ${extraClass}" onclick="openUnit(${i})" ${styleAttr}>
+                        ${isPins ? `<div class="pin-marker"><span>${i}</span></div>` : ''}
+                        <div class="unit-footer-compact">
+                            <span class="unit-status ${data.status}" id="status-${i}">${data.statusText}</span>
+                            <span class="unit-label">${data.name.toUpperCase()}</span>
+                        </div>
+                        <div class="unit-details-compact">
+                            <span id="unit-price-${i}-display" class="price">${data.price || '---'}</span>
+                            <span id="unit-layout-${i}-display" class="layout">${data.layout || '---'}</span>
+                            <div class="specs-mini">
+                                <span class="spec-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span id="unit-area-${i}-display">${data.area ? data.area + ' m²' : '---'}</span></span>
+                                <span class="spec-divider">|</span>
+                                <span class="spec-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 8a7 7 0 0 1-9 10z"></path></svg><span id="unit-garden-${i}-display">${data.garden ? data.garden + ' m²' : '---'}</span></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
+            overlay.insertAdjacentHTML('beforeend', htmlString);
         }
-        overlay.insertAdjacentHTML('beforeend', htmlString);
     };
 
     const renderAdminCards = () => {
@@ -1365,7 +1597,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (config.unitsConfig) {
-                unitsConfig = config.unitsConfig;
+                unitsConfig = {
+                    ...unitsConfig,
+                    ...config.unitsConfig,
+                    polygons: {
+                        ...unitsConfig.polygons,
+                        ...(config.unitsConfig.polygons || {})
+                    }
+                };
                 if(unitsCountInput) unitsCountInput.value = unitsConfig.count;
                 if(unitsColorInput) unitsColorInput.value = unitsConfig.hoverColorHex;
                 if(pinColorInput) pinColorInput.value = unitsConfig.pinColorHex || '#c5a059';
@@ -1533,6 +1772,197 @@ document.addEventListener('DOMContentLoaded', () => {
         // Final update with correct coordinates if they were loaded
         initMap(mapCoords.lat, mapCoords.lng);
     };
+
+    // --- Interactive Polygon Editor ---
+    let activeEditingUnit = null;
+    let currentPolygonPoints = [];
+    let isDraggingHandle = false;
+    let draggedPointIndex = -1;
+    window.isPolygonEditingActive = false;
+
+    const editorToolbar = document.getElementById('polygon-editor-toolbar');
+    const editorActiveUnitText = document.getElementById('editor-active-unit-text');
+    const editorBtnSave = document.getElementById('editor-btn-save');
+    const editorBtnUndo = document.getElementById('editor-btn-undo');
+    const editorBtnClear = document.getElementById('editor-btn-clear');
+    const editorBtnCancel = document.getElementById('editor-btn-cancel');
+    const svgOverlay = document.getElementById('units-svg-overlay');
+    const svgEditorLayer = document.getElementById('units-svg-editor-layer');
+    const unitsMainContainer = document.getElementById('units-main-container');
+
+    const renderEditorLayer = () => {
+        if (!svgEditorLayer) return;
+        svgEditorLayer.innerHTML = '';
+        if (!window.isPolygonEditingActive) return;
+
+        const pointsString = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+
+        if (currentPolygonPoints.length > 0) {
+            // Preview polygon
+            const previewPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            previewPoly.setAttribute('class', 'editor-polygon-preview');
+            previewPoly.setAttribute('points', pointsString);
+            svgEditorLayer.appendChild(previewPoly);
+
+            // Vertices handles
+            currentPolygonPoints.forEach((p, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('class', 'editor-handle' + (draggedPointIndex === index ? ' dragging' : ''));
+                circle.setAttribute('cx', p.x);
+                circle.setAttribute('cy', p.y);
+                circle.setAttribute('data-point-index', index);
+
+                circle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    isDraggingHandle = true;
+                    draggedPointIndex = index;
+                    renderEditorLayer();
+                });
+                circle.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                    isDraggingHandle = true;
+                    draggedPointIndex = index;
+                    renderEditorLayer();
+                }, { passive: true });
+
+                svgEditorLayer.appendChild(circle);
+            });
+        }
+    };
+
+    window.startPolygonEditor = (unitIndex) => {
+        activeEditingUnit = unitIndex;
+        window.isPolygonEditingActive = true;
+        
+        // Parse existing points
+        currentPolygonPoints = [];
+        const rawPoints = (unitsConfig.polygons && unitsConfig.polygons[unitIndex]) ? unitsConfig.polygons[unitIndex].trim() : '';
+        if (rawPoints) {
+            rawPoints.split(/\s+/).filter(Boolean).forEach(pair => {
+                const [x, y] = pair.split(',').map(Number);
+                if (!isNaN(x) && !isNaN(y)) currentPolygonPoints.push({ x, y });
+            });
+        }
+
+        if (svgOverlay) svgOverlay.style.display = 'block';
+        if (editorToolbar) {
+            editorToolbar.style.display = 'flex';
+            if (editorActiveUnitText) {
+                editorActiveUnitText.innerHTML = `✏️ Kreslení tvaru: <strong>Jednotka ${unitIndex}</strong>`;
+            }
+        }
+        if (unitsMainContainer) unitsMainContainer.classList.add('editor-crosshair-canvas');
+
+        renderEditorLayer();
+        
+        // Scroll to units section
+        const unitsSection = document.getElementById('units');
+        if (unitsSection) unitsSection.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const closePolygonEditor = () => {
+        window.isPolygonEditingActive = false;
+        activeEditingUnit = null;
+        currentPolygonPoints = [];
+        isDraggingHandle = false;
+        draggedPointIndex = -1;
+        if (editorToolbar) editorToolbar.style.display = 'none';
+        if (unitsMainContainer) unitsMainContainer.classList.remove('editor-crosshair-canvas');
+        if (svgEditorLayer) svgEditorLayer.innerHTML = '';
+        renderUnitZones();
+    };
+
+    window.clearPolygon = (unitIndex) => {
+        if (confirm(`Opravdu chcete smazat polygon pro Jednotku ${unitIndex}?`)) {
+            if (!unitsConfig.polygons) unitsConfig.polygons = {};
+            unitsConfig.polygons[unitIndex] = '';
+            saveToStorage(true);
+            updateAdminUnitsVisibility();
+            renderUnitZones();
+        }
+    };
+
+    // SVG click to add points
+    if (svgOverlay) {
+        svgOverlay.addEventListener('click', (e) => {
+            if (!window.isPolygonEditingActive) return;
+            if (isDraggingHandle) return;
+
+            const rect = svgOverlay.getBoundingClientRect();
+            const x = Math.max(0, Math.min(1000, Math.round(((e.clientX - rect.left) / rect.width) * 1000)));
+            const y = Math.max(0, Math.min(1000, Math.round(((e.clientY - rect.top) / rect.height) * 1000)));
+
+            currentPolygonPoints.push({ x, y });
+            renderEditorLayer();
+        });
+    }
+
+    // Handle dragging points across window
+    const handleMove = (clientX, clientY) => {
+        if (!window.isPolygonEditingActive || !isDraggingHandle || draggedPointIndex === -1 || !svgOverlay) return;
+        const rect = svgOverlay.getBoundingClientRect();
+        const x = Math.max(0, Math.min(1000, Math.round(((clientX - rect.left) / rect.width) * 1000)));
+        const y = Math.max(0, Math.min(1000, Math.round(((clientY - rect.top) / rect.height) * 1000)));
+
+        currentPolygonPoints[draggedPointIndex] = { x, y };
+        renderEditorLayer();
+    };
+
+    window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    const stopDragging = () => {
+        if (isDraggingHandle) {
+            isDraggingHandle = false;
+            draggedPointIndex = -1;
+            renderEditorLayer();
+        }
+    };
+    window.addEventListener('mouseup', stopDragging);
+    window.addEventListener('touchend', stopDragging);
+
+    // Editor Toolbar Buttons
+    if (editorBtnSave) {
+        editorBtnSave.addEventListener('click', () => {
+            if (!activeEditingUnit) return;
+            if (currentPolygonPoints.length < 3) {
+                alert('Polygon musí mít alespoň 3 body! Klikněte do obrázku pro přidání dalších rohů.');
+                return;
+            }
+            if (!unitsConfig.polygons) unitsConfig.polygons = {};
+            unitsConfig.polygons[activeEditingUnit] = currentPolygonPoints.map(p => `${p.x},${p.y}`).join(' ');
+            saveToStorage(true);
+            updateAdminUnitsVisibility();
+            closePolygonEditor();
+            alert(`Polygon pro Jednotku ${activeEditingUnit} byl úspěšně uložen!`);
+        });
+    }
+
+    if (editorBtnUndo) {
+        editorBtnUndo.addEventListener('click', () => {
+            if (currentPolygonPoints.length > 0) {
+                currentPolygonPoints.pop();
+                renderEditorLayer();
+            }
+        });
+    }
+
+    if (editorBtnClear) {
+        editorBtnClear.addEventListener('click', () => {
+            if (confirm('Chcete vymazat rozpracované body?')) {
+                currentPolygonPoints = [];
+                renderEditorLayer();
+            }
+        });
+    }
+
+    if (editorBtnCancel) {
+        editorBtnCancel.addEventListener('click', () => {
+            closePolygonEditor();
+        });
+    }
 
     saveBtn.addEventListener('click', () => saveToStorage(false));
     
