@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.4.4">
+    <link rel="stylesheet" href="styles.css?v=5.4.5">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -330,9 +330,9 @@
                     <div class="compact-slider-row" style="margin-bottom: 8px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label style="margin: 0; font-size: 0.78rem; width: 85px; flex-shrink: 0;">↔️ Osa X (Vlevo/Vpravo)</label>
-                            <input type="range" id="triplex-posx-input" min="-50" max="50" value="0" class="compact-range-slider" style="flex: 1;">
+                            <input type="range" id="triplex-posx-input" min="-100" max="100" value="0" class="compact-range-slider" style="flex: 1;">
                             <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
-                                <input type="number" id="triplex-posx-number" min="-50" max="50" value="0" class="slider-num-input">
+                                <input type="number" id="triplex-posx-number" min="-100" max="100" value="0" class="slider-num-input">
                                 <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
                             </div>
                         </div>
@@ -342,9 +342,9 @@
                     <div class="compact-slider-row" style="margin-bottom: 4px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label style="margin: 0; font-size: 0.78rem; width: 85px; flex-shrink: 0;">↕️ Osa Y (Nahoru/Dolů)</label>
-                            <input type="range" id="triplex-posy-input" min="-50" max="50" value="0" class="compact-range-slider" style="flex: 1;">
+                            <input type="range" id="triplex-posy-input" min="-100" max="100" value="0" class="compact-range-slider" style="flex: 1;">
                             <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
-                                <input type="number" id="triplex-posy-number" min="-50" max="50" value="0" class="slider-num-input">
+                                <input type="number" id="triplex-posy-number" min="-100" max="100" value="0" class="slider-num-input">
                                 <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
                             </div>
                         </div>
@@ -862,6 +862,35 @@
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
                             </div>
                         </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 1 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-1-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-1-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-1-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-1-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-1-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 1:</label>
+                                <select id="unit-1-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-1-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-1-input"></div>
@@ -928,6 +957,35 @@
                                 <button type="button" class="btn" onclick="window.undoPolygonPoint()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #f39c12; color: #fff; font-weight: 600;" title="Krok zpět">↩️ Zpět</button>
                                 <button type="button" class="btn" onclick="window.clearCurrentPoints()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #e74c3c; color: #fff; font-weight: 600;" title="Vymazat body">🗑️ Smazat</button>
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
+                            </div>
+                        </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 2 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-2-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-2-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-2-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-2-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-2-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 2:</label>
+                                <select id="unit-2-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -998,6 +1056,35 @@
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
                             </div>
                         </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 3 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-3-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-3-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-3-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-3-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-3-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 3:</label>
+                                <select id="unit-3-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-3-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-3-input"></div>
@@ -1048,16 +1135,16 @@
                             </div>
                         </div>
                         <div class="control-group polygon-coord-group" id="polygon-coord-group-4" style="display: none; background: rgba(197, 160, 89, 0.05); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; margin: 0; font-size: 0.82rem; color: var(--gold-color);">Polygon (Tvar na obrázku):</label>
-                                <span id="polygon-status-4" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
-                            </div>
-                            <div id="polygon-idle-controls-4" style="display: flex; gap: 8px;">
-                                <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(4)">✏️ Kreslit / Upravit polygon</button>
-                                <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(4)" title="Smazat polygon">🗑️</button>
-                            </div>
-                            <div id="polygon-active-controls-4" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
-                                <div style="font-size: 0.78rem; font-weight: 600; color: var(--gold-color); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="font-weight: 600; margin: 0; font-size: 0.82rem; color: var(--gold-color);">Polygon (Tvar na obrázku):</label>
+                            <span id="polygon-status-4" style="font-size: 0.75rem; font-weight: 600;">Žádný polygon</span>
+                        </div>
+                        <div id="polygon-idle-controls-4" style="display: flex; gap: 8px;">
+                            <button type="button" class="btn" style="flex: 1; padding: 0.45rem 0.6rem; font-size: 0.82rem; background: var(--accent-color); color: #fff; font-weight: 600;" onclick="window.startPolygonEditor(4)">✏️ Kreslit / Upravit polygon</button>
+                            <button type="button" class="btn" style="padding: 0.45rem 0.7rem; font-size: 0.82rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(4)" title="Smazat polygon">🗑️</button>
+                        </div>
+                        <div id="polygon-active-controls-4" style="display: none; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 6px; border: 1px dashed var(--gold-color);">
+                            <div style="font-size: 0.78rem; font-weight: 600; color: var(--gold-color); display: flex; justify-content: space-between; align-items: center;">
                                 <span>✍️ Klikáním do obrázku kreslíte</span>
                                 <span id="polygon-live-pts-4" style="background: var(--gold-color); color: #fff; padding: 1px 6px; border-radius: 8px; font-size: 0.72rem;">0 bodů</span>
                             </div>
@@ -1066,6 +1153,35 @@
                                 <button type="button" class="btn" onclick="window.undoPolygonPoint()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #f39c12; color: #fff; font-weight: 600;" title="Krok zpět">↩️ Zpět</button>
                                 <button type="button" class="btn" onclick="window.clearCurrentPoints()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #e74c3c; color: #fff; font-weight: 600;" title="Vymazat body">🗑️ Smazat</button>
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
+                            </div>
+                        </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 4 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-4-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-4-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-4-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-4-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-4-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 4:</label>
+                                <select id="unit-4-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1137,6 +1253,35 @@
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
                             </div>
                         </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 5 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-5-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-5-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-5-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-5-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-5-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 5:</label>
+                                <select id="unit-5-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-5-input"></div>
@@ -1204,6 +1349,35 @@
                                 <button type="button" class="btn" onclick="window.undoPolygonPoint()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #f39c12; color: #fff; font-weight: 600;" title="Krok zpět">↩️ Zpět</button>
                                 <button type="button" class="btn" onclick="window.clearCurrentPoints()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #e74c3c; color: #fff; font-weight: 600;" title="Vymazat body">🗑️ Smazat</button>
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
+                            </div>
+                        </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 6 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-6-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-6-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-6-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-6-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-6-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 6:</label>
+                                <select id="unit-6-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1275,6 +1449,35 @@
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
                             </div>
                         </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 7 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-7-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-7-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-7-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-7-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-7-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 7:</label>
+                                <select id="unit-7-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                     <div class="control-group"><label>Cena</label><input type="text" id="price-7-input"></div>
@@ -1342,6 +1545,35 @@
                                 <button type="button" class="btn" onclick="window.undoPolygonPoint()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #f39c12; color: #fff; font-weight: 600;" title="Krok zpět">↩️ Zpět</button>
                                 <button type="button" class="btn" onclick="window.clearCurrentPoints()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #e74c3c; color: #fff; font-weight: 600;" title="Vymazat body">🗑️ Smazat</button>
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
+                            </div>
+                        </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 8 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-8-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-8-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-8-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-8-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-8-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 8:</label>
+                                <select id="unit-8-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1413,6 +1645,35 @@
                                 <button type="button" class="btn" onclick="window.closePolygonEditor()" style="padding: 0.45rem 0.7rem; font-size: 0.8rem; background: #7f8c8d; color: #fff; font-weight: 600;" title="Zavřít">❌</button>
                             </div>
                         </div>
+
+                        <!-- Samostatné zvýraznění a rámeček pro Jednotku 9 -->
+                        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.35); padding-top: 8px; margin-top: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label style="font-size: 0.78rem; font-weight: 600; margin: 0; cursor: pointer; color: inherit;" for="unit-9-perm-fill-check">✨ Trvalé svícení / výplň</label>
+                                <input type="checkbox" id="unit-9-perm-fill-check" style="width: auto; margin: 0; cursor: pointer;">
+                            </div>
+                            <div id="unit-9-perm-fill-options" style="display: none; margin-bottom: 8px; background: rgba(0,0,0,0.03); padding: 6px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 4px;">
+                                    <div>
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Barva výplně</label>
+                                        <input type="color" id="unit-9-fill-color-input" value="#c5a059" style="height: 28px; padding: 1px; width: 100%;">
+                                    </div>
+                                    <div class="compact-slider-row" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.72rem; margin-bottom: 2px; display: block;">Průhlednost (%)</label>
+                                        <input type="number" id="unit-9-fill-opacity-input" min="5" max="100" value="40" class="slider-num-input" style="width: 100% !important; height: 28px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.74rem; font-weight: 600; margin-bottom: 3px; display: block;">Rámeček Jednotky 9:</label>
+                                <select id="unit-9-stroke-mode-input" style="width: 100%; padding: 5px 8px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.15); font-size: 0.78rem;">
+                                    <option value="global">🌐 Dle globálního nastavení</option>
+                                    <option value="always">☀️ Trvalý rámeček (Svítí stále)</option>
+                                    <option value="hover">🖱️ Pouze při najetí myší</option>
+                                    <option value="none">🚫 Vypnuto (Bez rámečku)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                         <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-9-input"></div>
@@ -1476,6 +1737,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.4.4"></script>
+    <script src="app.js?v=5.4.5"></script>
 </body>
 </html>

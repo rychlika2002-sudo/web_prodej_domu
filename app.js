@@ -36,7 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
             3: "655,345 970,390 960,780 655,745",
             4: "", 5: "", 6: "", 7: "", 8: "", 9: ""
         },
-        zoom: 100
+        polygonSettings: {
+            1: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            2: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            3: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            4: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            5: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            6: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            7: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            8: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' },
+            9: { permanentFill: false, fillColor: '#c5a059', fillOpacity: 40, strokeMode: 'global' }
+        },
+        zoom: 100,
+        posX: 0,
+        posY: 0
     };
 
     let partnersData = [];
@@ -960,7 +973,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const triplexPosyInput = document.getElementById('triplex-posy-input');
     const triplexPosyNumber = document.getElementById('triplex-posy-number');
     const triplexResetTransformBtn = document.getElementById('triplex-reset-transform-btn');
-    const unitsViewportCanvas = document.getElementById('units-viewport-canvas');
 
     window.applyTriplexTransform = (save = false) => {
         if (!unitsConfig) unitsConfig = {};
@@ -968,16 +980,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const posX = (unitsConfig.posX !== undefined) ? Number(unitsConfig.posX) : 0;
         const posY = (unitsConfig.posY !== undefined) ? Number(unitsConfig.posY) : 0;
 
-        if (unitsViewportCanvas) {
-            unitsViewportCanvas.style.transform = `scale(${zoom / 100}) translate(${posX}%, ${posY}%)`;
+        const canvas = document.getElementById('units-viewport-canvas');
+        if (canvas) {
+            canvas.style.transform = `translate3d(${posX}%, ${posY}%, 0) scale(${zoom / 100})`;
+            canvas.style.transformOrigin = 'center center';
         }
 
-        if (triplexZoomInput) triplexZoomInput.value = zoom;
-        if (triplexZoomNumber) triplexZoomNumber.value = zoom;
-        if (triplexPosxInput) triplexPosxInput.value = posX;
-        if (triplexPosxNumber) triplexPosxNumber.value = posX;
-        if (triplexPosyInput) triplexPosyInput.value = posY;
-        if (triplexPosyNumber) triplexPosyNumber.value = posY;
+        const tZoomIn = document.getElementById('triplex-zoom-input');
+        const tZoomNum = document.getElementById('triplex-zoom-number');
+        const tPosXIn = document.getElementById('triplex-posx-input');
+        const tPosXNum = document.getElementById('triplex-posx-number');
+        const tPosYIn = document.getElementById('triplex-posy-input');
+        const tPosYNum = document.getElementById('triplex-posy-number');
+
+        if (tZoomIn && Number(tZoomIn.value) !== zoom) tZoomIn.value = zoom;
+        if (tZoomNum && Number(tZoomNum.value) !== zoom) tZoomNum.value = zoom;
+        if (tPosXIn && Number(tPosXIn.value) !== posX) tPosXIn.value = posX;
+        if (tPosXNum && Number(tPosXNum.value) !== posX) tPosXNum.value = posX;
+        if (tPosYIn && Number(tPosYIn.value) !== posY) tPosYIn.value = posY;
+        if (tPosYNum && Number(tPosYNum.value) !== posY) tPosYNum.value = posY;
 
         if (save && typeof saveToStorage === 'function') {
             saveToStorage(true);
@@ -990,48 +1011,51 @@ document.addEventListener('DOMContentLoaded', () => {
         window.applyTriplexTransform(save);
     };
 
-    if (triplexZoomInput) {
-        triplexZoomInput.addEventListener('input', (e) => {
-            if (!unitsConfig) unitsConfig = {};
-            unitsConfig.zoom = Number(e.target.value);
-            window.applyTriplexTransform(true);
-        });
-    }
-    if (triplexZoomNumber) {
-        triplexZoomNumber.addEventListener('input', (e) => {
-            if (!unitsConfig) unitsConfig = {};
-            unitsConfig.zoom = Number(e.target.value);
-            window.applyTriplexTransform(true);
-        });
-    }
-    if (triplexPosxInput) {
-        triplexPosxInput.addEventListener('input', (e) => {
-            if (!unitsConfig) unitsConfig = {};
-            unitsConfig.posX = Number(e.target.value);
-            window.applyTriplexTransform(true);
-        });
-    }
-    if (triplexPosxNumber) {
-        triplexPosxNumber.addEventListener('input', (e) => {
-            if (!unitsConfig) unitsConfig = {};
-            unitsConfig.posX = Number(e.target.value);
-            window.applyTriplexTransform(true);
-        });
-    }
-    if (triplexPosyInput) {
-        triplexPosyInput.addEventListener('input', (e) => {
-            if (!unitsConfig) unitsConfig = {};
-            unitsConfig.posY = Number(e.target.value);
-            window.applyTriplexTransform(true);
-        });
-    }
-    if (triplexPosyNumber) {
-        triplexPosyNumber.addEventListener('input', (e) => {
-            if (!unitsConfig) unitsConfig = {};
-            unitsConfig.posY = Number(e.target.value);
-            window.applyTriplexTransform(true);
-        });
-    }
+    ['input', 'change'].forEach(evt => {
+        if (triplexZoomInput) {
+            triplexZoomInput.addEventListener(evt, (e) => {
+                if (!unitsConfig) unitsConfig = {};
+                unitsConfig.zoom = Number(e.target.value);
+                window.applyTriplexTransform(true);
+            });
+        }
+        if (triplexZoomNumber) {
+            triplexZoomNumber.addEventListener(evt, (e) => {
+                if (!unitsConfig) unitsConfig = {};
+                unitsConfig.zoom = Number(e.target.value);
+                window.applyTriplexTransform(true);
+            });
+        }
+        if (triplexPosxInput) {
+            triplexPosxInput.addEventListener(evt, (e) => {
+                if (!unitsConfig) unitsConfig = {};
+                unitsConfig.posX = Number(e.target.value);
+                window.applyTriplexTransform(true);
+            });
+        }
+        if (triplexPosxNumber) {
+            triplexPosxNumber.addEventListener(evt, (e) => {
+                if (!unitsConfig) unitsConfig = {};
+                unitsConfig.posX = Number(e.target.value);
+                window.applyTriplexTransform(true);
+            });
+        }
+        if (triplexPosyInput) {
+            triplexPosyInput.addEventListener(evt, (e) => {
+                if (!unitsConfig) unitsConfig = {};
+                unitsConfig.posY = Number(e.target.value);
+                window.applyTriplexTransform(true);
+            });
+        }
+        if (triplexPosyNumber) {
+            triplexPosyNumber.addEventListener(evt, (e) => {
+                if (!unitsConfig) unitsConfig = {};
+                unitsConfig.posY = Number(e.target.value);
+                window.applyTriplexTransform(true);
+            });
+        }
+    });
+
     if (triplexResetTransformBtn) {
         triplexResetTransformBtn.addEventListener('click', () => {
             if (!unitsConfig) unitsConfig = {};
@@ -1041,6 +1065,66 @@ document.addEventListener('DOMContentLoaded', () => {
             window.applyTriplexTransform(true);
         });
     }
+
+    // Initialize per-unit polygon custom highlight & stroke controls
+    const initPerUnitPolygonControls = () => {
+        if (!unitsConfig.polygonSettings) unitsConfig.polygonSettings = {};
+        for (let i = 1; i <= 9; i++) {
+            if (!unitsConfig.polygonSettings[i]) {
+                unitsConfig.polygonSettings[i] = {
+                    permanentFill: false,
+                    fillColor: '#c5a059',
+                    fillOpacity: 40,
+                    strokeMode: 'global'
+                };
+            }
+
+            const permCheck = document.getElementById(`unit-${i}-perm-fill-check`);
+            const permOpts = document.getElementById(`unit-${i}-perm-fill-options`);
+            const fillCol = document.getElementById(`unit-${i}-fill-color-input`);
+            const fillOp = document.getElementById(`unit-${i}-fill-opacity-input`);
+            const strokeMode = document.getElementById(`unit-${i}-stroke-mode-input`);
+
+            if (permCheck) {
+                permCheck.checked = !!unitsConfig.polygonSettings[i].permanentFill;
+                if (permOpts) permOpts.style.display = permCheck.checked ? 'block' : 'none';
+
+                permCheck.onchange = (e) => {
+                    unitsConfig.polygonSettings[i].permanentFill = e.target.checked;
+                    if (permOpts) permOpts.style.display = e.target.checked ? 'block' : 'none';
+                    renderUnitZones();
+                    saveToStorage(true);
+                };
+            }
+
+            if (fillCol) {
+                fillCol.value = unitsConfig.polygonSettings[i].fillColor || '#c5a059';
+                fillCol.oninput = (e) => {
+                    unitsConfig.polygonSettings[i].fillColor = e.target.value;
+                    renderUnitZones();
+                    saveToStorage(true);
+                };
+            }
+
+            if (fillOp) {
+                fillOp.value = (unitsConfig.polygonSettings[i].fillOpacity !== undefined) ? unitsConfig.polygonSettings[i].fillOpacity : 40;
+                fillOp.oninput = (e) => {
+                    unitsConfig.polygonSettings[i].fillOpacity = parseInt(e.target.value) || 40;
+                    renderUnitZones();
+                    saveToStorage(true);
+                };
+            }
+
+            if (strokeMode) {
+                strokeMode.value = unitsConfig.polygonSettings[i].strokeMode || 'global';
+                strokeMode.onchange = (e) => {
+                    unitsConfig.polygonSettings[i].strokeMode = e.target.value;
+                    renderUnitZones();
+                    saveToStorage(true);
+                };
+            }
+        }
+    };
 
     // Accordion Logic
     document.querySelectorAll('.accordion-header').forEach(header => {
@@ -1483,33 +1567,6 @@ document.addEventListener('DOMContentLoaded', () => {
         root.style.setProperty('--pin-color', pinColor);
         root.style.setProperty('--pin-color-rgba', hexToRgba(pinColor, 70));
 
-        // Polygon custom properties
-        const reservedRgba = hexToRgba(unitsConfig.reservedColorHex || '#e67e22', unitsConfig.reservedOpacity || 40);
-        const soldRgba = hexToRgba(unitsConfig.soldColorHex || '#e74c3c', unitsConfig.soldOpacity || 45);
-        root.style.setProperty('--polygon-reserved-fill', reservedRgba);
-        root.style.setProperty('--polygon-reserved-color', unitsConfig.reservedColorHex || '#e67e22');
-        root.style.setProperty('--polygon-sold-fill', soldRgba);
-        const strokeMode = unitsConfig.strokeMode || 'hover'; // 'always', 'hover', 'none'
-        const strokeColor = unitsConfig.strokeColorHex || '#ffffff';
-        const strokeW = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
-
-        if (strokeMode === 'always') {
-            root.style.setProperty('--polygon-stroke-idle', strokeColor);
-            root.style.setProperty('--polygon-stroke-width-idle', `${strokeW}px`);
-            root.style.setProperty('--polygon-stroke-hover', strokeColor);
-            root.style.setProperty('--polygon-stroke-width-hover', `${Math.max(strokeW, 2.5)}px`);
-        } else if (strokeMode === 'hover') {
-            root.style.setProperty('--polygon-stroke-idle', 'transparent');
-            root.style.setProperty('--polygon-stroke-width-idle', '0px');
-            root.style.setProperty('--polygon-stroke-hover', strokeColor);
-            root.style.setProperty('--polygon-stroke-width-hover', `${strokeW}px`);
-        } else { // 'none'
-            root.style.setProperty('--polygon-stroke-idle', 'transparent');
-            root.style.setProperty('--polygon-stroke-width-idle', '0px');
-            root.style.setProperty('--polygon-stroke-hover', 'transparent');
-            root.style.setProperty('--polygon-stroke-width-hover', '0px');
-        }
-
         if (mainImage) {
             mainImage.style.display = 'block';
             if (!mainImage.getAttribute('src') || mainImage.getAttribute('src') === '') {
@@ -1525,6 +1582,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (svgOverlay) svgOverlay.style.display = 'block';
             if (svgPolygonsLayer) svgPolygonsLayer.innerHTML = '';
 
+            const globalStrokeMode = unitsConfig.strokeMode || 'hover'; // 'always', 'hover', 'none'
+            const globalStrokeColor = unitsConfig.strokeColorHex || '#ffffff';
+            const globalStrokeWidth = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
+
             for (let i = 1; i <= unitsConfig.count; i++) {
                 const data = unitsData[i];
                 if (!data) continue;
@@ -1532,12 +1593,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pointsStr = (unitsConfig.polygons && unitsConfig.polygons[i]) ? unitsConfig.polygons[i].trim() : '';
                 if (!pointsStr) continue;
 
+                const uSettings = (unitsConfig.polygonSettings && unitsConfig.polygonSettings[i]) ? unitsConfig.polygonSettings[i] : {};
+                const permFill = uSettings.permanentFill === true;
+                const uFillColor = uSettings.fillColor || unitsConfig.hoverColorHex || '#c5a059';
+                const uFillOpacity = (uSettings.fillOpacity !== undefined) ? uSettings.fillOpacity : (unitsConfig.hoverOpacity || 40);
+
+                // Determine idle fill
+                let idleFill = 'rgba(0, 0, 0, 0)';
+                if (permFill) {
+                    idleFill = hexToRgba(uFillColor, uFillOpacity);
+                } else if (data.status === 'status-reserved') {
+                    idleFill = hexToRgba(unitsConfig.reservedColorHex || '#e67e22', unitsConfig.reservedOpacity || 40);
+                } else if (data.status === 'status-sold') {
+                    idleFill = hexToRgba(unitsConfig.soldColorHex || '#e74c3c', unitsConfig.soldOpacity || 45);
+                }
+
+                // Determine hover fill
+                const hoverFill = hexToRgba(unitsConfig.hoverColorHex || '#c5a059', unitsConfig.hoverOpacity || 40);
+
+                // Determine stroke
+                const unitStrokeMode = uSettings.strokeMode || 'global';
+                const effectiveStrokeMode = (unitStrokeMode === 'global') ? globalStrokeMode : unitStrokeMode;
+
+                let idleStroke = 'none';
+                let idleStrokeWidth = '0px';
+                if (effectiveStrokeMode === 'always') {
+                    idleStroke = globalStrokeColor;
+                    idleStrokeWidth = `${globalStrokeWidth}px`;
+                }
+
+                let hoverStroke = 'none';
+                let hoverStrokeWidth = '0px';
+                if (effectiveStrokeMode !== 'none') {
+                    hoverStroke = globalStrokeColor;
+                    hoverStrokeWidth = `${Math.max(globalStrokeWidth, 2.5)}px`;
+                }
+
                 // Create SVG Polygon
                 const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
                 poly.setAttribute('class', `unit-polygon ${data.status}`);
                 poly.setAttribute('points', pointsStr);
                 poly.setAttribute('data-unit', i);
                 
+                // Set inline styles directly for 100% reliable rendering
+                poly.style.fill = idleFill;
+                poly.style.stroke = idleStroke;
+                poly.style.strokeWidth = idleStrokeWidth;
+
                 // Parse points to find centroid
                 const rawPairs = pointsStr.split(/\s+/).filter(Boolean);
                 let sumX = 0, sumY = 0, countPts = 0;
@@ -1555,6 +1657,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Interactivity for Polygon
                 poly.addEventListener('mouseenter', (e) => {
                     if (window.isPolygonEditingActive) return;
+                    poly.style.fill = hoverFill;
+                    poly.style.stroke = hoverStroke;
+                    poly.style.strokeWidth = hoverStrokeWidth;
+
                     if (popover) {
                         const containerRect = document.getElementById('units-main-container').getBoundingClientRect();
                         const clientX = (cx / 1000) * containerRect.width;
@@ -1591,6 +1697,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 poly.addEventListener('mouseleave', () => {
+                    poly.style.fill = idleFill;
+                    poly.style.stroke = idleStroke;
+                    poly.style.strokeWidth = idleStrokeWidth;
+
                     if (popover) {
                         popover.classList.remove('active');
                         popover.style.display = 'none';
@@ -1935,6 +2045,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         polygons: {
                             ...unitsConfig.polygons,
                             ...(config.unitsConfig.polygons || {})
+                        },
+                        polygonSettings: {
+                            ...unitsConfig.polygonSettings,
+                            ...(config.unitsConfig.polygonSettings || {})
                         }
                     };
                     if (unitsCountInput) unitsCountInput.value = unitsConfig.count || 3;
@@ -1958,9 +2072,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (polygonReservedOpacityInput) polygonReservedOpacityInput.value = unitsConfig.reservedOpacity || 40;
                     if (polygonReservedOpacityNumber) polygonReservedOpacityNumber.value = unitsConfig.reservedOpacity || 40;
 
+                    initPerUnitPolygonControls();
+
                     if (typeof window.applyTriplexTransform === 'function') {
                         window.applyTriplexTransform(false);
                     }
+                } else {
+                    initPerUnitPolygonControls();
                 }
 
                 const c = config.content || {};

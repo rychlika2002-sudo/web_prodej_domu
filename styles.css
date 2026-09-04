@@ -1529,36 +1529,13 @@ textarea.admin-input {
 .unit-polygon {
     pointer-events: auto;
     cursor: pointer;
-    fill: rgba(0, 0, 0, 0);
-    stroke: var(--polygon-stroke-idle, transparent);
-    stroke-width: var(--polygon-stroke-width-idle, 0px);
     stroke-linejoin: round;
     stroke-linecap: round;
-    transition: fill 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease, filter 0.25s ease;
+    transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
 }
 
 .unit-polygon:hover {
-    fill: var(--unit-hover-color, rgba(197, 160, 89, 0.45)) !important;
-    stroke: var(--polygon-stroke-hover, #ffffff) !important;
-    stroke-width: var(--polygon-stroke-width-hover, 2.5px) !important;
     filter: url(#polygon-glow);
-}
-
-/* Persistent status styling for Reserved & Sold */
-.unit-polygon.status-reserved {
-    fill: var(--polygon-reserved-fill, rgba(230, 126, 34, 0.4));
-    stroke: var(--polygon-reserved-color, #e67e22) !important;
-    stroke-width: 1.5px !important;
-}
-
-.unit-polygon.status-sold {
-    fill: var(--polygon-sold-fill, rgba(231, 76, 60, 0.45));
-    stroke: var(--polygon-sold-color, #e74c3c) !important;
-    stroke-width: 1.5px !important;
-}
-
-.unit-polygon.status-available {
-    fill: rgba(0, 0, 0, 0);
 }
 
 .unit-polygon-label-group {
