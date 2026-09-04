@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const escapeHtml = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    
     // --- Data Model for Units ---
     let unitsData = {
         1: { name: 'Jednotka 1', desc: 'Luxusní bytová jednotka s vlastní zahradou a dvěma parkovacími místy.', layout: '5+kk', area: '145', garden: '210', parking: '2 místa', price: '8 490 000 Kč', status: 'status-available', statusText: 'Volno', pdfKarta: '', pdfStandardy: '' },
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let unitsConfig = {
-        mode: 'slices',
+        mode: 'polygons',
         count: 3,
         hoverColorHex: '#c5a059',
         pinColorHex: '#c5a059',
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         strokeColorHex: '#ffffff',
         strokeWidth: 2,
         widths: { 1: 33.3, 2: 33.3, 3: 33.3, 4: 25, 5: 20, 6: 16, 7: 14, 8: 12, 9: 11 },
-        pins: { 
+        pins: {
             1: {x: 50, y: 50, s: 100}, 2: {x: 50, y: 50, s: 100}, 3: {x: 50, y: 50, s: 100}, 
             4: {x: 50, y: 50, s: 100}, 5: {x: 50, y: 50, s: 100}, 6: {x: 50, y: 50, s: 100},
             7: {x: 50, y: 50, s: 100}, 8: {x: 50, y: 50, s: 100}, 9: {x: 50, y: 50, s: 100}
@@ -2731,7 +2732,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closePolygonEditor();
     };
 
-        window.saveCurrentPolygon = () => {
+    window.saveCurrentPolygon = () => {
         if (!activeEditingUnit) return;
         if (currentPolygonPoints.length < 3) {
             alert('Polygon musí mít alespoň 3 body! Klikněte do obrázku budovy pro přidání dalších bodů obrysu.');
@@ -2749,6 +2750,20 @@ document.addEventListener('DOMContentLoaded', () => {
         closePolygonEditor();
         updateAdminUnitsVisibility();
         renderUnitZones();
+
+        // Highlight the newly saved polygon briefly so user sees the exact shape that was saved
+        setTimeout(() => {
+            const savedPoly = document.querySelector(`.unit-polygon[data-unit="${uIdx}"]`);
+            if (savedPoly) {
+                savedPoly.style.transition = 'all 0.4s ease';
+                savedPoly.style.stroke = '#2ecc71';
+                savedPoly.style.strokeWidth = '4px';
+                savedPoly.style.fill = 'rgba(46, 204, 113, 0.4)';
+                setTimeout(() => {
+                    if (typeof renderUnitZones === 'function') renderUnitZones();
+                }, 1600);
+            }
+        }, 50);
     };
 
     window.undoPolygonPoint = () => {
