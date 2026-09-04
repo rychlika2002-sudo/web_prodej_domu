@@ -1475,8 +1475,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="unit-zone ${extraClass}" onclick="openUnit(${i})" ${styleAttr}>
                         ${isPins ? `<div class="pin-marker"><span>${i}</span></div>` : ''}
                         <div class="unit-footer-compact">
-                            <span class="unit-status ${data.status}" id="status-${i}">${data.statusText}</span>
-                            <span class="unit-label">${data.name.toUpperCase()}</span>
+                            <span class="unit-status ${data.status || 'status-available'}" id="status-${i}">${data.statusText || 'Volno'}</span>
+                            <span class="unit-label">${(data.name || `JEDNOTKA ${i}`).toUpperCase()}</span>
                         </div>
                         <div class="unit-details-compact">
                             <span id="unit-price-${i}-display" class="price">${data.price || '---'}</span>
@@ -1731,203 +1731,202 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadFromStorage = async () => {
-        // Initialize map immediately with defaults, will update coordinates if found in config
-        initMap(mapCoords.lat, mapCoords.lng);
-
-        const saved = localStorage.getItem('web_prodej_ultra_v3_config');
-        if (saved) {
-            const config = JSON.parse(saved);
-            
-            root.style.setProperty('--primary-color', config.styles.primary);
-            root.style.setProperty('--accent-color', config.styles.accent);
-            root.style.setProperty('--font-heading', config.styles.fontHeading);
-            primaryColorInput.value = config.styles.primary;
-            accentColorInput.value = config.styles.accent;
-            fontHeadingInput.value = config.styles.fontHeading;
-            if (config.styles.darkMode !== undefined) toggleDarkMode(config.styles.darkMode);
-            if (config.styles.showCadastral !== undefined) cadastralMapInput.checked = config.styles.showCadastral;
-            if (config.styles.logoSize !== undefined) {
-                const size = config.styles.logoSize;
-                logoSizeInput.value = size;
-                root.style.setProperty('--logo-size', size + 'px');
-                root.style.setProperty('--logo-size-footer', (size * 0.75) + 'px');
-            }
-
-            if (config.unitsConfig) {
-                unitsConfig = {
-                    ...unitsConfig,
-                    ...config.unitsConfig,
-                    polygons: {
-                        ...unitsConfig.polygons,
-                        ...(config.unitsConfig.polygons || {})
-                    }
-                };
-                if(unitsCountInput) unitsCountInput.value = unitsConfig.count;
-                if(unitsColorInput) unitsColorInput.value = unitsConfig.hoverColorHex;
-                if(pinColorInput) pinColorInput.value = unitsConfig.pinColorHex || '#c5a059';
-                if(unitsOpacityInput) unitsOpacityInput.value = unitsConfig.hoverOpacity;
-                
-                // Restore all widths
-                for(let i=1; i<=9; i++) {
-                    if(widthSliders[i] && unitsConfig.widths[i]) widthSliders[i].value = unitsConfig.widths[i];
-                    if(widthNumbers[i] && unitsConfig.widths[i]) widthNumbers[i].value = unitsConfig.widths[i];
-                }
-                
-                updateAdminUnitsVisibility();
-            }
-
-            const c = config.content;
-            webLogo.textContent = c.logo || 'MODERNÍ BYDLENÍ';
-            if (footerLogoText) footerLogoText.textContent = c.logo || 'MODERNÍ BYDLENÍ';
-            heroTitle.textContent = c.heroTitle || 'Domov, kde začíná vaše nová etapa';
-            heroText.textContent = c.heroText || 'Objevte moderní architekturu...';
-            aboutTextInput.value = c.aboutText || '';
-            
-            if (c.subtitle !== undefined) {
-                const subText = c.subtitle;
-                if (webSubtitle) webSubtitle.textContent = subText;
-                if (footerSubtitle) footerSubtitle.textContent = subText;
-                if (subtitleInput) subtitleInput.value = c.subtitle;
-            }
-
-            if (config.media) {
-                siteMedia = config.media;
-                // Load images from DB if keys are found
-                try {
-                    if (siteMedia.logo && siteMedia.logo.startsWith('db:')) {
-                        const data = await MediaDB.load('logo');
-                        if (data) [headerLogoImg, footerLogoImg].forEach(img => { if (img) { img.src = data; img.style.display = 'block'; } });
-                    }
-                    
-                    await updateHeroBackground();
-                    
-                    let loadedTriplex = false;
-                    if (siteMedia.triplex && siteMedia.triplex.startsWith('db:')) {
-                        try {
-                            const data = await MediaDB.load('triplex');
-                            if (data && triplexImage) {
-                                triplexImage.src = data;
-                                loadedTriplex = true;
-                            }
-                        } catch(e) {}
-                    } else if (siteMedia.triplex && triplexImage) {
-                        triplexImage.src = siteMedia.triplex;
-                        loadedTriplex = true;
-                    }
-                    if (!loadedTriplex && triplexImage) {
-                        triplexImage.src = 'triplex.jpg';
-                    }
-
-                    if (siteMedia.agent && siteMedia.agent.startsWith('db:')) {
-                        const data = await MediaDB.load('agent');
-                        if (data && agentPhotoDisplay) {
-                            agentPhotoDisplay.src = data;
-                            agentPhotoDisplay.style.display = 'block';
-                            if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
-                        }
-                    }
-
-                    // Gallery load
-                    if (siteMedia.gallery && siteMedia.gallery.length > 0) {
-                        try {
-                            await renderGallery();
-                        } catch(e) { console.warn('Silently ignore load issues if gallery ref fails'); }
-                    }
-                } catch (e) {
-                    console.error('Error loading media from IndexedDB:', e);
-                }
-            }
-
-            if (config.location) {
-                mapCoords = config.location;
-                gpsLatInput.value = mapCoords.lat;
-                gpsLngInput.value = mapCoords.lng;
-            }
-
-            if (config.partners) {
-                partnersData = config.partners;
-                for(let i=1; i<=6; i++) {
-                    const urlInput = document.getElementById(`partner-url-${i}-input`);
-                    if (urlInput && partnersData[i-1]) urlInput.value = partnersData[i-1].url || '';
-                }
-                renderPartners();
-            }
-            
-            // Apply map state and cadastral layers now that config is loaded
+        try {
+            // Initialize map immediately with defaults, will update coordinates if found in config
             initMap(mapCoords.lat, mapCoords.lng);
-            if (config.units) {
-                unitsData = config.units;
-                for(let i=1; i<=9; i++) {
-                    if (unitsData[i]) {
-                        if (!unitsData[i].name || unitsData[i].name.startsWith('Etapa') || unitsData[i].name.startsWith('Segment')) {
-                            unitsData[i].name = `Jednotka ${i}`;
+
+            const saved = localStorage.getItem('web_prodej_ultra_v3_config');
+            if (saved) {
+                let config = {};
+                try {
+                    config = JSON.parse(saved) || {};
+                } catch(e) {
+                    console.error('Failed to parse saved config:', e);
+                    config = {};
+                }
+                
+                if (config.styles) {
+                    if (config.styles.primary) {
+                        root.style.setProperty('--primary-color', config.styles.primary);
+                        if (primaryColorInput) primaryColorInput.value = config.styles.primary;
+                    }
+                    if (config.styles.accent) {
+                        root.style.setProperty('--accent-color', config.styles.accent);
+                        if (accentColorInput) accentColorInput.value = config.styles.accent;
+                    }
+                    if (config.styles.fontHeading) {
+                        root.style.setProperty('--font-heading', config.styles.fontHeading);
+                        if (fontHeadingInput) fontHeadingInput.value = config.styles.fontHeading;
+                    }
+                    if (config.styles.darkMode !== undefined) toggleDarkMode(config.styles.darkMode);
+                    if (config.styles.showCadastral !== undefined && cadastralMapInput) cadastralMapInput.checked = config.styles.showCadastral;
+                    if (config.styles.logoSize !== undefined && logoSizeInput) {
+                        const size = config.styles.logoSize;
+                        logoSizeInput.value = size;
+                        root.style.setProperty('--logo-size', size + 'px');
+                        root.style.setProperty('--logo-size-footer', (size * 0.75) + 'px');
+                    }
+                }
+
+                if (config.unitsConfig) {
+                    unitsConfig = {
+                        ...unitsConfig,
+                        ...config.unitsConfig,
+                        polygons: {
+                            ...unitsConfig.polygons,
+                            ...(config.unitsConfig.polygons || {})
+                        }
+                    };
+                    if (unitsCountInput) unitsCountInput.value = unitsConfig.count || 3;
+                    if (polygonCountInput) polygonCountInput.value = unitsConfig.count || 3;
+                    if (unitsColorInput) unitsColorInput.value = unitsConfig.hoverColorHex || '#c5a059';
+                    if (pinColorInput) pinColorInput.value = unitsConfig.pinColorHex || '#c5a059';
+                    if (unitsOpacityInput) unitsOpacityInput.value = unitsConfig.hoverOpacity || 40;
+                    
+                    // Restore all widths
+                    for(let i=1; i<=9; i++) {
+                        if (widthSliders[i] && unitsConfig.widths && unitsConfig.widths[i]) widthSliders[i].value = unitsConfig.widths[i];
+                        if (widthNumbers[i] && unitsConfig.widths && unitsConfig.widths[i]) widthNumbers[i].value = unitsConfig.widths[i];
+                    }
+                }
+
+                const c = config.content || {};
+                if (webLogo) webLogo.textContent = c.logo || 'MODERNÍ BYDLENÍ';
+                if (footerLogoText) footerLogoText.textContent = c.logo || 'MODERNÍ BYDLENÍ';
+                if (heroTitle) heroTitle.textContent = c.heroTitle || 'Domov, kde začíná vaše nová etapa';
+                if (heroText) heroText.textContent = c.heroText || 'Objevte moderní architekturu v srdci přírody.';
+                if (aboutTextInput) aboutTextInput.value = c.aboutText || '';
+                
+                if (c.subtitle !== undefined) {
+                    const subText = c.subtitle;
+                    if (webSubtitle) webSubtitle.textContent = subText;
+                    if (footerSubtitle) footerSubtitle.textContent = subText;
+                    if (subtitleInput) subtitleInput.value = c.subtitle;
+                }
+
+                if (config.media) {
+                    siteMedia = { ...siteMedia, ...config.media };
+                    try {
+                        if (siteMedia.logo && siteMedia.logo.startsWith('db:')) {
+                            const data = await MediaDB.load('logo');
+                            if (data) [headerLogoImg, footerLogoImg].forEach(img => { if (img) { img.src = data; img.style.display = 'block'; } });
+                        }
+                        
+                        await updateHeroBackground();
+                        
+                        let loadedTriplex = false;
+                        if (siteMedia.triplex && siteMedia.triplex.startsWith('db:')) {
+                            try {
+                                const data = await MediaDB.load('triplex');
+                                if (data && triplexImage) {
+                                    triplexImage.src = data;
+                                    loadedTriplex = true;
+                                }
+                            } catch(e) {}
+                        } else if (siteMedia.triplex && triplexImage) {
+                            triplexImage.src = siteMedia.triplex;
+                            loadedTriplex = true;
+                        }
+                        if (!loadedTriplex && triplexImage) {
+                            triplexImage.src = 'triplex.jpg';
+                        }
+
+                        if (siteMedia.agent && siteMedia.agent.startsWith('db:')) {
+                            const data = await MediaDB.load('agent');
+                            if (data && agentPhotoDisplay) {
+                                agentPhotoDisplay.src = data;
+                                agentPhotoDisplay.style.display = 'block';
+                                if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error loading media from IndexedDB:', e);
+                    }
+                }
+
+                if (config.location) {
+                    mapCoords = config.location;
+                    if (gpsLatInput) gpsLatInput.value = mapCoords.lat;
+                    if (gpsLngInput) gpsLngInput.value = mapCoords.lng;
+                }
+
+                if (config.partners && Array.isArray(config.partners)) {
+                    partnersData = config.partners;
+                    for(let i=1; i<=6; i++) {
+                        const urlInput = document.getElementById(`partner-url-${i}-input`);
+                        if (urlInput && partnersData[i-1]) urlInput.value = partnersData[i-1].url || '';
+                    }
+                }
+
+                if (config.units) {
+                    Object.keys(config.units).forEach(key => {
+                        if (unitsData[key]) {
+                            unitsData[key] = { ...unitsData[key], ...config.units[key] };
+                        }
+                    });
+                    for(let i=1; i<=9; i++) {
+                        if (unitsData[i]) {
+                            if (!unitsData[i].name || unitsData[i].name.startsWith('Etapa') || unitsData[i].name.startsWith('Segment')) {
+                                unitsData[i].name = `Jednotka ${i}`;
+                            }
                         }
                     }
                 }
-            }
 
-            // Agent info (text)
-            const agentNameDisplay = document.getElementById('editable-agent-name');
-            if (agentNameDisplay) agentNameDisplay.textContent = c.agentName || 'Jan Novák';
-            agentNameInput.value = c.agentName || '';
-            contactTitleInput.value = c.contactTitle || '';
-            contactTextInput.value = c.contactText || '';
-            contactPhoneInput.value = c.contactPhone || '';
-            contactEmailInput.value = c.contactEmail || '';
-            fbLinkInput.value = c.fbLink || '';
-            igLinkInput.value = c.igLink || '';
+                // Agent info (text)
+                const agentNameDisplay = document.getElementById('editable-agent-name');
+                if (agentNameDisplay) agentNameDisplay.textContent = c.agentName || 'Jan Novák';
+                if (agentNameInput) agentNameInput.value = c.agentName || '';
+                if (contactTitleInput) contactTitleInput.value = c.contactTitle || '';
+                if (contactTextInput) contactTextInput.value = c.contactText || '';
+                if (contactPhoneInput) contactPhoneInput.value = c.contactPhone || '';
+                if (contactEmailInput) contactEmailInput.value = c.contactEmail || '';
+                if (fbLinkInput) fbLinkInput.value = c.fbLink || '';
+                if (igLinkInput) igLinkInput.value = c.igLink || '';
 
-            // Sync link hrefs from loaded data
-            const phoneLink = document.getElementById('editable-contact-phone-link');
-            if (phoneLink && c.contactPhone) phoneLink.href = 'tel:' + c.contactPhone.replace(/\s/g, '');
-            const emailRow = document.querySelector('.agent-info-row[href^="mailto:"]');
-            if (emailRow && c.contactEmail) emailRow.href = 'mailto:' + c.contactEmail;
+                // Sync link hrefs from loaded data
+                const phoneLink = document.getElementById('editable-contact-phone-link');
+                if (phoneLink && c.contactPhone) phoneLink.href = 'tel:' + c.contactPhone.replace(/\s/g, '');
+                const emailRow = document.querySelector('.agent-info-row[href^="mailto:"]');
+                if (emailRow && c.contactEmail) emailRow.href = 'mailto:' + c.contactEmail;
 
-            if (c.projectCards) {
-                projectCards = c.projectCards;
-            }
-            renderWebCards();
-            renderAdminCards();
-
-            // Sync units UI
-            updateAdminUnitsVisibility();
-            renderUnitZones();
-            Object.keys(unitsData).forEach(id => {
-                const badge = document.getElementById(`status-${id}`);
-                if (badge) {
-                    badge.className = `unit-status ${unitsData[id].status}`;
-                    badge.textContent = unitsData[id].statusText;
+                if (c.projectCards && Array.isArray(c.projectCards)) {
+                    projectCards = c.projectCards;
                 }
-                const inputs = unitInputs[id];
-                if (inputs) {
-                    inputs.status.value = unitsData[id].status;
-                    inputs.price.value = unitsData[id].price;
-                    inputs.layout.value = unitsData[id].layout || '';
-                    inputs.area.value = unitsData[id].area || '';
-                    inputs.garden.value = unitsData[id].garden || '';
-                    inputs.parking.value = unitsData[id].parking || '';
-                    inputs.desc.value = unitsData[id].desc || '';
-                    
-                    const priceDisplay = document.getElementById(`unit-price-${id}-display`);
-                    const layoutDisplay = document.getElementById(`unit-layout-${id}-display`);
-                    const areaDisplay = document.getElementById(`unit-area-${id}-display`);
-                    const gardenDisplay = document.getElementById(`unit-garden-${id}-display`);
 
-                    if (priceDisplay) priceDisplay.textContent = unitsData[id].price || '---';
-                    if (layoutDisplay) layoutDisplay.textContent = unitsData[id].layout || '---';
-                    if (areaDisplay) areaDisplay.textContent = unitsData[id].area ? unitsData[id].area + ' m²' : '---';
-                    if (gardenDisplay) gardenDisplay.textContent = unitsData[id].garden ? unitsData[id].garden + ' m²' : '---';
-                }
-            });
-        } else {
-            // First time initialization: render default UI components
-            updateAdminUnitsVisibility();
-            renderUnitZones();
-            await renderGallery();
-            renderPartners();
+                Object.keys(unitsData).forEach(id => {
+                    const badge = document.getElementById(`status-${id}`);
+                    if (badge) {
+                        badge.className = `unit-status ${unitsData[id].status || 'status-available'}`;
+                        badge.textContent = unitsData[id].statusText || 'Volno';
+                    }
+                    const inputs = unitInputs[id];
+                    if (inputs) {
+                        if (inputs.status) inputs.status.value = unitsData[id].status || 'status-available';
+                        if (inputs.price) inputs.price.value = unitsData[id].price || '';
+                        if (inputs.layout) inputs.layout.value = unitsData[id].layout || '';
+                        if (inputs.area) inputs.area.value = unitsData[id].area || '';
+                        if (inputs.garden) inputs.garden.value = unitsData[id].garden || '';
+                        if (inputs.parking) inputs.parking.value = unitsData[id].parking || '';
+                        if (inputs.desc) inputs.desc.value = unitsData[id].desc || '';
+                        
+                        const priceDisplay = document.getElementById(`unit-price-${id}-display`);
+                        const layoutDisplay = document.getElementById(`unit-layout-${id}-display`);
+                        const areaDisplay = document.getElementById(`unit-area-${id}-display`);
+                        const gardenDisplay = document.getElementById(`unit-garden-${id}-display`);
+
+                        if (priceDisplay) priceDisplay.textContent = unitsData[id].price || '---';
+                        if (layoutDisplay) layoutDisplay.textContent = unitsData[id].layout || '---';
+                        if (areaDisplay) areaDisplay.textContent = unitsData[id].area ? unitsData[id].area + ' m²' : '---';
+                        if (gardenDisplay) gardenDisplay.textContent = unitsData[id].garden ? unitsData[id].garden + ' m²' : '---';
+                    }
+                });
+            }
+            // Final update with correct coordinates if they were loaded
+            initMap(mapCoords.lat, mapCoords.lng);
+        } catch (e) {
+            console.error('loadFromStorage top-level error:', e);
         }
-        // Final update with correct coordinates if they were loaded
-        initMap(mapCoords.lat, mapCoords.lng);
     };
 
     // --- Interactive Polygon Editor ---
@@ -2195,15 +2194,21 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', stopDragging);
     window.addEventListener('touchend', stopDragging);
 
-    saveBtn.addEventListener('click', () => saveToStorage(false));
+    if (saveBtn) saveBtn.addEventListener('click', () => saveToStorage(false));
     
-    // Start the loading sequence
+    // Start the loading sequence safely
     (async () => {
-        await loadFromStorage();
-        renderWebCards();
-        renderAdminCards();
-        renderUnitZones();
-        await renderGallery();
+        try {
+            await loadFromStorage();
+        } catch(e) {
+            console.error('loadFromStorage error:', e);
+        }
+        try { renderWebCards(); } catch(e) { console.error('renderWebCards error:', e); }
+        try { renderAdminCards(); } catch(e) { console.error('renderAdminCards error:', e); }
+        try { updateAdminUnitsVisibility(); } catch(e) { console.error('updateAdminUnitsVisibility error:', e); }
+        try { await renderUnitZones(); } catch(e) { console.error('renderUnitZones error:', e); }
+        try { await renderGallery(); } catch(e) { console.error('renderGallery error:', e); }
+        try { renderPartners(); } catch(e) { console.error('renderPartners error:', e); }
     })();
 });
 
