@@ -1081,11 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
         adminCardsContainer.innerHTML = '';
         projectCards.forEach((card, index) => {
             const el = document.createElement('div');
-            el.style.marginBottom = '1.5rem';
-            el.style.padding = '1rem';
-            el.style.background = 'rgba(0,0,0,0.03)';
-            el.style.borderRadius = '8px';
-            el.style.position = 'relative';
+            el.className = 'admin-card-item';
 
             let iconOptions = '';
             Object.keys(icons).forEach(key => {

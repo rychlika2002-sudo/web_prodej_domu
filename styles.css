@@ -168,8 +168,38 @@ body.dark-mode .unit-status {
     color: white; /* Keep status text white for green/red/yellow backgrounds */
 }
 
-body.dark-mode .unit-zone:hover {
-    /* Filter ensures the hover matches the dark mode if needed, or we rely on the dynamic hex transparent background natively. */
+body.dark-mode .unit-details-compact {
+    background: rgba(26, 26, 26, 0.94) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .unit-details-compact .price {
+    color: #ffffff !important;
+}
+
+body.dark-mode .unit-details-compact .layout {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .specs-mini {
+    border-top: 1px solid rgba(255,255,255,0.15) !important;
+    color: #cbd5e1 !important;
+}
+
+.admin-card-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    position: relative;
+    border: 1px solid #e2e8f0;
+}
+
+body.dark-mode .admin-card-item {
+    background: #282828 !important;
+    border-color: #3e3e3e !important;
+    color: #e0e0e0 !important;
 }
 
 * {
