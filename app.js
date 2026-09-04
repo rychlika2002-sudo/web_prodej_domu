@@ -791,6 +791,118 @@ document.addEventListener('DOMContentLoaded', () => {
 
     adminToggle.addEventListener('click', () => adminPanel.classList.toggle('active'));
 
+    // Admin Panel Draggable Window Logic (Supports moving freely across screens / monitors)
+    const adminDragHeader = document.getElementById('admin-panel-drag-header');
+    const adminResetPosBtn = document.getElementById('admin-reset-pos-btn');
+    const adminCloseBtn = document.getElementById('admin-close-btn');
+    const adminPopoutBtn = document.getElementById('admin-popout-btn');
+
+    let isAdminDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let initialPanelLeft = 0;
+    let initialPanelTop = 0;
+
+    if (adminDragHeader && adminPanel) {
+        adminDragHeader.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button')) return; // Don't drag when clicking header buttons
+            
+            isAdminDragging = true;
+            const rect = adminPanel.getBoundingClientRect();
+            
+            if (!adminPanel.classList.contains('is-floating')) {
+                adminPanel.classList.add('is-floating');
+                adminPanel.style.left = `${rect.left}px`;
+                adminPanel.style.top = `${rect.top}px`;
+                adminPanel.style.width = `${rect.width}px`;
+            }
+            
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            initialPanelLeft = adminPanel.offsetLeft;
+            initialPanelTop = adminPanel.offsetTop;
+            e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isAdminDragging) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            adminPanel.style.left = `${initialPanelLeft + dx}px`;
+            adminPanel.style.top = `${initialPanelTop + dy}px`;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isAdminDragging = false;
+        });
+
+        // Touch support for dragging on touchscreens
+        adminDragHeader.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button')) return;
+            if (e.touches.length === 1) {
+                isAdminDragging = true;
+                const rect = adminPanel.getBoundingClientRect();
+                if (!adminPanel.classList.contains('is-floating')) {
+                    adminPanel.classList.add('is-floating');
+                    adminPanel.style.left = `${rect.left}px`;
+                    adminPanel.style.top = `${rect.top}px`;
+                    adminPanel.style.width = `${rect.width}px`;
+                }
+                dragStartX = e.touches[0].clientX;
+                dragStartY = e.touches[0].clientY;
+                initialPanelLeft = adminPanel.offsetLeft;
+                initialPanelTop = adminPanel.offsetTop;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isAdminDragging || e.touches.length === 0) return;
+            const dx = e.touches[0].clientX - dragStartX;
+            const dy = e.touches[0].clientY - dragStartY;
+            adminPanel.style.left = `${initialPanelLeft + dx}px`;
+            adminPanel.style.top = `${initialPanelTop + dy}px`;
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+            isAdminDragging = false;
+        });
+    }
+
+    if (adminResetPosBtn) {
+        adminResetPosBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            adminPanel.classList.remove('is-floating');
+            adminPanel.style.left = '';
+            adminPanel.style.top = '';
+            adminPanel.style.width = '';
+            adminPanel.style.height = '';
+        });
+    }
+
+    if (adminCloseBtn) {
+        adminCloseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            adminPanel.classList.remove('active');
+        });
+    }
+
+    if (adminPopoutBtn) {
+        adminPopoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (adminPanel.style.width === '850px') {
+                adminPanel.style.width = '520px';
+            } else {
+                if (!adminPanel.classList.contains('is-floating')) {
+                    const rect = adminPanel.getBoundingClientRect();
+                    adminPanel.classList.add('is-floating');
+                    adminPanel.style.left = `${Math.max(20, rect.left - 330)}px`;
+                    adminPanel.style.top = `${rect.top}px`;
+                }
+                adminPanel.style.width = '850px';
+            }
+        });
+    }
+
     // Accordion Logic
     document.querySelectorAll('.accordion-header').forEach(header => {
         header.addEventListener('click', () => {
@@ -1835,6 +1947,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const svgEditorLayer = document.getElementById('units-svg-editor-layer');
     const unitsMainContainer = document.getElementById('units-main-container');
 
+    // Helper: Distance from point P to line segment VW squared
+    const distToSegmentSquared = (p, v, w) => {
+        const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+        if (l2 === 0) return (p.x - v.x) ** 2 + (p.y - v.y) ** 2;
+        let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        t = Math.max(0, Math.min(1, t));
+        const projX = v.x + t * (w.x - v.x);
+        const projY = v.y + t * (w.y - v.y);
+        return (p.x - projX) ** 2 + (p.y - projY) ** 2;
+    };
+
+    // Find best position to insert a new vertex into polygon perimeter
+    const findBestInsertIndex = (newPt, points) => {
+        if (points.length < 3) return points.length;
+        let minSqDist = Infinity;
+        let bestIdx = points.length;
+        for (let i = 0; i < points.length; i++) {
+            const nextIdx = (i + 1) % points.length;
+            const d = distToSegmentSquared(newPt, points[i], points[nextIdx]);
+            if (d < minSqDist) {
+                minSqDist = d;
+                bestIdx = i + 1;
+            }
+        }
+        return bestIdx;
+    };
+
     const renderEditorLayer = () => {
         if (!svgEditorLayer) return;
         svgEditorLayer.innerHTML = '';
@@ -1854,16 +1993,48 @@ document.addEventListener('DOMContentLoaded', () => {
             previewPoly.setAttribute('points', pointsString);
             svgEditorLayer.appendChild(previewPoly);
 
-            // Vertices handles
+            // Clickable/Hoverable edge lines for adding vertices along perimeter
+            if (currentPolygonPoints.length >= 2) {
+                for (let i = 0; i < currentPolygonPoints.length; i++) {
+                    const nextIdx = (i + 1) % currentPolygonPoints.length;
+                    const p1 = currentPolygonPoints[i];
+                    const p2 = currentPolygonPoints[nextIdx];
+
+                    const edgeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    edgeLine.setAttribute('class', 'editor-edge-line');
+                    edgeLine.setAttribute('x1', p1.x);
+                    edgeLine.setAttribute('y1', p1.y);
+                    edgeLine.setAttribute('x2', p2.x);
+                    edgeLine.setAttribute('y2', p2.y);
+                    edgeLine.setAttribute('title', 'Kliknutím přidáte nový úchopový bod sem na hranu');
+
+                    edgeLine.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (isDraggingHandle) return;
+                        const rect = svgOverlay.getBoundingClientRect();
+                        const x = Math.max(0, Math.min(1000, Math.round(((e.clientX - rect.left) / rect.width) * 1000)));
+                        const y = Math.max(0, Math.min(1000, Math.round(((e.clientY - rect.top) / rect.height) * 1000)));
+
+                        currentPolygonPoints.splice(i + 1, 0, { x, y });
+                        renderEditorLayer();
+                    });
+
+                    svgEditorLayer.appendChild(edgeLine);
+                }
+            }
+
+            // Vertices handles (Unlimited points, drag to move, right-click/double-click to delete)
             currentPolygonPoints.forEach((p, index) => {
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('class', 'editor-handle' + (draggedPointIndex === index ? ' dragging' : ''));
                 circle.setAttribute('cx', p.x);
                 circle.setAttribute('cy', p.y);
                 circle.setAttribute('data-point-index', index);
+                circle.setAttribute('title', `Bod ${index + 1} (Uchopte pro posun / Pravý klik pro smazání)`);
 
                 circle.addEventListener('mousedown', (e) => {
                     e.stopPropagation();
+                    if (e.button === 2) return;
                     isDraggingHandle = true;
                     draggedPointIndex = index;
                     renderEditorLayer();
@@ -1874,6 +2045,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     draggedPointIndex = index;
                     renderEditorLayer();
                 }, { passive: true });
+
+                // Right click deletes vertex
+                circle.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (currentPolygonPoints.length > 3) {
+                        currentPolygonPoints.splice(index, 1);
+                        renderEditorLayer();
+                    } else {
+                        alert('Polygon musí mít minimálně 3 body.');
+                    }
+                });
+
+                // Double click deletes vertex
+                circle.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    if (currentPolygonPoints.length > 3) {
+                        currentPolygonPoints.splice(index, 1);
+                        renderEditorLayer();
+                    }
+                });
 
                 svgEditorLayer.appendChild(circle);
             });
@@ -1971,7 +2163,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const x = Math.max(0, Math.min(1000, Math.round(((e.clientX - rect.left) / rect.width) * 1000)));
             const y = Math.max(0, Math.min(1000, Math.round(((e.clientY - rect.top) / rect.height) * 1000)));
 
-            currentPolygonPoints.push({ x, y });
+            const insertIdx = findBestInsertIndex({ x, y }, currentPolygonPoints);
+            currentPolygonPoints.splice(insertIdx, 0, { x, y });
             renderEditorLayer();
         });
     }

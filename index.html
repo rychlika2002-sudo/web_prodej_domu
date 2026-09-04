@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.2.1">
+    <link rel="stylesheet" href="styles.css?v=5.3.0">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -260,7 +260,17 @@
     </div>
 
     <div id="admin-panel">
-        <h2 style="margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 0.5rem;">Nastavení Webu</h2>
+        <div class="admin-panel-drag-header" id="admin-panel-drag-header" title="Uchopte a přetáhněte okno myší kamkoliv na obrazovce">
+            <div class="drag-header-title">
+                <span class="drag-handle-grip" title="Uchopit a přetáhnout">⠿</span>
+                <h2>Nastavení Webu</h2>
+            </div>
+            <div class="admin-header-actions">
+                <button type="button" id="admin-popout-btn" class="admin-head-btn" title="Otevřít v novém okně (na 2. monitor)">🗗</button>
+                <button type="button" id="admin-reset-pos-btn" class="admin-head-btn" title="Připnout k pravému okraji">📌</button>
+                <button type="button" id="admin-close-btn" class="admin-head-btn" title="Zavřít panel">✕</button>
+            </div>
+        </div>
         
         <!-- Section: Design -->
         <div class="admin-section accordion">
@@ -1417,6 +1427,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.2.1"></script>
+    <script src="app.js?v=5.3.0"></script>
 </body>
 </html>
