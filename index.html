@@ -281,9 +281,19 @@
                 <button type="button" id="admin-close-btn" class="admin-head-btn" title="Zavřít panel">✕</button>
             </div>
         </div>
+
+        <!-- Quick Navigation Pills -->
+        <div class="admin-quick-nav">
+            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-design')">🎨 Vzhled</button>
+            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-units')">🏠 Jednotky</button>
+            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-map')">📍 Mapa & GPS</button>
+            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-backup')">💾 Záloha</button>
+            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-agent')">👤 Makléř</button>
+            <button type="button" class="admin-nav-pill" onclick="window.scrollToAdminSec('sec-cookies')">🍪 Cookies</button>
+        </div>
         
         <!-- Section: Design -->
-        <div class="admin-section accordion">
+        <div class="admin-section accordion" id="sec-design">
             <div class="accordion-header">
                 <h3>🎨 Vzhled & Styl</h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -330,7 +340,7 @@
         </div>
 
         <!-- Section: Cookies -->
-        <div class="admin-section accordion" id="admin-cookies-section">
+        <div class="admin-section accordion" id="sec-cookies">
             <div class="accordion-header">
                 <h3>🍪 Cookies & Souhlas</h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -464,9 +474,9 @@
             </div>
         </div>
 
-        <div class="admin-section accordion">
+        <div class="admin-section accordion" id="sec-agent">
             <div class="accordion-header">
-                <h3>📝 Hlavní Obsah</h3>
+                <h3>📝 Hlavní Obsah & Makléř</h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="accordion-content">
@@ -561,7 +571,7 @@
         </div>
 
         <!-- Section: Units -->
-        <div class="admin-section accordion">
+        <div class="admin-section accordion" id="sec-units">
             <div class="accordion-header">
                 <h3>🏠 Správa Jednotek</h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -1401,7 +1411,7 @@
         </div>
 
         <!-- Section: Map -->
-        <div class="admin-section accordion">
+        <div class="admin-section accordion" id="sec-map">
             <div class="accordion-header">
                 <h3>📍 Mapa & GPS</h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -1423,7 +1433,7 @@
         </div>
 
         <!-- Section: Portability -->
-        <div class="admin-section accordion">
+        <div class="admin-section accordion" id="sec-backup">
             <div class="accordion-header">
                 <h3>💾 Přenos projektu (Záloha)</h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -1448,6 +1458,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.4.0"></script>
+    <script src="app.js?v=5.4.1"></script>
 </body>
 </html>

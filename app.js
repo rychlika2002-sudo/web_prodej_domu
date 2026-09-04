@@ -1007,6 +1007,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    window.scrollToAdminSec = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (!el.classList.contains('active')) {
+            el.classList.add('active');
+        }
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.style.transition = 'box-shadow 0.3s ease';
+        el.style.boxShadow = '0 0 0 2px var(--gold-color, #c5a059)';
+        setTimeout(() => {
+            el.style.boxShadow = '';
+        }, 1500);
+    };
+
     // Appearance
     primaryColorInput.addEventListener('input', (e) => root.style.setProperty('--primary-color', e.target.value));
     accentColorInput.addEventListener('input', (e) => root.style.setProperty('--accent-color', e.target.value));

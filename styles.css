@@ -594,6 +594,44 @@ body.dark-mode .admin-head-btn:hover {
     color: #121212;
 }
 
+.admin-quick-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+body.dark-mode .admin-quick-nav {
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.admin-nav-pill {
+    background: rgba(197, 160, 89, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+body.dark-mode .admin-nav-pill {
+    color: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.admin-nav-pill:hover {
+    background: var(--accent-color);
+    color: #ffffff;
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
 @media (max-width: 550px) {
     #admin-panel {
         width: 100%;
@@ -950,9 +988,15 @@ body.dark-mode .card:hover .card-icon {
 
 .units-selector {
     background: var(--bg-color);
-    padding: 60px 1.5% 40px 1.5%;
+    padding: 50px 0 20px 0; /* 0 horizontal padding for true edge-to-edge display */
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
+    overflow: hidden;
+}
+
+.units-selector .section-title {
+    padding: 0 5%;
 }
 
 /* --- Units Zoom Toolbar & Scroll Wrapper --- */
@@ -1016,15 +1060,15 @@ body.dark-mode .units-zoom-btn {
 }
 
 .units-scroll-wrapper {
-    width: 100%;
+    width: 100vw;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    margin: 0 auto;
-    padding: 6px 0;
+    margin: 0;
+    padding: 0;
     scrollbar-width: thin;
     scrollbar-color: var(--accent-color) transparent;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .units-scroll-wrapper::-webkit-scrollbar {
@@ -1037,15 +1081,15 @@ body.dark-mode .units-zoom-btn {
 }
 
 .units-container {
-    width: 100%;
-    max-width: 1920px;
-    margin: 0 auto;
+    width: 100vw;
+    max-width: 100%;
+    margin: 0;
     position: relative;
     overflow: hidden;
     transition: width 0.2s ease;
     border: none;
+    border-radius: 0;
     box-sizing: border-box;
-    border-radius: 12px;
 }
 
 /* Stínová maska je definována přes ::before, aby ležela POD štítky (z-index: 1) */
@@ -1065,10 +1109,11 @@ body.dark-mode .units-zoom-btn {
     width: 100%;
     max-width: 100%;
     height: auto;
-    max-height: 92vh; 
-    object-fit: contain;
+    max-height: 96vh; 
+    object-fit: cover;
     position: relative;
     z-index: 0;
+    border-radius: 0;
 }
 
 .unit-overlay {
