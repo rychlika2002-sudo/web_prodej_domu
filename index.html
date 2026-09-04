@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.4.2">
+    <link rel="stylesheet" href="styles.css?v=5.4.3">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -266,11 +266,6 @@
             <div class="drag-header-title">
                 <span class="drag-handle-grip" title="Uchopit a přetáhnout">⠿</span>
                 <h2>Nastavení Webu</h2>
-            </div>
-            <div class="admin-header-actions">
-                <button type="button" id="admin-popout-btn" class="admin-head-btn" title="Otevřít v novém okně (na 2. monitor)">🗗</button>
-                <button type="button" id="admin-reset-pos-btn" class="admin-head-btn" title="Připnout k pravému okraji">📌</button>
-                <button type="button" id="admin-close-btn" class="admin-head-btn" title="Zavřít panel">✕</button>
             </div>
         </div>
 
@@ -1167,11 +1162,7 @@
                             </div>
                         </div>
                     </div>
-                                <button type="button" class="btn" style="padding: 0.45rem 0.6rem; font-size: 0.8rem; background: #e74c3c; color: #fff;" onclick="window.clearPolygon(6)">🗑️ Smazat</button>
-                            </div>
-                            <div id="polygon-status-6" style="font-size: 0.75rem; opacity: 0.7;">Stav: Žádný polygon (klikněte na Kreslit)</div>
-                        </div>
-                        <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
+                    <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
                         <div class="control-group"><label>Cena</label><input type="text" id="price-6-input"></div>
                         <div class="control-group"><label>Dispozice</label><input type="text" id="layout-6-input"></div>
                         <div class="control-group"><label>Plocha (m²)</label><input type="text" id="area-6-input"></div>
@@ -1440,6 +1431,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.4.2"></script>
+    <script src="app.js?v=5.4.3"></script>
 </body>
 </html>
