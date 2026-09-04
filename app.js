@@ -502,6 +502,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if(adminUnitBlocks[i]) adminUnitBlocks[i].style.display = isVisible ? 'block' : 'none';
             if(polygonCoordGroups[i]) polygonCoordGroups[i].style.display = (isVisible && isPolygons) ? 'block' : 'none';
 
+            const idleCtrl = document.getElementById(`polygon-idle-controls-${i}`);
+            const activeCtrl = document.getElementById(`polygon-active-controls-${i}`);
+            const ptsEl = document.getElementById(`polygon-live-pts-${i}`);
+            const isThisActive = window.isPolygonEditingActive && activeEditingUnit === i;
+
+            if (idleCtrl) idleCtrl.style.display = isThisActive ? 'none' : 'flex';
+            if (activeCtrl) activeCtrl.style.display = isThisActive ? 'flex' : 'none';
+            if (isThisActive && ptsEl) {
+                ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
+            }
+
             if(polygonStatusLabels[i]) {
                 const poly = unitsConfig.polygons && unitsConfig.polygons[i] ? unitsConfig.polygons[i].trim() : '';
                 if(poly) {
@@ -1829,6 +1840,11 @@ document.addEventListener('DOMContentLoaded', () => {
         svgEditorLayer.innerHTML = '';
         if (!window.isPolygonEditingActive) return;
 
+        if (activeEditingUnit) {
+            const ptsEl = document.getElementById(`polygon-live-pts-${activeEditingUnit}`);
+            if (ptsEl) ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
+        }
+
         const pointsString = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
 
         if (currentPolygonPoints.length > 0) {
@@ -1879,14 +1895,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (svgOverlay) svgOverlay.style.display = 'block';
-        if (editorToolbar) {
-            editorToolbar.style.display = 'flex';
-            if (editorUnitSelector) {
-                editorUnitSelector.value = unitIndex;
-            }
-        }
         if (unitsMainContainer) unitsMainContainer.classList.add('editor-crosshair-canvas');
 
+        updateAdminUnitsVisibility();
         renderEditorLayer();
         
         // Scroll to units section
@@ -1900,10 +1911,44 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPolygonPoints = [];
         isDraggingHandle = false;
         draggedPointIndex = -1;
-        if (editorToolbar) editorToolbar.style.display = 'none';
         if (unitsMainContainer) unitsMainContainer.classList.remove('editor-crosshair-canvas');
         if (svgEditorLayer) svgEditorLayer.innerHTML = '';
+        updateAdminUnitsVisibility();
         renderUnitZones();
+    };
+
+    window.closePolygonEditor = () => {
+        closePolygonEditor();
+    };
+
+    window.saveCurrentPolygon = () => {
+        if (!activeEditingUnit) return;
+        if (currentPolygonPoints.length < 3) {
+            alert('Polygon musí mít alespoň 3 body! Klikněte do obrázku budovy pro přidání dalších bodů obrysu.');
+            return;
+        }
+        if (!unitsConfig.polygons) unitsConfig.polygons = {};
+        unitsConfig.polygons[activeEditingUnit] = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+        saveToStorage(true);
+        const unitSaved = activeEditingUnit;
+        closePolygonEditor();
+        updateAdminUnitsVisibility();
+        renderUnitZones();
+        alert(`Polygon pro Jednotku ${unitSaved} byl úspěšně uložen!`);
+    };
+
+    window.undoPolygonPoint = () => {
+        if (currentPolygonPoints.length > 0) {
+            currentPolygonPoints.pop();
+            renderEditorLayer();
+        }
+    };
+
+    window.clearCurrentPoints = () => {
+        if (confirm('Chcete vymazat rozpracované body?')) {
+            currentPolygonPoints = [];
+            renderEditorLayer();
+        }
     };
 
     window.clearPolygon = (unitIndex) => {
@@ -1956,59 +2001,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.addEventListener('mouseup', stopDragging);
     window.addEventListener('touchend', stopDragging);
-
-    // Editor Toolbar Buttons & Selector
-    if (editorUnitSelector) {
-        editorUnitSelector.addEventListener('change', (e) => {
-            const targetUnit = parseInt(e.target.value);
-            // If current polygon has 3+ points, auto-save to config
-            if (activeEditingUnit && currentPolygonPoints.length >= 3) {
-                if (!unitsConfig.polygons) unitsConfig.polygons = {};
-                unitsConfig.polygons[activeEditingUnit] = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
-            }
-            window.startPolygonEditor(targetUnit);
-        });
-    }
-
-    if (editorBtnSave) {
-        editorBtnSave.addEventListener('click', () => {
-            if (!activeEditingUnit) return;
-            if (currentPolygonPoints.length < 3) {
-                alert('Polygon musí mít alespoň 3 body! Klikněte do obrázku pro přidání dalších rohů.');
-                return;
-            }
-            if (!unitsConfig.polygons) unitsConfig.polygons = {};
-            unitsConfig.polygons[activeEditingUnit] = currentPolygonPoints.map(p => `${p.x},${p.y}`).join(' ');
-            saveToStorage(true);
-            updateAdminUnitsVisibility();
-            closePolygonEditor();
-            alert(`Polygon pro Jednotku ${activeEditingUnit} byl úspěšně uložen!`);
-        });
-    }
-
-    if (editorBtnUndo) {
-        editorBtnUndo.addEventListener('click', () => {
-            if (currentPolygonPoints.length > 0) {
-                currentPolygonPoints.pop();
-                renderEditorLayer();
-            }
-        });
-    }
-
-    if (editorBtnClear) {
-        editorBtnClear.addEventListener('click', () => {
-            if (confirm('Chcete vymazat rozpracované body?')) {
-                currentPolygonPoints = [];
-                renderEditorLayer();
-            }
-        });
-    }
-
-    if (editorBtnCancel) {
-        editorBtnCancel.addEventListener('click', () => {
-            closePolygonEditor();
-        });
-    }
 
     saveBtn.addEventListener('click', () => saveToStorage(false));
     
