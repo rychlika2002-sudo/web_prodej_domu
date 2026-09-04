@@ -955,13 +955,94 @@ body.dark-mode .card:hover .card-icon {
     box-sizing: border-box;
 }
 
+/* --- Units Zoom Toolbar & Scroll Wrapper --- */
+.units-zoom-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 1.2rem auto;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border-radius: 30px;
+    width: fit-content;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    position: relative;
+}
+
+body.dark-mode .units-zoom-toolbar {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.units-zoom-btn {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.dark-mode .units-zoom-btn {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.units-zoom-btn:hover {
+    background: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+    transform: scale(1.05);
+}
+
+.units-zoom-badge {
+    font-size: 0.82rem;
+    font-weight: 700;
+    min-width: 48px;
+    text-align: center;
+    color: var(--gold-color);
+    cursor: pointer;
+    user-select: none;
+}
+
+.units-scroll-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0 auto;
+    padding: 6px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) transparent;
+    border-radius: 12px;
+}
+
+.units-scroll-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.units-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
 .units-container {
     width: 100%;
     max-width: 1920px;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
-    transition: width 0.3s ease;
+    transition: width 0.2s ease;
     border: none;
     box-sizing: border-box;
     border-radius: 12px;

@@ -35,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
             2: "338,348 640,345 640,745 342,750",
             3: "655,345 970,390 960,780 655,745",
             4: "", 5: "", 6: "", 7: "", 8: "", 9: ""
-        }
+        },
+        zoom: 100
     };
 
     let partnersData = [];
@@ -787,11 +788,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Core Functions ---
+    // --- Core Functions & Admin Panel System ---
 
-    adminToggle.addEventListener('click', () => adminPanel.classList.toggle('active'));
+    // Admin Toggle with Auto-Recovery (Guarantees panel is NEVER lost off-screen)
+    adminToggle.addEventListener('click', () => {
+        const isActive = adminPanel.classList.contains('active');
+        if (!isActive) {
+            const rect = adminPanel.getBoundingClientRect();
+            const isOffScreen = rect.left < -50 || rect.left > (window.innerWidth - 80) || rect.top < 0 || rect.top > (window.innerHeight - 60);
+            if (isOffScreen || !adminPanel.classList.contains('is-floating')) {
+                adminPanel.classList.remove('is-floating');
+                adminPanel.style.left = '';
+                adminPanel.style.top = '';
+                adminPanel.style.width = '';
+                adminPanel.style.height = '';
+            }
+            adminPanel.classList.add('active');
+        } else {
+            adminPanel.classList.remove('active');
+        }
+    });
 
-    // Admin Panel Draggable Window Logic (Supports moving freely across screens / monitors)
+    // Double click on toggle gear resets to default dock position
+    adminToggle.addEventListener('dblclick', () => {
+        adminPanel.classList.remove('is-floating');
+        adminPanel.style.left = '';
+        adminPanel.style.top = '';
+        adminPanel.style.width = '';
+        adminPanel.style.height = '';
+        adminPanel.classList.add('active');
+    });
+
+    // Admin Panel Draggable Window Logic (With boundary protection so it stays visible)
     const adminDragHeader = document.getElementById('admin-panel-drag-header');
     const adminResetPosBtn = document.getElementById('admin-reset-pos-btn');
     const adminCloseBtn = document.getElementById('admin-close-btn');
@@ -802,6 +830,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let adminDragStartY = 0;
     let adminInitialPanelLeft = 0;
     let adminInitialPanelTop = 0;
+
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
     if (adminDragHeader && adminPanel) {
         adminDragHeader.addEventListener('mousedown', (e) => {
@@ -828,8 +858,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isAdminDragging) return;
             const dx = e.clientX - adminDragStartX;
             const dy = e.clientY - adminDragStartY;
-            adminPanel.style.left = `${adminInitialPanelLeft + dx}px`;
-            adminPanel.style.top = `${adminInitialPanelTop + dy}px`;
+            
+            // Clamp within screen boundaries so it can never be pulled into the void
+            const minLeft = 10;
+            const maxLeft = Math.max(10, window.innerWidth - 120);
+            const minTop = 10;
+            const maxTop = Math.max(10, window.innerHeight - 80);
+
+            adminPanel.style.left = `${clamp(adminInitialPanelLeft + dx, minLeft, maxLeft)}px`;
+            adminPanel.style.top = `${clamp(adminInitialPanelTop + dy, minTop, maxTop)}px`;
         });
 
         window.addEventListener('mouseup', () => {
@@ -859,8 +896,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isAdminDragging || e.touches.length === 0) return;
             const dx = e.touches[0].clientX - adminDragStartX;
             const dy = e.touches[0].clientY - adminDragStartY;
-            adminPanel.style.left = `${adminInitialPanelLeft + dx}px`;
-            adminPanel.style.top = `${adminInitialPanelTop + dy}px`;
+            const minLeft = 10;
+            const maxLeft = Math.max(10, window.innerWidth - 120);
+            const minTop = 10;
+            const maxTop = Math.max(10, window.innerHeight - 80);
+            adminPanel.style.left = `${clamp(adminInitialPanelLeft + dx, minLeft, maxLeft)}px`;
+            adminPanel.style.top = `${clamp(adminInitialPanelTop + dy, minTop, maxTop)}px`;
         }, { passive: true });
 
         window.addEventListener('touchend', () => {
@@ -899,6 +940,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     adminPanel.style.top = `${rect.top}px`;
                 }
                 adminPanel.style.width = '850px';
+            }
+        });
+    }
+
+    // --- Interactive Units Zoom System ---
+    const zoomInBtn = document.getElementById('zoom-in-btn');
+    const zoomOutBtn = document.getElementById('zoom-out-btn');
+    const zoomResetBtn = document.getElementById('zoom-reset-btn');
+    const zoomFullscreenBtn = document.getElementById('zoom-fullscreen-btn');
+    const zoomBadge = document.getElementById('zoom-level-badge');
+    const unitsZoomInput = document.getElementById('units-zoom-input');
+    const unitsZoomNumber = document.getElementById('units-zoom-number');
+    const unitsScrollWrapper = document.getElementById('units-scroll-wrapper');
+    const unitsMainContainer = document.getElementById('units-main-container');
+
+    window.setUnitsZoom = (level, save = false) => {
+        const zoomVal = Math.min(250, Math.max(50, Math.round(Number(level) || 100)));
+        if (!unitsConfig) unitsConfig = {};
+        unitsConfig.zoom = zoomVal;
+
+        if (zoomBadge) zoomBadge.textContent = `${zoomVal}%`;
+        if (unitsZoomInput) unitsZoomInput.value = zoomVal;
+        if (unitsZoomNumber) unitsZoomNumber.value = zoomVal;
+
+        if (unitsMainContainer) {
+            if (zoomVal === 100) {
+                unitsMainContainer.style.width = '100%';
+                unitsMainContainer.style.maxWidth = '1920px';
+            } else {
+                unitsMainContainer.style.width = `${zoomVal}%`;
+                unitsMainContainer.style.maxWidth = 'none';
+            }
+        }
+
+        if (save && typeof saveToStorage === 'function') {
+            saveToStorage(true);
+        }
+    };
+
+    if (zoomInBtn) zoomInBtn.addEventListener('click', () => window.setUnitsZoom((unitsConfig.zoom || 100) + 20, false));
+    if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => window.setUnitsZoom((unitsConfig.zoom || 100) - 20, false));
+    if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => window.setUnitsZoom(100, false));
+    if (zoomBadge) zoomBadge.addEventListener('click', () => window.setUnitsZoom(100, false));
+    if (unitsZoomInput) unitsZoomInput.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
+    if (unitsZoomNumber) unitsZoomNumber.addEventListener('input', (e) => window.setUnitsZoom(e.target.value, true));
+
+    if (zoomFullscreenBtn) {
+        zoomFullscreenBtn.addEventListener('click', () => {
+            const targetEl = unitsScrollWrapper || unitsMainContainer;
+            if (!document.fullscreenElement) {
+                if (targetEl.requestFullscreen) targetEl.requestFullscreen();
+                else if (targetEl.webkitRequestFullscreen) targetEl.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         });
     }
@@ -1788,6 +1883,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (widthSliders[i] && unitsConfig.widths && unitsConfig.widths[i]) widthSliders[i].value = unitsConfig.widths[i];
                         if (widthNumbers[i] && unitsConfig.widths && unitsConfig.widths[i]) widthNumbers[i].value = unitsConfig.widths[i];
                     }
+
+                    if (typeof window.setUnitsZoom === 'function') {
+                        window.setUnitsZoom(unitsConfig.zoom || 100, false);
+                    }
                 }
 
                 const c = config.content || {};
@@ -1944,7 +2043,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const editorBtnCancel = document.getElementById('editor-btn-cancel');
     const svgOverlay = document.getElementById('units-svg-overlay');
     const svgEditorLayer = document.getElementById('units-svg-editor-layer');
-    const unitsMainContainer = document.getElementById('units-main-container');
 
     // Helper: Distance from point P to line segment VW squared
     const distToSegmentSquared = (p, v, w) => {
