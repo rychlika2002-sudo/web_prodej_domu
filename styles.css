@@ -482,14 +482,14 @@ body.dark-mode .menu-toggle span {
     position: fixed;
     top: 0;
     right: -100%; /* Hide completely off-screen regardless of width */
-    width: 400px;
-    max-width: 100%; /* Full width on very small screens */
+    width: 500px;
+    max-width: 92vw; /* Responsive on smaller screens */
     height: 100vh;
     background: white;
-    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+    box-shadow: -5px 0 25px rgba(0,0,0,0.15);
     z-index: 10001;
     transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 2rem;
+    padding: 2.2rem;
     overflow-y: auto;
 }
 
@@ -497,8 +497,10 @@ body.dark-mode .menu-toggle span {
     right: 0;
 }
 
-@media (max-width: 450px) {
+@media (max-width: 550px) {
     #admin-panel {
+        width: 100%;
+        max-width: 100%;
         padding: 1.5rem;
     }
 }
