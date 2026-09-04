@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activeCtrl = document.getElementById(`polygon-active-controls-${i}`);
             const mainBtn = document.getElementById(`polygon-main-btn-${i}`);
             const ptsEl = document.getElementById(`polygon-live-pts-${i}`);
-            const isThisActive = window.isPolygonEditingActive && activeEditingUnit === i;
+            const isThisActive = window.isPolygonEditingActive && Number(activeEditingUnit) === i;
 
             if (idleCtrl) idleCtrl.style.display = 'flex';
             if (activeCtrl) activeCtrl.style.display = isThisActive ? 'flex' : 'none';
@@ -2731,25 +2731,24 @@ document.addEventListener('DOMContentLoaded', () => {
         closePolygonEditor();
     };
 
-    window.saveCurrentPolygon = () => {
+        window.saveCurrentPolygon = () => {
         if (!activeEditingUnit) return;
         if (currentPolygonPoints.length < 3) {
             alert('Polygon musí mít alespoň 3 body! Klikněte do obrázku budovy pro přidání dalších bodů obrysu.');
             return;
         }
+        const uIdx = Number(activeEditingUnit);
         if (!unitsConfig.polygons) unitsConfig.polygons = {};
         const ptsStr = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
-        unitsConfig.polygons[activeEditingUnit] = ptsStr;
+        unitsConfig.polygons[uIdx] = ptsStr;
         unitsConfig.mode = 'polygons';
         
         // Force save to localStorage
         saveToStorage(true);
         
-        const unitSaved = activeEditingUnit;
         closePolygonEditor();
         updateAdminUnitsVisibility();
         renderUnitZones();
-        alert(`Polygon pro Jednotku ${unitSaved} byl úspěšně uložen!`);
     };
 
     window.undoPolygonPoint = () => {
