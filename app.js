@@ -798,10 +798,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminPopoutBtn = document.getElementById('admin-popout-btn');
 
     let isAdminDragging = false;
-    let dragStartX = 0;
-    let dragStartY = 0;
-    let initialPanelLeft = 0;
-    let initialPanelTop = 0;
+    let adminDragStartX = 0;
+    let adminDragStartY = 0;
+    let adminInitialPanelLeft = 0;
+    let adminInitialPanelTop = 0;
 
     if (adminDragHeader && adminPanel) {
         adminDragHeader.addEventListener('mousedown', (e) => {
@@ -817,19 +817,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminPanel.style.width = `${rect.width}px`;
             }
             
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-            initialPanelLeft = adminPanel.offsetLeft;
-            initialPanelTop = adminPanel.offsetTop;
+            adminDragStartX = e.clientX;
+            adminDragStartY = e.clientY;
+            adminInitialPanelLeft = adminPanel.offsetLeft;
+            adminInitialPanelTop = adminPanel.offsetTop;
             e.preventDefault();
         });
 
         window.addEventListener('mousemove', (e) => {
             if (!isAdminDragging) return;
-            const dx = e.clientX - dragStartX;
-            const dy = e.clientY - dragStartY;
-            adminPanel.style.left = `${initialPanelLeft + dx}px`;
-            adminPanel.style.top = `${initialPanelTop + dy}px`;
+            const dx = e.clientX - adminDragStartX;
+            const dy = e.clientY - adminDragStartY;
+            adminPanel.style.left = `${adminInitialPanelLeft + dx}px`;
+            adminPanel.style.top = `${adminInitialPanelTop + dy}px`;
         });
 
         window.addEventListener('mouseup', () => {
@@ -848,19 +848,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     adminPanel.style.top = `${rect.top}px`;
                     adminPanel.style.width = `${rect.width}px`;
                 }
-                dragStartX = e.touches[0].clientX;
-                dragStartY = e.touches[0].clientY;
-                initialPanelLeft = adminPanel.offsetLeft;
-                initialPanelTop = adminPanel.offsetTop;
+                adminDragStartX = e.touches[0].clientX;
+                adminDragStartY = e.touches[0].clientY;
+                adminInitialPanelLeft = adminPanel.offsetLeft;
+                adminInitialPanelTop = adminPanel.offsetTop;
             }
         }, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
             if (!isAdminDragging || e.touches.length === 0) return;
-            const dx = e.touches[0].clientX - dragStartX;
-            const dy = e.touches[0].clientY - dragStartY;
-            adminPanel.style.left = `${initialPanelLeft + dx}px`;
-            adminPanel.style.top = `${initialPanelTop + dy}px`;
+            const dx = e.touches[0].clientX - adminDragStartX;
+            const dy = e.touches[0].clientY - adminDragStartY;
+            adminPanel.style.left = `${adminInitialPanelLeft + dx}px`;
+            adminPanel.style.top = `${adminInitialPanelTop + dy}px`;
         }, { passive: true });
 
         window.addEventListener('touchend', () => {
