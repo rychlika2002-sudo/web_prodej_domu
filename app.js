@@ -1608,8 +1608,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     idleFill = hexToRgba(unitsConfig.soldColorHex || '#e74c3c', unitsConfig.soldOpacity || 45);
                 }
 
-                // Determine hover fill
-                const hoverFill = hexToRgba(unitsConfig.hoverColorHex || '#c5a059', unitsConfig.hoverOpacity || 40);
+                // Determine hover fill - sold/reserved/permFill units keep their fill without flashing/disappearing
+                let hoverFill = hexToRgba(unitsConfig.hoverColorHex || '#c5a059', unitsConfig.hoverOpacity || 40);
+                if (permFill || data.status === 'status-sold' || data.status === 'status-reserved') {
+                    hoverFill = idleFill;
+                }
 
                 // Determine stroke
                 const unitStrokeMode = uSettings.strokeMode || 'global';
@@ -1666,18 +1669,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         const clientX = (cx / 1000) * containerRect.width;
                         const clientY = (cy / 1000) * containerRect.height;
                         
-                        popover.innerHTML = `
-                            <div class="popover-header">
-                                <h4 class="popover-title">${data.name}</h4>
-                                <span class="unit-status ${data.status}" style="margin:0; padding: 3px 8px; font-size: 0.68rem;">${data.statusText}</span>
-                            </div>
-                            <div class="popover-price">${data.price || 'Cena na vyžádání'}</div>
-                            <div class="popover-specs">
-                                <span>${data.layout || ''}</span>
-                                ${data.area ? `<span>• ${data.area} m²</span>` : ''}
-                                ${data.garden ? `<span>• Zahrada ${data.garden} m²</span>` : ''}
-                            </div>
-                        `;
+                        if (data.status === 'status-sold') {
+                            popover.innerHTML = `
+                                <div style="display: flex; align-items: center; justify-content: center; padding: 4px 10px;">
+                                    <span style="background: #e74c3c; color: #ffffff; font-weight: 800; font-size: 0.88rem; padding: 6px 16px; border-radius: 6px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(231,76,60,0.35);">PRODÁNO</span>
+                                </div>
+                            `;
+                        } else {
+                            popover.innerHTML = `
+                                <div class="popover-header">
+                                    <h4 class="popover-title">${data.name}</h4>
+                                    <span class="unit-status ${data.status}" style="margin:0; padding: 3px 8px; font-size: 0.68rem;">${data.statusText}</span>
+                                </div>
+                                <div class="popover-price">${data.price || 'Cena na vyžádání'}</div>
+                                <div class="popover-specs">
+                                    <span>${data.layout || ''}</span>
+                                    ${data.area ? `<span>• ${data.area} m²</span>` : ''}
+                                    ${data.garden ? `<span>• Zahrada ${data.garden} m²</span>` : ''}
+                                </div>
+                            `;
+                        }
                         popover.style.left = `${clientX}px`;
                         popover.style.top = `${clientY}px`;
                         popover.style.display = 'block';
