@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.1.5">
+    <link rel="stylesheet" href="styles.css?v=5.1.6">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -564,74 +564,104 @@
                             <input type="color" id="pin-color-input" value="#c5a059" style="height: 40px; padding: 2px;">
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label>Průhlednost překrytí (Opacity)</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="range" id="units-opacity-input" min="0" max="100" value="40" style="flex: 1;">
-                            <input type="number" id="units-opacity-number" min="0" max="100" value="40" style="width: 65px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 6px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" style="margin-bottom: 1.2rem;">
+                        <label style="font-size: 0.82rem; margin-bottom: 6px;">Průhlednost překrytí (Opacity)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="range" id="units-opacity-input" min="0" max="100" value="40" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-opacity-number" min="0" max="100" value="40" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-1-container">
-                        <label>Šířka: Jednotka 1</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-1-input" min="1" max="100" value="33" style="flex: 1;">
-                            <input type="number" id="units-width-1-number" min="1" max="100" value="33" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-1-container">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 1</label>
+                            <input type="range" id="units-width-1-input" min="1" max="100" value="33" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-1-number" min="1" max="100" value="33" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-2-container">
-                        <label>Šířka: Jednotka 2</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-2-input" min="1" max="100" value="33" style="flex: 1;">
-                            <input type="number" id="units-width-2-number" min="1" max="100" value="33" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-2-container">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 2</label>
+                            <input type="range" id="units-width-2-input" min="1" max="100" value="33" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-2-number" min="1" max="100" value="33" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-3-container">
-                        <label>Šířka: Jednotka 3</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-3-input" min="1" max="100" value="33" style="flex: 1;">
-                            <input type="number" id="units-width-3-number" min="1" max="100" value="33" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-3-container">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 3</label>
+                            <input type="range" id="units-width-3-input" min="1" max="100" value="33" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-3-number" min="1" max="100" value="33" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-4-container" style="display:none;">
-                        <label>Šířka: Jednotka 4</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-4-input" min="1" max="100" value="25" style="flex: 1;">
-                            <input type="number" id="units-width-4-number" min="1" max="100" value="25" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-4-container" style="display:none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 4</label>
+                            <input type="range" id="units-width-4-input" min="1" max="100" value="25" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-4-number" min="1" max="100" value="25" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-5-container" style="display:none;">
-                        <label>Šířka: Jednotka 5</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-5-input" min="1" max="100" value="20" style="flex: 1;">
-                            <input type="number" id="units-width-5-number" min="1" max="100" value="20" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-5-container" style="display:none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 5</label>
+                            <input type="range" id="units-width-5-input" min="1" max="100" value="20" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-5-number" min="1" max="100" value="20" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-6-container" style="display:none;">
-                        <label>Šířka: Jednotka 6</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-6-input" min="1" max="100" value="16" style="flex: 1;">
-                            <input type="number" id="units-width-6-number" min="1" max="100" value="16" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-6-container" style="display:none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 6</label>
+                            <input type="range" id="units-width-6-input" min="1" max="100" value="16" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-6-number" min="1" max="100" value="16" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-7-container" style="display:none;">
-                        <label>Šířka: Jednotka 7</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-7-input" min="1" max="100" value="14" style="flex: 1;">
-                            <input type="number" id="units-width-7-number" min="1" max="100" value="14" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-7-container" style="display:none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 7</label>
+                            <input type="range" id="units-width-7-input" min="1" max="100" value="14" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-7-number" min="1" max="100" value="14" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-8-container" style="display:none;">
-                        <label>Šířka: Jednotka 8</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-8-input" min="1" max="100" value="12" style="flex: 1;">
-                            <input type="number" id="units-width-8-number" min="1" max="100" value="12" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-8-container" style="display:none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 8</label>
+                            <input type="range" id="units-width-8-input" min="1" max="100" value="12" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-8-number" min="1" max="100" value="12" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group" id="units-width-9-container" style="display:none;">
-                        <label>Šířka: Jednotka 9</label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <input type="range" id="units-width-9-input" min="1" max="100" value="11" style="flex: 1;">
-                            <input type="number" id="units-width-9-number" min="1" max="100" value="11" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px;"> <span style="opacity: 0.7">%</span>
+                    <div class="control-group compact-slider-row" id="units-width-9-container" style="display:none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="margin: 0; font-size: 0.82rem; width: 95px; flex-shrink: 0;">Jednotka 9</label>
+                            <input type="range" id="units-width-9-input" min="1" max="100" value="11" class="compact-range-slider" style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                <input type="number" id="units-width-9-number" min="1" max="100" value="11" class="slider-num-input">
+                                <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -883,6 +913,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.1.5"></script>
+    <script src="app.js?v=5.1.6"></script>
 </body>
 </html>
