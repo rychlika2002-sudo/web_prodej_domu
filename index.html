@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=5.1.6">
+    <link rel="stylesheet" href="styles.css?v=5.1.7">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -668,12 +668,37 @@
 
                 <div id="admin-unit-1-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                     <h4>Jednotka 1</h4>
-                    <div class="control-group pin-coord-group" style="display: none;">
-                        <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-1-input" min="0" max="100" value="50"></div>
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-1-input" min="0" max="100" value="50"></div>
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-1-input" min="20" max="200" value="100"></div>
+                    <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                        <div class="compact-slider-row" style="margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                <input type="range" id="pin-x-1-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-x-1-number" min="0" max="100" value="50" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compact-slider-row" style="margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                <input type="range" id="pin-y-1-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-y-1-number" min="0" max="100" value="50" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compact-slider-row">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                <input type="range" id="pin-s-1-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-s-1-number" min="20" max="200" value="100" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-1-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -689,12 +714,37 @@
 
                 <div id="admin-unit-2-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                     <h4>Jednotka 2</h4>
-                    <div class="control-group pin-coord-group" style="display: none;">
-                        <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-2-input" min="0" max="100" value="50"></div>
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-2-input" min="0" max="100" value="50"></div>
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-2-input" min="20" max="200" value="100"></div>
+                    <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                        <div class="compact-slider-row" style="margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                <input type="range" id="pin-x-2-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-x-2-number" min="0" max="100" value="50" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compact-slider-row" style="margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                <input type="range" id="pin-y-2-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-y-2-number" min="0" max="100" value="50" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compact-slider-row">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                <input type="range" id="pin-s-2-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-s-2-number" min="20" max="200" value="100" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-2-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -710,12 +760,37 @@
 
                 <div id="admin-unit-3-block" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                     <h4>Jednotka 3</h4>
-                    <div class="control-group pin-coord-group" style="display: none;">
-                        <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-3-input" min="0" max="100" value="50"></div>
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-3-input" min="0" max="100" value="50"></div>
-                            <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-3-input" min="20" max="200" value="100"></div>
+                    <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                        <div class="compact-slider-row" style="margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                <input type="range" id="pin-x-3-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-x-3-number" min="0" max="100" value="50" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compact-slider-row" style="margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                <input type="range" id="pin-y-3-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-y-3-number" min="0" max="100" value="50" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compact-slider-row">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                <input type="range" id="pin-s-3-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                    <input type="number" id="pin-s-3-number" min="20" max="200" value="100" class="slider-num-input">
+                                    <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="control-group"><label>Stav</label><select id="status-3-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -733,12 +808,37 @@
                     <!-- Unit 4 -->
                     <div id="admin-unit-4-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 4</h4>
-                        <div class="control-group pin-coord-group" style="display: none;">
-                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-4-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-4-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-4-input" min="20" max="200" value="100"></div>
+                        <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                    <input type="range" id="pin-x-4-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-x-4-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                    <input type="range" id="pin-y-4-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-y-4-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                    <input type="range" id="pin-s-4-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-s-4-number" min="20" max="200" value="100" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-4-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -755,12 +855,37 @@
                     <!-- Unit 5 -->
                     <div id="admin-unit-5-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 5</h4>
-                        <div class="control-group pin-coord-group" style="display: none;">
-                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-5-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-5-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-5-input" min="20" max="200" value="100"></div>
+                        <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                    <input type="range" id="pin-x-5-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-x-5-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                    <input type="range" id="pin-y-5-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-y-5-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                    <input type="range" id="pin-s-5-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-s-5-number" min="20" max="200" value="100" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-5-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -777,12 +902,37 @@
                     <!-- Unit 6 -->
                     <div id="admin-unit-6-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 6</h4>
-                        <div class="control-group pin-coord-group" style="display: none;">
-                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-6-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-6-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-6-input" min="20" max="200" value="100"></div>
+                        <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                    <input type="range" id="pin-x-6-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-x-6-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                    <input type="range" id="pin-y-6-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-y-6-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                    <input type="range" id="pin-s-6-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-s-6-number" min="20" max="200" value="100" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-6-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -799,12 +949,37 @@
                     <!-- Unit 7 -->
                     <div id="admin-unit-7-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 7</h4>
-                        <div class="control-group pin-coord-group" style="display: none;">
-                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-7-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-7-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-7-input" min="20" max="200" value="100"></div>
+                        <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                    <input type="range" id="pin-x-7-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-x-7-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                    <input type="range" id="pin-y-7-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-y-7-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                    <input type="range" id="pin-s-7-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-s-7-number" min="20" max="200" value="100" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-7-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -821,12 +996,37 @@
                     <!-- Unit 8 -->
                     <div id="admin-unit-8-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 8</h4>
-                        <div class="control-group pin-coord-group" style="display: none;">
-                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-8-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-8-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-8-input" min="20" max="200" value="100"></div>
+                        <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                    <input type="range" id="pin-x-8-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-x-8-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                    <input type="range" id="pin-y-8-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-y-8-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                    <input type="range" id="pin-s-8-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-s-8-number" min="20" max="200" value="100" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-8-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -843,12 +1043,37 @@
                     <!-- Unit 9 -->
                     <div id="admin-unit-9-block" style="display:none; border-bottom: 1px solid #ddd; margin-bottom: 1rem; padding-bottom: 1rem;">
                         <h4>Jednotka 9</h4>
-                        <div class="control-group pin-coord-group" style="display: none;">
-                            <label>Pozice Bodu na obrázku (Osa X, Y a velikost)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">X %</span><input type="range" id="pin-x-9-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Y %</span><input type="range" id="pin-y-9-input" min="0" max="100" value="50"></div>
-                                <div style="flex: 1;"><span style="font-size: 0.8rem;">Vel. %</span><input type="range" id="pin-s-9-input" min="20" max="200" value="100"></div>
+                        <div class="control-group pin-coord-group" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                            <label style="font-weight: 600; margin-bottom: 8px; display: block; font-size: 0.82rem;">Pozice Bodu na obrázku (Osa X, Y a velikost):</label>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa X</label>
+                                    <input type="range" id="pin-x-9-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-x-9-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row" style="margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Osa Y</label>
+                                    <input type="range" id="pin-y-9-input" min="0" max="100" value="50" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-y-9-number" min="0" max="100" value="50" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="compact-slider-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="margin: 0; font-size: 0.8rem; width: 65px; flex-shrink: 0; color: inherit;">Velikost</label>
+                                    <input type="range" id="pin-s-9-input" min="20" max="200" value="100" class="compact-range-slider" style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <input type="number" id="pin-s-9-number" min="20" max="200" value="100" class="slider-num-input">
+                                        <span style="font-size: 0.75rem; opacity: 0.6;">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group"><label>Stav</label><select id="status-9-input"><option value="status-available">Volno</option><option value="status-reserved">Rezervováno</option><option value="status-sold">Prodáno</option></select></div>
@@ -913,6 +1138,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=5.1.6"></script>
+    <script src="app.js?v=5.1.7"></script>
 </body>
 </html>

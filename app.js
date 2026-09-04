@@ -422,8 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
     for(let i=1; i<=9; i++) {
         pinInputs[i] = {
             x: document.getElementById(`pin-x-${i}-input`),
+            xNum: document.getElementById(`pin-x-${i}-number`),
             y: document.getElementById(`pin-y-${i}-input`),
-            s: document.getElementById(`pin-s-${i}-input`)
+            yNum: document.getElementById(`pin-y-${i}-number`),
+            s: document.getElementById(`pin-s-${i}-input`),
+            sNum: document.getElementById(`pin-s-${i}-number`)
         };
     }
 
@@ -448,9 +451,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if(widthNumbers[i]) widthNumbers[i].value = unitsConfig.widths[i];
             if(widthSliders[i]) widthSliders[i].value = unitsConfig.widths[i];
             
-            if(pinInputs[i].x && unitsConfig.pins[i]) pinInputs[i].x.value = unitsConfig.pins[i].x;
-            if(pinInputs[i].y && unitsConfig.pins[i]) pinInputs[i].y.value = unitsConfig.pins[i].y;
-            if(pinInputs[i].s && unitsConfig.pins[i]) pinInputs[i].s.value = unitsConfig.pins[i].s || 100;
+            if(unitsConfig.pins && unitsConfig.pins[i]) {
+                const px = unitsConfig.pins[i].x !== undefined ? unitsConfig.pins[i].x : 50;
+                const py = unitsConfig.pins[i].y !== undefined ? unitsConfig.pins[i].y : 50;
+                const ps = unitsConfig.pins[i].s !== undefined ? unitsConfig.pins[i].s : 100;
+                if(pinInputs[i].x) pinInputs[i].x.value = px;
+                if(pinInputs[i].xNum) pinInputs[i].xNum.value = px;
+                if(pinInputs[i].y) pinInputs[i].y.value = py;
+                if(pinInputs[i].yNum) pinInputs[i].yNum.value = py;
+                if(pinInputs[i].s) pinInputs[i].s.value = ps;
+                if(pinInputs[i].sNum) pinInputs[i].sNum.value = ps;
+            }
         }
         
         if(unitsOpacityNumber) unitsOpacityNumber.value = unitsConfig.hoverOpacity;
@@ -471,35 +482,53 @@ document.addEventListener('DOMContentLoaded', () => {
             unitsConfig.mode = e.target.value;
             if (!unitsConfig.pins) {
                 unitsConfig.pins = {};
-                for(let i=1; i<=9; i++) unitsConfig.pins[i] = {x: 50, y: 50};
+                for(let i=1; i<=9; i++) unitsConfig.pins[i] = {x: 50, y: 50, s: 100};
             }
             updateAdminUnitsVisibility();
             renderUnitZones();
         });
     }
 
+    const bindPinInputPair = (slider, number, unitIndex, coordKey, minVal, maxVal, defaultVal) => {
+        const updateVal = (val) => {
+            if (!unitsConfig.pins) unitsConfig.pins = {};
+            if (!unitsConfig.pins[unitIndex]) unitsConfig.pins[unitIndex] = { x: 50, y: 50, s: 100 };
+            unitsConfig.pins[unitIndex][coordKey] = val;
+            renderUnitZones();
+        };
+
+        if (slider) {
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value) || defaultVal;
+                if (number) number.value = val;
+                updateVal(val);
+            });
+        }
+        if (number) {
+            number.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val)) return;
+                if (val > maxVal) val = maxVal;
+                if (val < minVal) val = minVal;
+                if (slider) slider.value = val;
+                updateVal(val);
+            });
+            number.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val)) val = defaultVal;
+                if (val > maxVal) val = maxVal;
+                if (val < minVal) val = minVal;
+                number.value = val;
+                if (slider) slider.value = val;
+                updateVal(val);
+            });
+        }
+    };
+
     for(let i=1; i<=9; i++) {
-        if(pinInputs[i].x) {
-            pinInputs[i].x.addEventListener('input', (e) => {
-                if (!unitsConfig.pins[i]) unitsConfig.pins[i] = {x: 50, y: 50, s: 100};
-                unitsConfig.pins[i].x = parseInt(e.target.value);
-                renderUnitZones();
-            });
-        }
-        if(pinInputs[i].y) {
-            pinInputs[i].y.addEventListener('input', (e) => {
-                if (!unitsConfig.pins[i]) unitsConfig.pins[i] = {x: 50, y: 50, s: 100};
-                unitsConfig.pins[i].y = parseInt(e.target.value);
-                renderUnitZones();
-            });
-        }
-        if(pinInputs[i].s) {
-            pinInputs[i].s.addEventListener('input', (e) => {
-                if (!unitsConfig.pins[i]) unitsConfig.pins[i] = {x: 50, y: 50, s: 100};
-                unitsConfig.pins[i].s = parseInt(e.target.value);
-                renderUnitZones();
-            });
-        }
+        bindPinInputPair(pinInputs[i].x, pinInputs[i].xNum, i, 'x', 0, 100, 50);
+        bindPinInputPair(pinInputs[i].y, pinInputs[i].yNum, i, 'y', 0, 100, 50);
+        bindPinInputPair(pinInputs[i].s, pinInputs[i].sNum, i, 's', 20, 200, 100);
     }
     if (unitsColorInput) {
         unitsColorInput.addEventListener('input', (e) => {
