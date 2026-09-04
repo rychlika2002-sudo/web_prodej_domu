@@ -420,6 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Polygon Config Inputs
     const adminPolygonSettings = document.getElementById('admin-polygon-settings');
+    const polygonCountInput = document.getElementById('polygon-count-input');
+    const polygonCountBadge = document.getElementById('polygon-count-badge');
+    const editorUnitSelector = document.getElementById('editor-unit-selector');
     const polygonReservedColorInput = document.getElementById('polygon-reserved-color-input');
     const polygonSoldColorInput = document.getElementById('polygon-sold-color-input');
     const polygonReservedOpacityInput = document.getElementById('polygon-reserved-opacity-input');
@@ -469,9 +472,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(adminPolygonSettings) adminPolygonSettings.style.display = isPolygons ? 'block' : 'none';
 
-        const c = unitsConfig.count;
+        const c = unitsConfig.count || 3;
         if(unitsCountDisplay) unitsCountDisplay.textContent = c;
         if(unitsCountInput) unitsCountInput.value = c;
+        if(polygonCountInput) polygonCountInput.value = c;
+        if(polygonCountBadge) {
+            polygonCountBadge.textContent = c === 1 ? '1 polygon' : (c < 5 ? `${c} polygony` : `${c} polygonů`);
+        }
+        if(editorUnitSelector) {
+            const currentSelected = parseInt(editorUnitSelector.value) || 1;
+            editorUnitSelector.innerHTML = '';
+            for(let i=1; i<=c; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Jednotka ${i}`;
+                editorUnitSelector.appendChild(opt);
+            }
+            if (activeEditingUnit && activeEditingUnit <= c) {
+                editorUnitSelector.value = activeEditingUnit;
+            } else if (currentSelected <= c) {
+                editorUnitSelector.value = currentSelected;
+            }
+        }
         
         for(let i=1; i<=9; i++) {
             const isVisible = i <= c;
@@ -522,7 +544,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (unitsCountInput) {
         unitsCountInput.addEventListener('change', (e) => {
-            unitsConfig.count = parseInt(e.target.value);
+            const count = parseInt(e.target.value);
+            unitsConfig.count = count;
+            if (polygonCountInput) polygonCountInput.value = count;
+            updateAdminUnitsVisibility();
+            renderUnitZones();
+        });
+    }
+
+    if (polygonCountInput) {
+        polygonCountInput.addEventListener('change', (e) => {
+            const count = parseInt(e.target.value);
+            unitsConfig.count = count;
+            if (unitsCountInput) unitsCountInput.value = count;
             updateAdminUnitsVisibility();
             renderUnitZones();
         });
@@ -1847,8 +1881,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (svgOverlay) svgOverlay.style.display = 'block';
         if (editorToolbar) {
             editorToolbar.style.display = 'flex';
-            if (editorActiveUnitText) {
-                editorActiveUnitText.innerHTML = `✏️ Kreslení tvaru: <strong>Jednotka ${unitIndex}</strong>`;
+            if (editorUnitSelector) {
+                editorUnitSelector.value = unitIndex;
             }
         }
         if (unitsMainContainer) unitsMainContainer.classList.add('editor-crosshair-canvas');
@@ -1923,7 +1957,19 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', stopDragging);
     window.addEventListener('touchend', stopDragging);
 
-    // Editor Toolbar Buttons
+    // Editor Toolbar Buttons & Selector
+    if (editorUnitSelector) {
+        editorUnitSelector.addEventListener('change', (e) => {
+            const targetUnit = parseInt(e.target.value);
+            // If current polygon has 3+ points, auto-save to config
+            if (activeEditingUnit && currentPolygonPoints.length >= 3) {
+                if (!unitsConfig.polygons) unitsConfig.polygons = {};
+                unitsConfig.polygons[activeEditingUnit] = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+            }
+            window.startPolygonEditor(targetUnit);
+        });
+    }
+
     if (editorBtnSave) {
         editorBtnSave.addEventListener('click', () => {
             if (!activeEditingUnit) return;
