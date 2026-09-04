@@ -120,7 +120,7 @@ body.dark-mode .accordion-header svg {
     stroke: currentColor;
 }
 
-body.dark-mode .control-group input, 
+body.dark-mode .control-group input:not([type="range"]):not([type="color"]), 
 body.dark-mode .control-group select, 
 body.dark-mode .control-group textarea {
     background: #333;
@@ -649,6 +649,7 @@ textarea.admin-input {
 }
 
 .compact-range-slider {
+    accent-color: var(--accent-color, #c5a059);
     height: 6px;
     -webkit-appearance: none;
     appearance: none;
@@ -658,7 +659,13 @@ textarea.admin-input {
     padding: 0;
     margin: 0;
     cursor: pointer;
-    border: none;
+    border: none !important;
+}
+
+.compact-range-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 4px;
+    background: #e2e8f0;
 }
 
 .compact-range-slider::-webkit-slider-thumb {
@@ -666,29 +673,53 @@ textarea.admin-input {
     appearance: none;
     width: 16px;
     height: 16px;
+    margin-top: -5px;
     border-radius: 50%;
-    background: var(--accent-color);
+    background: var(--accent-color, #c5a059);
     cursor: pointer;
     box-shadow: 0 1px 4px rgba(0,0,0,0.25);
     transition: transform 0.1s ease;
+    border: 2px solid #ffffff;
 }
 
 .compact-range-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
+    transform: scale(1.2);
+}
+
+.compact-range-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 4px;
+    background: #e2e8f0;
 }
 
 .compact-range-slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--accent-color);
-    border: none;
+    background: var(--accent-color, #c5a059);
+    border: 2px solid #ffffff;
     cursor: pointer;
     box-shadow: 0 1px 4px rgba(0,0,0,0.25);
 }
 
 body.dark-mode .compact-range-slider {
     background: #383838;
+}
+
+body.dark-mode .compact-range-slider::-webkit-slider-runnable-track {
+    background: #383838;
+}
+
+body.dark-mode .compact-range-slider::-moz-range-track {
+    background: #383838;
+}
+
+body.dark-mode .compact-range-slider::-webkit-slider-thumb {
+    border-color: #222222;
+}
+
+body.dark-mode .compact-range-slider::-moz-range-thumb {
+    border-color: #222222;
 }
 
 .slider-num-input {
