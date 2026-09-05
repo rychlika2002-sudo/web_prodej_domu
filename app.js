@@ -2650,7 +2650,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 circle.setAttribute('id', `editor-handle-${index}`);
                 circle.setAttribute('cx', p.x);
                 circle.setAttribute('cy', p.y);
-                circle.setAttribute('r', '5.5');
+                circle.setAttribute('r', '3.5');
+                circle.setAttribute('pointer-events', 'all');
                 circle.setAttribute('data-point-index', index);
                 circle.setAttribute('title', `Bod ${index + 1} (Uchopte a táhněte pro posun / Dvojklik pro smazání)`);
 
@@ -2658,6 +2659,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (e.button === 2) return;
                     e.stopPropagation();
                     isPolygonDragging = true;
+                    document.body.classList.add('polygon-is-dragging');
                     polygonDragIndex = index;
                     polyDragStartX = clientX;
                     polyDragStartY = clientY;
@@ -2759,6 +2761,7 @@ document.addEventListener('DOMContentLoaded', () => {
         polygonDragIndex = -1;
         polyHasDragged = false;
         polyIgnoreNextClick = false;
+        document.body.classList.remove('polygon-is-dragging');
         if (unitsMainContainer) unitsMainContainer.classList.remove('editor-crosshair-canvas');
         if (svgOverlay) {
             svgOverlay.classList.remove('editor-active');
@@ -2935,6 +2938,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const stopDragging = () => {
         if (isPolygonDragging) {
+            document.body.classList.remove('polygon-is-dragging');
             if (polyHasDragged) {
                 polyIgnoreNextClick = true;
                 setTimeout(() => { polyIgnoreNextClick = false; }, 150);

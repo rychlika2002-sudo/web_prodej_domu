@@ -17,6 +17,7 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     /* Map & Units */
     --unit-hover-color: rgba(197, 160, 89, 0.4);
+    --cursor-crosshair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='25' height='25' viewBox='0 0 25 25'%3E%3Cline x1='12.5' y1='0' x2='12.5' y2='9' stroke='%23000' stroke-width='1.5'/%3E%3Cline x1='12.5' y1='0' x2='12.5' y2='9' stroke='%23fff' stroke-width='0.75'/%3E%3Cline x1='12.5' y1='16' x2='12.5' y2='25' stroke='%23000' stroke-width='1.5'/%3E%3Cline x1='12.5' y1='16' x2='12.5' y2='25' stroke='%23fff' stroke-width='0.75'/%3E%3Cline x1='0' y1='12.5' x2='9' y2='12.5' stroke='%23000' stroke-width='1.5'/%3E%3Cline x1='0' y1='12.5' x2='9' y2='12.5' stroke='%23fff' stroke-width='0.75'/%3E%3Cline x1='16' y1='12.5' x2='25' y2='12.5' stroke='%23000' stroke-width='1.5'/%3E%3Cline x1='16' y1='12.5' x2='25' y2='12.5' stroke='%23fff' stroke-width='0.75'/%3E%3Ccircle cx='12.5' cy='12.5' r='1' fill='%23e74c3c'/%3E%3C/svg%3E") 12 12, crosshair;
 }
 
 body.dark-mode {
@@ -1524,7 +1525,7 @@ textarea.admin-input {
 .units-svg-overlay.editor-active,
 .editor-crosshair-canvas .units-svg-overlay {
     pointer-events: auto !important;
-    cursor: crosshair !important;
+    cursor: var(--cursor-crosshair) !important;
 }
 
 .units-svg-overlay.editor-active #units-svg-polygons-layer,
@@ -1697,56 +1698,68 @@ body.dark-mode .polygon-unit-popover {
 
 /* SVG Editor Layer Styles */
 .editor-polygon-preview {
-    fill: rgba(197, 160, 89, 0.2);
+    fill: rgba(197, 160, 89, 0.12);
     stroke: var(--accent-color, #c5a059);
-    stroke-width: 1.5px;
+    stroke-width: 1.2px;
     stroke-dasharray: 4 3;
+    pointer-events: none !important;
 }
 
 .editor-edge-line {
     stroke: var(--accent-color, #c5a059);
-    stroke-width: 6px;
+    stroke-width: 8px;
     stroke-opacity: 0.001;
-    cursor: cell;
+    cursor: var(--cursor-crosshair) !important;
     pointer-events: stroke;
     transition: stroke-opacity 0.2s ease;
 }
 
 .editor-edge-line:hover {
     stroke: #2ecc71;
-    stroke-opacity: 0.9;
+    stroke-opacity: 0.85;
+    stroke-width: 1.5px;
     stroke-dasharray: 4 3;
+    cursor: var(--cursor-crosshair) !important;
 }
 
+/* Precision transparent bubbles / handles - maximum visibility of underlying house */
 .editor-handle {
-    r: 5;
-    fill: rgba(197, 160, 89, 0.5);
+    r: 3.5;
+    fill: rgba(255, 255, 255, 0.08);
     stroke: #ffffff;
-    stroke-width: 1px;
-    cursor: grab;
-    pointer-events: auto;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
-    transition: r 0.15s ease, fill 0.15s ease, stroke-width 0.15s ease;
+    stroke-width: 1.1px;
+    cursor: var(--cursor-crosshair) !important;
+    pointer-events: all;
+    filter: drop-shadow(0 0 1.5px rgba(0,0,0,0.85));
+    transition: stroke 0.12s ease, fill 0.12s ease;
 }
 
 .editor-handle:hover {
-    r: 7.5;
-    fill: rgba(230, 126, 34, 0.85);
-    stroke: #ffffff;
-    stroke-width: 1.5px;
-    cursor: grab;
+    r: 4.2;
+    fill: rgba(46, 204, 113, 0.2);
+    stroke: #2ecc71;
+    stroke-width: 1.4px;
+    cursor: var(--cursor-crosshair) !important;
+    filter: drop-shadow(0 0 2.5px rgba(0,0,0,0.95));
 }
 
 .editor-handle.dragging {
-    r: 8;
-    fill: #e74c3c;
-    stroke: #ffffff;
-    stroke-width: 1.5px;
-    cursor: grabbing;
+    r: 4.2;
+    fill: rgba(231, 76, 60, 0.2);
+    stroke: #e74c3c;
+    stroke-width: 1.4px;
+    cursor: var(--cursor-crosshair) !important;
+    filter: drop-shadow(0 0 2.5px rgba(0,0,0,0.95));
 }
 
-.editor-crosshair-canvas {
-    cursor: crosshair !important;
+/* Enforce ultra-thin precision crosshair cursor across all editing elements - NO HAND ICONS */
+.editor-crosshair-canvas,
+.editor-crosshair-canvas *,
+.units-svg-overlay.editor-active,
+.units-svg-overlay.editor-active *,
+body.polygon-is-dragging,
+body.polygon-is-dragging * {
+    cursor: var(--cursor-crosshair) !important;
 }
 
 @media (max-width: 768px) {
