@@ -218,15 +218,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Map Configuration ---
     let map;
     let marker;
-    let mapCoords = { lat: 50.0755, lng: 14.4378 };
+    let mapCoords = { lat: 48.932424, lng: 14.616280 };
     const DEFAULT_ZOOM = 17;
 
     let tileLayer;
     const initMap = (lat, lng) => {
         lat = parseFloat(lat);
         lng = parseFloat(lng);
-        if (isNaN(lat)) lat = 50.0755;
-        if (isNaN(lng)) lng = 14.4378;
+        if (isNaN(lat)) lat = 48.932424;
+        if (isNaN(lng)) lng = 14.616280;
         const diag = document.getElementById('map-diagnostic');
         const tileUrl = 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
         const attribution = '&copy; Google Maps';
@@ -1477,7 +1477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (agentNameInput) {
         agentNameInput.addEventListener('input', (e) => {
             const display = document.getElementById('editable-agent-name');
-            if (display) display.textContent = e.target.value || 'Jan Novák';
+            if (display) display.textContent = e.target.value || 'Michal Švec';
         });
     }
 
@@ -1901,10 +1901,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateContent(aboutTitleInput, aboutTitle, 'O projektu');
     updateContent(aboutTextInput, aboutText, 'Moderní design...');
     
-    updateContent(contactTitleInput, contactTitle, 'Máte dotaz?');
-    updateContent(contactTextInput, contactText, 'Náš tým je vám k dispozici...');
-    updateContent(contactPhoneInput, contactPhone, '+420 123 456 789');
-    updateContent(contactEmailInput, contactEmail, 'info@modernibydleni.cz');
+    updateContent(contactTitleInput, contactTitle, 'Zeptejte se na vše, co vás zajímá');
+    updateContent(contactTextInput, contactText, 'Máte dotazy k projektu? Kontaktujte nás. S koupí domu a s financováním vám poradí realitní makléř a specialista na financování.');
+    updateContent(contactPhoneInput, contactPhone, '+420 721 543 474');
+    updateContent(contactEmailInput, contactEmail, 'Michal.svec@realitik.cz');
 
     // Keep phone/email href in sync
     if (contactPhoneInput) {
@@ -1929,8 +1929,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    fbLinkInput.addEventListener('input', (e) => fbLink.href = e.target.value || '#');
-    igLinkInput.addEventListener('input', (e) => igLink.href = e.target.value || '#');
+    fbLinkInput.addEventListener('input', (e) => fbLink.href = e.target.value || 'https://www.facebook.com/profile.php?id=61576137536672');
+    igLinkInput.addEventListener('input', (e) => igLink.href = e.target.value || 'https://www.instagram.com/domyledenice/');
     updateContent(heroTitleInput, heroTitle, 'Domov, kde začíná vaše nová etapa');
     updateContent(heroTextInput, heroText, 'Objevte moderní architekturu v srdci přírody.');
     updateContent(aboutTitleInput, aboutTitle, 'O projektu');
@@ -1943,8 +1943,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GPS
     const handleGPSUpdate = () => {
-        const lat = parseFloat(gpsLatInput.value) || 50.0755;
-        const lng = parseFloat(gpsLngInput.value) || 14.4378;
+        const lat = parseFloat(gpsLatInput.value) || 48.932424;
+        const lng = parseFloat(gpsLngInput.value) || 14.616280;
         mapCoords = { lat, lng };
         initMap(lat, lng);
         if (typeof saveToStorage === 'function') saveToStorage(true);
@@ -2410,14 +2410,22 @@ document.addEventListener('DOMContentLoaded', () => {
                                 agentPhotoDisplay.style.display = 'block';
                                 if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
                             }
+                        } else if (agentPhotoDisplay) {
+                            agentPhotoDisplay.src = 'michal-svec.jpg';
+                            agentPhotoDisplay.style.display = 'block';
+                            if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
                         }
                     } catch (e) {
                         console.error('Error loading media from IndexedDB:', e);
                     }
                 }
 
-                if (config.location) {
+                if (config.location && config.location.lat && config.location.lat !== 50.0755) {
                     mapCoords = config.location;
+                    if (gpsLatInput) gpsLatInput.value = mapCoords.lat;
+                    if (gpsLngInput) gpsLngInput.value = mapCoords.lng;
+                } else {
+                    mapCoords = { lat: 48.932424, lng: 14.616280 };
                     if (gpsLatInput) gpsLatInput.value = mapCoords.lat;
                     if (gpsLngInput) gpsLngInput.value = mapCoords.lng;
                 }
@@ -2445,39 +2453,74 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                const defaultAgentName = 'Michal Švec';
+                const defaultContactTitle = 'Zeptejte se na vše, co vás zajímá';
+                const defaultContactText = 'Máte dotazy k projektu? Kontaktujte nás. S koupí domu a s financováním vám poradí realitní makléř a specialista na financování.';
+                const defaultContactPhone = '+420 721 543 474';
+                const defaultContactEmail = 'Michal.svec@realitik.cz';
+                const defaultAgentAddress = 'Žižkova třída 309/12, 370 01 České Budějovice';
+                const defaultAgentIco = '76630048';
+                const defaultAgentHours = 'Po–Pá: 8:00 – 16:00';
+                const defaultFbLink = 'https://www.facebook.com/profile.php?id=61576137536672';
+                const defaultIgLink = 'https://www.instagram.com/domyledenice/';
+
+                if (!c.agentName || c.agentName === 'Jan Novák') c.agentName = defaultAgentName;
+                if (!c.contactPhone || c.contactPhone === '+420 123 456 789') c.contactPhone = defaultContactPhone;
+                if (!c.contactEmail || c.contactEmail === 'info@modernibydleni.cz') c.contactEmail = defaultContactEmail;
+                if (!c.agentAddress) c.agentAddress = defaultAgentAddress;
+                if (!c.agentIco) c.agentIco = defaultAgentIco;
+                if (!c.agentHours) c.agentHours = defaultAgentHours;
+                if (!c.fbLink || c.fbLink === '#') c.fbLink = defaultFbLink;
+                if (!c.igLink || c.igLink === '#') c.igLink = defaultIgLink;
+                if (!c.contactTitle || c.contactTitle === 'Máte dotaz?') c.contactTitle = defaultContactTitle;
+                if (!c.contactText || c.contactText === 'Náš tým je vám k dispozici pro prohlídku nebo konzultaci.') c.contactText = defaultContactText;
+
                 // Agent info (text)
                 const agentNameDisplay = document.getElementById('editable-agent-name');
-                if (agentNameDisplay) agentNameDisplay.textContent = c.agentName || 'Jan Novák';
-                if (agentNameInput) agentNameInput.value = c.agentName || '';
+                if (agentNameDisplay) agentNameDisplay.textContent = c.agentName;
+                if (agentNameInput) agentNameInput.value = c.agentName;
 
-                if (c.agentAddress !== undefined) {
-                    if (agentAddressInput) agentAddressInput.value = c.agentAddress;
-                    const addrEl = document.getElementById('editable-agent-address');
-                    const addrRow = document.getElementById('editable-agent-address-row');
-                    if (addrEl) addrEl.textContent = c.agentAddress;
-                    if (addrRow) addrRow.style.display = c.agentAddress ? 'flex' : 'none';
-                }
-                if (c.agentIco !== undefined) {
-                    if (agentIcoInput) agentIcoInput.value = c.agentIco;
-                    const icoEl = document.getElementById('editable-agent-ico');
-                    const icoRow = document.getElementById('editable-agent-ico-row');
-                    if (icoEl) icoEl.textContent = c.agentIco;
-                    if (icoRow) icoRow.style.display = c.agentIco ? 'flex' : 'none';
-                }
-                if (c.agentHours !== undefined) {
-                    if (agentHoursInput) agentHoursInput.value = c.agentHours;
-                    const hoursEl = document.getElementById('editable-agent-hours');
-                    const hoursRow = document.getElementById('editable-agent-hours-row');
-                    if (hoursEl) hoursEl.textContent = c.agentHours;
-                    if (hoursRow) hoursRow.style.display = c.agentHours ? 'flex' : 'none';
-                }
+                if (agentAddressInput) agentAddressInput.value = c.agentAddress;
+                const addrEl = document.getElementById('editable-agent-address');
+                const addrRow = document.getElementById('editable-agent-address-row');
+                if (addrEl) addrEl.textContent = c.agentAddress;
+                if (addrRow) addrRow.style.display = c.agentAddress ? 'flex' : 'none';
 
-                if (contactTitleInput) contactTitleInput.value = c.contactTitle || '';
-                if (contactTextInput) contactTextInput.value = c.contactText || '';
-                if (contactPhoneInput) contactPhoneInput.value = c.contactPhone || '';
-                if (contactEmailInput) contactEmailInput.value = c.contactEmail || '';
-                if (fbLinkInput) fbLinkInput.value = c.fbLink || '';
-                if (igLinkInput) igLinkInput.value = c.igLink || '';
+                if (agentIcoInput) agentIcoInput.value = c.agentIco;
+                const icoEl = document.getElementById('editable-agent-ico');
+                const icoRow = document.getElementById('editable-agent-ico-row');
+                if (icoEl) icoEl.textContent = c.agentIco;
+                if (icoRow) icoRow.style.display = c.agentIco ? 'flex' : 'none';
+
+                if (agentHoursInput) agentHoursInput.value = c.agentHours;
+                const hoursEl = document.getElementById('editable-agent-hours');
+                const hoursRow = document.getElementById('editable-agent-hours-row');
+                if (hoursEl) hoursEl.textContent = c.agentHours;
+                if (hoursRow) hoursRow.style.display = c.agentHours ? 'flex' : 'none';
+
+                const contactTitleDisplay = document.getElementById('editable-contact-title');
+                if (contactTitleDisplay) contactTitleDisplay.textContent = c.contactTitle;
+                if (contactTitleInput) contactTitleInput.value = c.contactTitle;
+
+                const contactTextDisplay = document.getElementById('editable-contact-text');
+                if (contactTextDisplay) contactTextDisplay.textContent = c.contactText;
+                if (contactTextInput) contactTextInput.value = c.contactText;
+
+                const contactPhoneDisplay = document.getElementById('editable-contact-phone');
+                if (contactPhoneDisplay) contactPhoneDisplay.textContent = c.contactPhone;
+                if (contactPhoneInput) contactPhoneInput.value = c.contactPhone;
+
+                const contactEmailDisplay = document.getElementById('editable-contact-email');
+                if (contactEmailDisplay) contactEmailDisplay.textContent = c.contactEmail;
+                if (contactEmailInput) contactEmailInput.value = c.contactEmail;
+
+                if (fbLinkInput) fbLinkInput.value = c.fbLink;
+                const fbLinkEl = document.getElementById('fb-link');
+                if (fbLinkEl) fbLinkEl.href = c.fbLink;
+
+                if (igLinkInput) igLinkInput.value = c.igLink;
+                const igLinkEl = document.getElementById('ig-link');
+                if (igLinkEl) igLinkEl.href = c.igLink;
 
                 // Sync link hrefs from loaded data
                 const phoneLink = document.getElementById('editable-contact-phone-link');
@@ -2516,6 +2559,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (gardenDisplay) gardenDisplay.textContent = unitsData[id].garden ? unitsData[id].garden + ' m²' : '---';
                     }
                 });
+            } else {
+                if (agentPhotoDisplay) {
+                    agentPhotoDisplay.src = 'michal-svec.jpg';
+                    agentPhotoDisplay.style.display = 'block';
+                    if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
+                }
+                if (agentNameInput) agentNameInput.value = 'Michal Švec';
+                if (contactTitleInput) contactTitleInput.value = 'Zeptejte se na vše, co vás zajímá';
+                if (contactTextInput) contactTextInput.value = 'Máte dotazy k projektu? Kontaktujte nás. S koupí domu a s financováním vám poradí realitní makléř a specialista na financování.';
+                if (contactPhoneInput) contactPhoneInput.value = '+420 721 543 474';
+                if (contactEmailInput) contactEmailInput.value = 'Michal.svec@realitik.cz';
+                if (agentAddressInput) agentAddressInput.value = 'Žižkova třída 309/12, 370 01 České Budějovice';
+                if (agentIcoInput) agentIcoInput.value = '76630048';
+                if (agentHoursInput) agentHoursInput.value = 'Po–Pá: 8:00 – 16:00';
+                if (fbLinkInput) fbLinkInput.value = 'https://www.facebook.com/profile.php?id=61576137536672';
+                if (igLinkInput) igLinkInput.value = 'https://www.instagram.com/domyledenice/';
+                if (gpsLatInput) gpsLatInput.value = '48.932424';
+                if (gpsLngInput) gpsLngInput.value = '14.616280';
             }
             // Final update with correct coordinates if they were loaded
             initMap(mapCoords.lat, mapCoords.lng);
