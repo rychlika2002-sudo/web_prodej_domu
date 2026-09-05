@@ -56,8 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let partnersData = [];
-    for(let i=1; i<=6; i++) {
-        partnersData.push({ id: i, logo: '', url: '' });
+    for(let i=1; i<=3; i++) {
+        partnersData.push({ id: i, logo: '', url: '', scale: 100 });
     }
 
     const hexToRgba = (hex, opacity) => {
@@ -109,6 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const request = store.get(key);
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error || 'Not found');
+            });
+        },
+        async delete(key) {
+            const db = await this.open();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(this.storeName, 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.delete(key);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
             });
         },
         async clear() {
@@ -166,6 +176,17 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             await gatherMedia(config.media || {});
+            if (config.partners && Array.isArray(config.partners)) {
+                for (const p of config.partners) {
+                    if (p && p.logo && typeof p.logo === 'string' && p.logo.startsWith('db:')) {
+                        const dbKey = p.logo.split(':')[1];
+                        try {
+                            const data = await MediaDB.load(dbKey);
+                            if (data) exportData.mediaData[dbKey] = data;
+                        } catch(e) {}
+                    }
+                }
+            }
             
             const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -839,6 +860,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Helper: Auto-trim transparent margins from image to unify visual size
+    const trimImageCanvas = (img) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        if (!canvas.width || !canvas.height) return null;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        const w = canvas.width;
+        const h = canvas.height;
+        let imgData;
+        try {
+            imgData = ctx.getImageData(0, 0, w, h);
+        } catch(e) {
+            return null;
+        }
+        
+        const data = imgData.data;
+        let minX = w, minY = h, maxX = -1, maxY = -1;
+        
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const idx = (y * w + x) * 4;
+                const alpha = data[idx + 3];
+                if (alpha > 20) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        
+        // If image has no transparent borders or completely empty, skip crop
+        if (maxX === -1 || (minX === 0 && minY === 0 && maxX === w - 1 && maxY === h - 1)) {
+            return null;
+        }
+        
+        // Add minimal padding (4px)
+        const pad = 4;
+        minX = Math.max(0, minX - pad);
+        minY = Math.max(0, minY - pad);
+        maxX = Math.min(w - 1, maxX + pad);
+        maxY = Math.min(h - 1, maxY + pad);
+        
+        const cropW = maxX - minX + 1;
+        const cropH = maxY - minY + 1;
+        
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = cropW;
+        cropCanvas.height = cropH;
+        const cropCtx = cropCanvas.getContext('2d');
+        cropCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+        
+        return cropCanvas.toDataURL('image/png');
+    };
+
     // --- Core Functions & Admin Panel System ---
 
     // Admin Toggle with Auto-Recovery (Guarantees panel is NEVER lost off-screen)
@@ -1492,70 +1572,260 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToStorage(true);
     });
 
-    // --- Partners Logic ---
+    // --- Partners Logic & Unified Admin ---
     const partnersGrid = document.getElementById('partners-grid');
-    
+    const adminPartnersList = document.getElementById('admin-partners-list');
+    const partnerLogoSizeInput = document.getElementById('partner-logo-size-input');
+    const partnerLogoSizeVal = document.getElementById('partner-logo-size-val');
+    const addPartnerBtn = document.getElementById('add-partner-btn');
+    const clearAllPartnersBtn = document.getElementById('clear-all-partners-btn');
+
+    // Render Web Partners Grid
     const renderPartners = async () => {
         if (!partnersGrid) return;
         partnersGrid.innerHTML = '';
-        
-        for (const partner of partnersData) {
-            if (partner.logo) {
-                let logoSrc = partner.logo;
-                if (logoSrc.startsWith('db:')) {
+
+        const activePartners = (partnersData || []).filter(p => p && p.logo);
+        const contactContainer = document.querySelector('.contact-container');
+        const partnersSection = document.querySelector('.partners-section');
+
+        if (activePartners.length === 0) {
+            if (contactContainer) contactContainer.classList.add('no-partners');
+            if (partnersSection) partnersSection.style.display = 'none';
+            return;
+        } else {
+            if (contactContainer) contactContainer.classList.remove('no-partners');
+            if (partnersSection) partnersSection.style.display = 'block';
+        }
+
+        for (const partner of activePartners) {
+            let logoSrc = partner.logo;
+            if (logoSrc && logoSrc.startsWith('db:')) {
+                try {
                     const data = await MediaDB.load(logoSrc.split(':')[1]);
                     if (data) logoSrc = data;
+                } catch (e) {
+                    console.warn('Error loading partner logo from MediaDB:', e);
                 }
-                
-                const item = document.createElement('a');
-                item.href = partner.url || '#';
+            }
+
+            const item = document.createElement('a');
+            item.href = partner.url || '#';
+            if (partner.url) {
                 item.target = '_blank';
                 item.rel = 'noopener noreferrer';
-                item.className = 'partner-item';
-                
-                const img = document.createElement('img');
-                img.src = logoSrc;
-                img.alt = 'Partner';
-                img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain; filter: grayscale(1); opacity: 0.55; transition: all 0.35s ease;';
-                item.appendChild(img);
-                
-                item.addEventListener('mouseenter', () => {
-                    img.style.filter = 'grayscale(0) saturate(1.2)';
-                    img.style.opacity = '1';
-                    img.style.transform = 'scale(1.08)';
+            } else {
+                item.removeAttribute('target');
+                item.removeAttribute('rel');
+                item.style.cursor = 'default';
+            }
+            item.className = 'partner-item';
+
+            const img = document.createElement('img');
+            img.src = logoSrc;
+            img.alt = 'Partner';
+            const scale = (partner.scale !== undefined && partner.scale !== null) ? Number(partner.scale) : 100;
+            if (scale !== 100) {
+                img.style.transform = `scale(${scale / 100})`;
+            }
+            item.appendChild(img);
+
+            partnersGrid.appendChild(item);
+        }
+    };
+
+    // Render Admin Partners Panel
+    const renderAdminPartners = async () => {
+        if (!adminPartnersList) return;
+        adminPartnersList.innerHTML = '';
+
+        if (!partnersData || partnersData.length === 0) {
+            adminPartnersList.innerHTML = `
+                <div style="text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px dashed #ccc; color: #888; font-size: 0.85rem;">
+                    Žádní partneři nejsou nastaveni.<br>
+                    Klikněte na <strong>➕ Přidat partnera</strong> pro vložení prvního partnera.
+                </div>
+            `;
+            return;
+        }
+
+        for (let index = 0; index < partnersData.length; index++) {
+            const partner = partnersData[index];
+            if (!partner) continue;
+
+            let resolvedLogo = '';
+            if (partner.logo) {
+                if (partner.logo.startsWith('db:')) {
+                    try {
+                        const data = await MediaDB.load(partner.logo.split(':')[1]);
+                        if (data) resolvedLogo = data;
+                    } catch(e) {}
+                } else {
+                    resolvedLogo = partner.logo;
+                }
+            }
+
+            const scale = (partner.scale !== undefined && partner.scale !== null) ? Number(partner.scale) : 100;
+
+            const block = document.createElement('div');
+            block.className = 'partner-admin-block';
+            block.style.cssText = 'border: 1px solid #e2e8f0; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; background: #ffffff;';
+
+            block.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: 700; font-size: 0.95rem;">Partner ${index + 1}</span>
+                        ${resolvedLogo ? '<span style="background: #e6f4ea; color: #137333; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; font-weight: 600;">Aktivní</span>' : '<span style="background: #f1f3f4; color: #5f6368; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px;">Bez loga</span>'}
+                    </div>
+                    <button type="button" class="btn" style="background: #e74c3c; color: #fff; font-weight: 600; padding: 4px 10px; font-size: 0.78rem; border-radius: 4px; border: none; cursor: pointer;" onclick="window.removePartner(${index})" title="Smazat tohoto partnera">🗑️ Smazat partnera</button>
+                </div>
+
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.85rem;">
+                    <div class="partner-preview-box" style="width: 110px; height: 60px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; padding: 4px; box-sizing: border-box;">
+                        ${resolvedLogo ? `<img src="${resolvedLogo}" alt="Náhled ${index + 1}" style="max-width: 100%; max-height: 100%; object-fit: contain; transform: scale(${scale / 100});">` : '<span style="font-size: 0.72rem; color: #94a3b8; text-align: center;">Žádné<br>logo</span>'}
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Logo (Upload)</label>
+                        <input type="file" id="partner-file-input-${index}" accept="image/*" style="font-size: 0.78rem; width: 100%;">
+                        ${resolvedLogo ? `<button type="button" style="background: none; border: none; color: #e74c3c; font-size: 0.74rem; cursor: pointer; text-decoration: underline; margin-top: 4px; padding: 0;" onclick="window.clearPartnerLogo(${index})">Odstranit pouze logo</button>` : ''}
+                    </div>
+                </div>
+
+                <div class="control-group" style="margin-bottom: 0.6rem;">
+                    <label style="font-size: 0.78rem; font-weight: 600; margin-bottom: 0.25rem;">Odkaz (URL)</label>
+                    <input type="text" value="${partner.url || ''}" placeholder="https://..." oninput="window.updatePartnerUrl(${index}, this.value)">
+                </div>
+
+                <div class="control-group" style="margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.2rem;">
+                        <label style="margin: 0; font-size: 0.75rem; opacity: 0.8;">Optické měřítko loga</label>
+                        <span id="partner-scale-label-${index}" style="font-weight: 600;">${scale}%</span>
+                    </div>
+                    <input type="range" min="60" max="140" value="${scale}" step="5" oninput="window.updatePartnerScale(${index}, this.value)">
+                </div>
+            `;
+
+            adminPartnersList.appendChild(block);
+
+            // Bind file upload for this block
+            const fileInput = block.querySelector(`#partner-file-input-${index}`);
+            if (fileInput) {
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert(`Soubor ${file.name} je příliš velký (max 10MB).`);
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const rawBase64 = ev.target.result;
+                        const img = new Image();
+                        img.onload = async () => {
+                            let finalData = rawBase64;
+                            try {
+                                const trimmed = trimImageCanvas(img);
+                                if (trimmed) finalData = trimmed;
+                            } catch(err) {
+                                console.warn('Trim canvas failed:', err);
+                            }
+
+                            const key = `partner_logo_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+                            await MediaDB.save(key, finalData);
+
+                            // Clean up previous MediaDB key if exists
+                            if (partner.logo && partner.logo.startsWith('db:')) {
+                                try { await MediaDB.delete(partner.logo.split(':')[1]); } catch(e){}
+                            }
+
+                            partner.logo = `db:${key}`;
+                            saveToStorage(true);
+                            await renderAdminPartners();
+                            await renderPartners();
+                        };
+                        img.src = rawBase64;
+                    };
+                    reader.readAsDataURL(file);
                 });
-                item.addEventListener('mouseleave', () => {
-                    img.style.filter = 'grayscale(1)';
-                    img.style.opacity = '0.55';
-                    img.style.transform = 'scale(1)';
-                });
-                
-                partnersGrid.appendChild(item);
             }
         }
     };
 
-    // Partner Admin Listeners
-    for(let i=1; i<=6; i++) {
-        const logoInput = document.getElementById(`partner-logo-${i}-upload`);
-        const urlInput = document.getElementById(`partner-url-${i}-input`);
-        
-        if (logoInput) {
-            handleFileUpload(logoInput, async (base64) => {
-                const key = `partner_logo_${i}`;
-                await MediaDB.save(key, base64);
-                partnersData[i-1].logo = `db:${key}`;
-                saveToStorage(true);
-                renderPartners();
-            });
+    // Global partner helper functions
+    window.removePartner = async (index) => {
+        if (!confirm(`Opravdu chcete smazat Partnera ${index + 1}?`)) return;
+        const partner = partnersData[index];
+        if (partner && partner.logo && partner.logo.startsWith('db:')) {
+            try { await MediaDB.delete(partner.logo.split(':')[1]); } catch(e) {}
         }
-        
-        if (urlInput) {
-            urlInput.addEventListener('input', (e) => {
-                partnersData[i-1].url = e.target.value;
-                renderPartners(); // Live update links
-            });
+        partnersData.splice(index, 1);
+        saveToStorage(true);
+        await renderAdminPartners();
+        await renderPartners();
+    };
+
+    window.clearPartnerLogo = async (index) => {
+        const partner = partnersData[index];
+        if (!partner) return;
+        if (partner.logo && partner.logo.startsWith('db:')) {
+            try { await MediaDB.delete(partner.logo.split(':')[1]); } catch(e) {}
         }
+        partner.logo = '';
+        saveToStorage(true);
+        await renderAdminPartners();
+        await renderPartners();
+    };
+
+    window.updatePartnerUrl = (index, value) => {
+        if (partnersData[index]) {
+            partnersData[index].url = value;
+            saveToStorage(true);
+            renderPartners();
+        }
+    };
+
+    window.updatePartnerScale = (index, value) => {
+        if (partnersData[index]) {
+            partnersData[index].scale = Number(value);
+            const label = document.getElementById(`partner-scale-label-${index}`);
+            if (label) label.textContent = `${value}%`;
+            saveToStorage(true);
+            renderPartners();
+        }
+    };
+
+    if (addPartnerBtn) {
+        addPartnerBtn.addEventListener('click', () => {
+            partnersData.push({ id: Date.now(), logo: '', url: '', scale: 100 });
+            saveToStorage(true);
+            renderAdminPartners();
+            renderPartners();
+        });
+    }
+
+    if (clearAllPartnersBtn) {
+        clearAllPartnersBtn.addEventListener('click', async () => {
+            if (!confirm('Opravdu chcete smazat všechny partnery a jejich loga?')) return;
+            for (const partner of partnersData) {
+                if (partner && partner.logo && partner.logo.startsWith('db:')) {
+                    try { await MediaDB.delete(partner.logo.split(':')[1]); } catch(e) {}
+                }
+            }
+            partnersData = [];
+            saveToStorage(true);
+            await renderAdminPartners();
+            await renderPartners();
+        });
+    }
+
+    if (partnerLogoSizeInput) {
+        partnerLogoSizeInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            root.style.setProperty('--partner-logo-height', `${val}px`);
+            root.style.setProperty('--partner-card-height', `${Number(val) + 30}px`);
+            if (partnerLogoSizeVal) partnerLogoSizeVal.textContent = `${val} px`;
+            saveToStorage(true);
+        });
     }
 
     clearGalleryBtn.addEventListener('click', () => {
@@ -2243,6 +2513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 accent: accentColorInput.value || '#c5a059',
                 fontHeading: fontHeadingInput.value,
                 logoSize: logoSizeInput.value,
+                partnerLogoSize: partnerLogoSizeInput ? partnerLogoSizeInput.value : '50',
                 darkMode: darkModeInput.checked,
                 showCadastral: cadastralMapInput.checked
             },
@@ -2315,6 +2586,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         logoSizeInput.value = size;
                         root.style.setProperty('--logo-size', size + 'px');
                         root.style.setProperty('--logo-size-footer', (size * 0.75) + 'px');
+                    }
+                    if (config.styles.partnerLogoSize !== undefined && partnerLogoSizeInput) {
+                        const pSize = config.styles.partnerLogoSize;
+                        partnerLogoSizeInput.value = pSize;
+                        root.style.setProperty('--partner-logo-height', pSize + 'px');
+                        root.style.setProperty('--partner-card-height', (Number(pSize) + 30) + 'px');
+                        if (partnerLogoSizeVal) partnerLogoSizeVal.textContent = pSize + ' px';
                     }
                 }
 
@@ -2429,11 +2707,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (config.partners && Array.isArray(config.partners)) {
-                    partnersData = config.partners;
-                    for(let i=1; i<=6; i++) {
-                        const urlInput = document.getElementById(`partner-url-${i}-input`);
-                        if (urlInput && partnersData[i-1]) urlInput.value = partnersData[i-1].url || '';
-                    }
+                    partnersData = config.partners.map((p, idx) => ({
+                        id: p.id || (idx + 1),
+                        logo: p.logo || '',
+                        url: p.url || '',
+                        scale: (p.scale !== undefined && p.scale !== null) ? Number(p.scale) : 100
+                    }));
                 }
 
                 if (config.units) {
@@ -3072,7 +3351,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try { window.renderAllUnitsAdminDynamic(); } catch(e) { console.error('renderAllUnitsAdminDynamic error:', e); }
         try { await renderUnitZones(); } catch(e) { console.error('renderUnitZones error:', e); }
         try { await renderGallery(); } catch(e) { console.error('renderGallery error:', e); }
-        try { renderPartners(); } catch(e) { console.error('renderPartners error:', e); }
+        try { await renderAdminPartners(); } catch(e) { console.error('renderAdminPartners error:', e); }
+        try { await renderPartners(); } catch(e) { console.error('renderPartners error:', e); }
     })();
 });
 

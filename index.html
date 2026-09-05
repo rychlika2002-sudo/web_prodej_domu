@@ -458,74 +458,22 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="accordion-content">
+                <div class="control-group" style="margin-bottom: 1rem; background: rgba(0,0,0,0.02); padding: 0.75rem; border-radius: 8px; border: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <label style="font-weight: 600; margin: 0;">📐 Velikost log na webu</label>
+                        <span id="partner-logo-size-val" style="font-weight: 700; color: var(--primary-color); font-size: 0.85rem;">50 px</span>
+                    </div>
+                    <input type="range" id="partner-logo-size-input" min="30" max="100" value="50">
+                    <small style="display: block; opacity: 0.65; margin-top: 4px; font-size: 0.75rem;">Sjednocuje výšku zobrazení všech partnerských log.</small>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 8px;">
+                    <button type="button" class="btn" id="add-partner-btn" style="background: var(--primary-color); color: #fff; padding: 6px 14px; font-size: 0.82rem; font-weight: 600;">➕ Přidat partnera</button>
+                    <button type="button" class="btn" id="clear-all-partners-btn" style="background: #ff4444; color: #fff; padding: 6px 12px; font-size: 0.78rem;" title="Vymazat všechny partnery">🗑️ Smazat všechny</button>
+                </div>
+
                 <div id="admin-partners-list">
-                    <!-- Partner slots -->
-                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 1</label>
-                        <div class="control-group">
-                            <label>Logo (Upload)</label>
-                            <input type="file" id="partner-logo-1-upload" accept="image/*">
-                        </div>
-                        <div class="control-group">
-                            <label>Odkaz (URL)</label>
-                            <input type="text" id="partner-url-1-input" placeholder="https://...">
-                        </div>
-                    </div>
-                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 2</label>
-                        <div class="control-group">
-                            <label>Logo (Upload)</label>
-                            <input type="file" id="partner-logo-2-upload" accept="image/*">
-                        </div>
-                        <div class="control-group">
-                            <label>Odkaz (URL)</label>
-                            <input type="text" id="partner-url-2-input" placeholder="https://...">
-                        </div>
-                    </div>
-                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 3</label>
-                        <div class="control-group">
-                            <label>Logo (Upload)</label>
-                            <input type="file" id="partner-logo-3-upload" accept="image/*">
-                        </div>
-                        <div class="control-group">
-                            <label>Odkaz (URL)</label>
-                            <input type="text" id="partner-url-3-input" placeholder="https://...">
-                        </div>
-                    </div>
-                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 4</label>
-                        <div class="control-group">
-                            <label>Logo (Upload)</label>
-                            <input type="file" id="partner-logo-4-upload" accept="image/*">
-                        </div>
-                        <div class="control-group">
-                            <label>Odkaz (URL)</label>
-                            <input type="text" id="partner-url-4-input" placeholder="https://...">
-                        </div>
-                    </div>
-                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 5</label>
-                        <div class="control-group">
-                            <label>Logo (Upload)</label>
-                            <input type="file" id="partner-logo-5-upload" accept="image/*">
-                        </div>
-                        <div class="control-group">
-                            <label>Odkaz (URL)</label>
-                            <input type="text" id="partner-url-5-input" placeholder="https://...">
-                        </div>
-                    </div>
-                    <div class="partner-admin-block" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Partner 6</label>
-                        <div class="control-group">
-                            <label>Logo (Upload)</label>
-                            <input type="file" id="partner-logo-6-upload" accept="image/*">
-                        </div>
-                        <div class="control-group">
-                            <label>Odkaz (URL)</label>
-                            <input type="text" id="partner-url-6-input" placeholder="https://...">
-                        </div>
-                    </div>
+                    <!-- Dynamicky generováno pomocí renderAdminPartners() -->
                 </div>
             </div>
         </div>
