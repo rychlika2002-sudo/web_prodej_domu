@@ -1344,9 +1344,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let dragLastTime = 0;
     let dragMoved = false;
     let momentumID = null;
+    let scrollAnimId = null;
+    let targetScrollPos = null;
 
     const stopMomentum = () => {
         if (momentumID) { cancelAnimationFrame(momentumID); momentumID = null; }
+        if (scrollAnimId) { cancelAnimationFrame(scrollAnimId); scrollAnimId = null; }
+        targetScrollPos = null;
     };
 
     const applyMomentum = () => {
@@ -1361,9 +1365,80 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getColumnWidth = () => {
-        const firstItem = galleryContainer ? galleryContainer.querySelector('.gallery-item') : null;
-        if (firstItem) return firstItem.offsetWidth + 24; // 24 = gap (1.5rem)
+        if (!galleryContainer) return 340;
+        const items = galleryContainer.querySelectorAll('.gallery-item');
+        if (items.length >= 3) {
+            const diff = items[2].getBoundingClientRect().left - items[0].getBoundingClientRect().left;
+            if (diff > 50) return Math.round(diff);
+        }
+        const firstItem = galleryContainer.querySelector('.gallery-item');
+        if (firstItem) {
+            const style = window.getComputedStyle(galleryContainer);
+            const gap = parseFloat(style.columnGap || style.gap) || 24;
+            return Math.round(firstItem.offsetWidth + gap);
+        }
         return 340;
+    };
+
+    const smoothScrollTo = (target, duration = 400) => {
+        if (!galleryContainer) return;
+        if (scrollAnimId) {
+            cancelAnimationFrame(scrollAnimId);
+            scrollAnimId = null;
+        }
+
+        const maxScroll = galleryContainer.scrollWidth - galleryContainer.clientWidth;
+        const clampedTarget = Math.max(0, Math.min(maxScroll, Math.round(target)));
+        const start = galleryContainer.scrollLeft;
+        const change = clampedTarget - start;
+
+        if (Math.abs(change) < 2) {
+            targetScrollPos = null;
+            return;
+        }
+
+        const startTime = performance.now();
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        const animate = (now) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            const ease = easeOutCubic(progress);
+            galleryContainer.scrollLeft = start + change * ease;
+
+            if (progress < 1) {
+                scrollAnimId = requestAnimationFrame(animate);
+            } else {
+                galleryContainer.scrollLeft = clampedTarget;
+                scrollAnimId = null;
+                targetScrollPos = null;
+            }
+        };
+
+        scrollAnimId = requestAnimationFrame(animate);
+    };
+
+    const scrollGalleryByDirection = (dir) => {
+        if (!galleryContainer) return;
+        stopMomentum();
+
+        const colWidth = getColumnWidth();
+        const maxScroll = galleryContainer.scrollWidth - galleryContainer.clientWidth;
+        if (maxScroll <= 0) return;
+
+        const current = (targetScrollPos !== null) ? targetScrollPos : galleryContainer.scrollLeft;
+
+        let target;
+        if (dir > 0) {
+            target = (Math.floor((current + 5) / colWidth) + 1) * colWidth;
+            if (target > maxScroll) target = maxScroll;
+        } else {
+            target = (Math.ceil((current - 5) / colWidth) - 1) * colWidth;
+            if (target < 0) target = 0;
+        }
+
+        targetScrollPos = target;
+        smoothScrollTo(target, 420);
     };
 
     const renderGalleryWithImages = (images) => {
@@ -1396,16 +1471,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (prevBtn) {
         prevBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            stopMomentum();
-            galleryContainer.scrollBy({ left: -getColumnWidth(), behavior: 'smooth' });
+            scrollGalleryByDirection(-1);
         });
         prevBtn.addEventListener('mousedown', (e) => e.stopPropagation());
     }
     if (nextBtn) {
         nextBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            stopMomentum();
-            galleryContainer.scrollBy({ left: getColumnWidth(), behavior: 'smooth' });
+            scrollGalleryByDirection(1);
         });
         nextBtn.addEventListener('mousedown', (e) => e.stopPropagation());
     }
