@@ -1803,24 +1803,22 @@ body.polygon-is-dragging * {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 1rem;
-    height: var(--partner-card-height, 80px);
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    padding: 0.5rem;
+    height: var(--partner-card-height, 70px);
+    background: transparent;
+    border: none;
+    box-shadow: none;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition);
     text-decoration: none;
     box-sizing: border-box;
-    overflow: hidden;
     width: 100%;
 }
 
 .partner-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.09);
-    border-color: var(--primary-color, #c5a059);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .partner-item img {
@@ -1829,7 +1827,7 @@ body.polygon-is-dragging * {
     max-height: var(--partner-logo-height, 50px);
     object-fit: contain;
     filter: grayscale(1);
-    opacity: 0.7;
+    opacity: 0.55;
     transition: all 0.35s ease;
     display: block;
     pointer-events: none;
@@ -1838,29 +1836,31 @@ body.polygon-is-dragging * {
 .partner-item:hover img {
     filter: grayscale(0) saturate(1.2);
     opacity: 1;
-    transform: scale(1.06);
+    transform: scale(1.08);
 }
 
 /* Dark Mode Support for Partners */
 body.dark-mode .partner-item {
-    background: #1e1e1e;
-    border-color: #333333;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 body.dark-mode .partner-item:hover {
-    border-color: var(--primary-color, #c5a059);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 body.dark-mode .partner-item img {
     filter: grayscale(1) brightness(0.9);
-    opacity: 0.8;
+    opacity: 0.6;
 }
 
 body.dark-mode .partner-item:hover img {
     filter: grayscale(0) brightness(1);
     opacity: 1;
+    transform: scale(1.08);
 }
 
 /* Admin Partner Cards Styling */

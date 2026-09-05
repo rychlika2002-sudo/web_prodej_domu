@@ -1822,7 +1822,7 @@ document.addEventListener('DOMContentLoaded', () => {
         partnerLogoSizeInput.addEventListener('input', (e) => {
             const val = e.target.value;
             root.style.setProperty('--partner-logo-height', `${val}px`);
-            root.style.setProperty('--partner-card-height', `${Number(val) + 30}px`);
+            root.style.setProperty('--partner-card-height', `${Number(val) + 15}px`);
             if (partnerLogoSizeVal) partnerLogoSizeVal.textContent = `${val} px`;
             saveToStorage(true);
         });
@@ -2591,7 +2591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const pSize = config.styles.partnerLogoSize;
                         partnerLogoSizeInput.value = pSize;
                         root.style.setProperty('--partner-logo-height', pSize + 'px');
-                        root.style.setProperty('--partner-card-height', (Number(pSize) + 30) + 'px');
+                        root.style.setProperty('--partner-card-height', (Number(pSize) + 15) + 'px');
                         if (partnerLogoSizeVal) partnerLogoSizeVal.textContent = pSize + ' px';
                     }
                 }
