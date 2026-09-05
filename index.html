@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=6.3.0">
+    <link rel="stylesheet" href="styles.css?v=6.4.0">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -290,8 +290,137 @@
     </div>
 
 
+    <!-- Admin Authentication Modal (Login & Forgot Password) -->
+    <div class="auth-modal-overlay" id="admin-login-modal">
+        <div class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+            <button type="button" class="auth-modal-close" id="auth-modal-close-btn" aria-label="Zavřít přihlášení">✕</button>
+            
+            <div class="auth-modal-brand">
+                <div class="auth-brand-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div class="auth-brand-badge">Zabezpečená Administrace</div>
+            </div>
+
+            <!-- View 1: Login View -->
+            <div class="auth-view" id="auth-view-login">
+                <div class="auth-modal-head">
+                    <h2 id="auth-modal-title">Přihlášení do nastavení</h2>
+                    <p class="auth-modal-sub">Zadejte své přihlašovací údaje pro odemčení správy a nastavení webu.</p>
+                </div>
+
+                <!-- Alert message container -->
+                <div class="auth-alert" id="auth-login-alert" style="display: none;"></div>
+
+                <form id="auth-login-form" autocomplete="on" novalidate>
+                    <div class="auth-field">
+                        <label for="auth-username">Uživatelské jméno nebo e-mail</label>
+                        <div class="auth-input-wrap">
+                            <span class="auth-input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </span>
+                            <input type="text" id="auth-username" name="username" placeholder="admin nebo admin@prodejdomu.cz" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <div class="auth-label-row">
+                            <label for="auth-password">Heslo</label>
+                            <button type="button" class="auth-link-btn" id="auth-show-forgot-btn">Zapomenuté heslo?</button>
+                        </div>
+                        <div class="auth-input-wrap">
+                            <span class="auth-input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            </span>
+                            <input type="password" id="auth-password" name="password" placeholder="Zadejte heslo" required autocomplete="current-password">
+                            <button type="button" class="auth-toggle-pwd" id="auth-toggle-pwd" title="Zobrazit / skrýt heslo" aria-label="Zobrazit heslo">
+                                <svg id="auth-eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg id="auth-eye-closed" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-checkbox-row">
+                        <label class="auth-checkbox-label">
+                            <input type="checkbox" id="auth-remember" checked>
+                            <span>Pamatovat si přihlášení</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn" id="auth-login-submit-btn">
+                        <span class="auth-btn-icon">🔐</span>
+                        <span>Přihlásit se do administrace</span>
+                    </button>
+                </form>
+
+                <!-- Demo helper credentials box -->
+                <div class="auth-demo-box">
+                    <div class="auth-demo-header">
+                        <span class="auth-demo-tag">💡 DEMO PŘÍSTUP PRO TESTOVÁNÍ</span>
+                        <button type="button" class="auth-demo-fill-btn" id="auth-demo-fill-btn" title="Kliknutím automaticky vyplníte demo údaje">
+                            ⚡ Vyplnit demo údaje
+                        </button>
+                    </div>
+                    <div class="auth-demo-grid">
+                        <div><strong>Jméno / E-mail:</strong> <code>admin</code> (nebo <code>admin@prodejdomu.cz</code>)</div>
+                        <div><strong>Heslo:</strong> <code>admin123</code></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 2: Forgot Password View -->
+            <div class="auth-view" id="auth-view-forgot" style="display: none;">
+                <div class="auth-modal-head">
+                    <h2>Obnova zapomenutého hesla</h2>
+                    <p class="auth-modal-sub">Zadejte svůj e-mail. Pokud je evidován v databázi oprávněných správců, zašleme vám přístupové heslo.</p>
+                </div>
+
+                <!-- Alert message container -->
+                <div class="auth-alert" id="auth-forgot-alert" style="display: none;"></div>
+
+                <form id="auth-forgot-form" novalidate>
+                    <div class="auth-field">
+                        <label for="auth-forgot-email">E-mailová adresa v databázi</label>
+                        <div class="auth-input-wrap">
+                            <span class="auth-input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            </span>
+                            <input type="email" id="auth-forgot-email" name="email" placeholder="např. admin@prodejdomu.cz" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn" id="auth-forgot-submit-btn">
+                        <span class="auth-btn-icon">📨</span>
+                        <span>Odeslat heslo na e-mail</span>
+                    </button>
+
+                    <div class="auth-back-row">
+                        <button type="button" class="auth-back-btn" id="auth-back-to-login-btn">
+                            ← Zpět na přihlášení
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Database hint for testing -->
+                <div class="auth-demo-box">
+                    <div class="auth-demo-header">
+                        <span class="auth-demo-tag">📋 REGISTROVANÉ E-MAILY V SYSTÉMU</span>
+                    </div>
+                    <div class="auth-demo-grid">
+                        <div><code>admin@prodejdomu.cz</code> (Správce webu)</div>
+                        <div><code>michal.svec@realitik.cz</code> (Makléř projektu)</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Admin Panel -->
-    <div class="admin-toggle" id="admin-toggle">
+    <div class="admin-toggle" id="admin-toggle" title="Správa a nastavení webu">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
     </div>
 
@@ -300,6 +429,19 @@
             <div class="drag-header-title">
                 <span class="drag-handle-grip" title="Uchopit a přetáhnout">⠿</span>
                 <h2>Nastavení Webu</h2>
+            </div>
+            <div class="admin-header-actions">
+                <div class="admin-user-status-pill" id="admin-user-status-pill" title="Aktivní přihlášený správce">
+                    <span class="admin-status-dot"></span>
+                    <span id="admin-logged-user-name">admin</span>
+                </div>
+                <button type="button" class="admin-head-btn admin-logout-btn" id="admin-logout-btn" title="Odhlásit se z administrace">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Odhlásit</span>
+                </button>
+                <button type="button" class="admin-head-btn" id="admin-reset-pos-btn" title="Resetovat pozici panelu (ukotvit vpravo)">↺</button>
+                <button type="button" class="admin-head-btn" id="admin-popout-btn" title="Přepnout šířku okna">⤢</button>
+                <button type="button" class="admin-head-btn" id="admin-close-btn" title="Zavřít panel nastavení">✕</button>
             </div>
         </div>
 
@@ -1801,6 +1943,45 @@
             </div>
         </div>
 
+        <!-- Section: Security & Access -->
+        <div class="admin-section accordion" id="sec-security">
+            <div class="accordion-header">
+                <h3>🔐 Zabezpečení & Přístupová hesla</h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="accordion-content">
+                <div style="background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 1rem;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--gold-color); margin-bottom: 4px;">👤 Aktuálně přihlášený správce</div>
+                    <div id="admin-sec-user-display" style="font-size: 0.88rem; font-weight: 600;">admin (admin@prodejdomu.cz)</div>
+                </div>
+
+                <div class="control-group">
+                    <label>E-mail správce (pro obnovu zapomenutého hesla)</label>
+                    <input type="email" id="admin-sec-email-input" value="admin@prodejdomu.cz">
+                </div>
+
+                <div class="control-group">
+                    <label>Nové heslo administrátora</label>
+                    <input type="password" id="admin-sec-new-pass-input" placeholder="Zadejte nové heslo">
+                </div>
+
+                <div class="control-group">
+                    <label>Potvrzení nového hesla</label>
+                    <input type="password" id="admin-sec-confirm-pass-input" placeholder="Zopakujte nové heslo">
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 1rem;">
+                    <button type="button" class="btn" id="admin-sec-save-pass-btn" style="flex: 1; background: var(--accent-color); color: #fff; font-weight: 600;">
+                        🔒 Uložit změny zabezpečení
+                    </button>
+                    <button type="button" class="btn" id="admin-sec-logout-btn" style="background: #e74c3c; color: #fff; font-weight: 600;" title="Okamžitě odhlásit">
+                        Odhlásit
+                    </button>
+                </div>
+                <div id="admin-sec-alert" style="display: none; margin-top: 10px; font-size: 0.82rem; padding: 8px 10px; border-radius: 6px;"></div>
+            </div>
+        </div>
+
         <!-- Section: Portability -->
         <div class="admin-section accordion" id="sec-backup">
             <div class="accordion-header">
@@ -1827,6 +2008,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=6.3.0"></script>
+    <script src="app.js?v=6.4.0"></script>
 </body>
 </html>

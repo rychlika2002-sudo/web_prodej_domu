@@ -921,27 +921,224 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Core Functions & Admin Panel System ---
 
-    // Admin Toggle with Auto-Recovery (Guarantees panel is NEVER lost off-screen)
+    // --- Admin Authentication & User Database System ---
+    const DEFAULT_ADMIN_USERS = [
+        {
+            id: 'admin_master',
+            username: 'admin',
+            email: 'admin@prodejdomu.cz',
+            password: 'admin123',
+            name: 'Hlavní administrátor',
+            role: 'Administrátor'
+        },
+        {
+            id: 'agent_svec',
+            username: 'michal.svec',
+            email: 'michal.svec@realitik.cz',
+            password: 'domyledenice',
+            name: 'Michal Švec',
+            role: 'Makléř projektu'
+        }
+    ];
+
+    const USERS_STORAGE_KEY = 'web_prodej_admin_users_v1';
+    const SESSION_STORAGE_KEY = 'web_prodej_admin_session_v1';
+
+    function getAdminUsers() {
+        try {
+            const raw = localStorage.getItem(USERS_STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.warn('Chyba při načítání databáze uživatelů:', e);
+        }
+        try {
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(DEFAULT_ADMIN_USERS));
+        } catch (e) {}
+        return DEFAULT_ADMIN_USERS;
+    }
+
+    function saveAdminUsers(users) {
+        try {
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+        } catch (e) {
+            console.warn('Chyba při ukládání databáze uživatelů:', e);
+        }
+    }
+
+    function getAuthenticatedUser() {
+        try {
+            const sess = sessionStorage.getItem(SESSION_STORAGE_KEY) || localStorage.getItem(SESSION_STORAGE_KEY);
+            if (!sess) return null;
+            return JSON.parse(sess);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setAuthenticatedUser(user, remember) {
+        const sessionData = {
+            username: user.username,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            loginAt: new Date().toISOString()
+        };
+        sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+        if (remember) {
+            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+        } else {
+            localStorage.removeItem(SESSION_STORAGE_KEY);
+        }
+        updateAdminUIAuthState();
+    }
+
+    function logoutAdminUser() {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+        if (adminPanel) adminPanel.classList.remove('active');
+        updateAdminUIAuthState();
+        showAuthNotification('🚪 Byli jste úspěšně odhlášeni z administrace.');
+    }
+
+    function showAuthNotification(text) {
+        const oldToast = document.getElementById('auth-floating-toast');
+        if (oldToast) oldToast.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'auth-floating-toast';
+        toast.textContent = text;
+        toast.style.cssText = 'position: fixed; bottom: 85px; right: 20px; background: #1e2024; color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10010; border-left: 4px solid var(--gold-color); animation: authFadeIn 0.3s ease;';
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transition = 'opacity 0.4s';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    function updateAdminUIAuthState() {
+        const user = getAuthenticatedUser();
+        const adminLoggedName = document.getElementById('admin-logged-user-name');
+        const adminUserPill = document.getElementById('admin-user-status-pill');
+        const adminSecUserDisplay = document.getElementById('admin-sec-user-display');
+        const adminSecEmailInput = document.getElementById('admin-sec-email-input');
+
+        if (user) {
+            if (adminLoggedName) adminLoggedName.textContent = user.username || user.email;
+            if (adminUserPill) adminUserPill.title = `Přihlášen jako: ${user.name} (${user.email})`;
+            if (adminSecUserDisplay) adminSecUserDisplay.textContent = `${user.name} (${user.email})`;
+            if (adminSecEmailInput) adminSecEmailInput.value = user.email;
+            if (adminToggle) adminToggle.title = `Nastavení webu (Přihlášen: ${user.username})`;
+        } else {
+            if (adminLoggedName) adminLoggedName.textContent = 'Nepřihlášen';
+            if (adminToggle) adminToggle.title = 'Přihlásit se do administrace';
+            if (adminPanel) adminPanel.classList.remove('active');
+        }
+    }
+
+    // Modal selectors
+    const adminLoginModal = document.getElementById('admin-login-modal');
+    const authModalCloseBtn = document.getElementById('auth-modal-close-btn');
+    const authViewLogin = document.getElementById('auth-view-login');
+    const authViewForgot = document.getElementById('auth-view-forgot');
+    const authLoginForm = document.getElementById('auth-login-form');
+    const authForgotForm = document.getElementById('auth-forgot-form');
+    const authLoginAlert = document.getElementById('auth-login-alert');
+    const authForgotAlert = document.getElementById('auth-forgot-alert');
+    const authUsernameInput = document.getElementById('auth-username');
+    const authPasswordInput = document.getElementById('auth-password');
+    const authForgotEmailInput = document.getElementById('auth-forgot-email');
+    const authRememberCheckbox = document.getElementById('auth-remember');
+    const authShowForgotBtn = document.getElementById('auth-show-forgot-btn');
+    const authBackToLoginBtn = document.getElementById('auth-back-to-login-btn');
+    const authTogglePwdBtn = document.getElementById('auth-toggle-pwd');
+    const authEyeOpen = document.getElementById('auth-eye-open');
+    const authEyeClosed = document.getElementById('auth-eye-closed');
+    const authDemoFillBtn = document.getElementById('auth-demo-fill-btn');
+
+    function openLoginModal() {
+        if (!adminLoginModal) return;
+        if (authViewLogin) authViewLogin.style.display = 'block';
+        if (authViewForgot) authViewForgot.style.display = 'none';
+        if (authLoginAlert) {
+            authLoginAlert.style.display = 'none';
+            authLoginAlert.innerHTML = '';
+        }
+        if (authForgotAlert) {
+            authForgotAlert.style.display = 'none';
+            authForgotAlert.innerHTML = '';
+        }
+        if (authPasswordInput) authPasswordInput.value = '';
+
+        adminLoginModal.classList.add('active');
+        setTimeout(() => {
+            if (authUsernameInput) {
+                if (!authUsernameInput.value) {
+                    authUsernameInput.focus();
+                } else if (authPasswordInput) {
+                    authPasswordInput.focus();
+                }
+            }
+        }, 100);
+    }
+
+    function closeLoginModal() {
+        if (!adminLoginModal) return;
+        adminLoginModal.classList.remove('active');
+    }
+
+    function shakeAuthModal() {
+        const card = adminLoginModal ? adminLoginModal.querySelector('.auth-modal-card') : null;
+        if (card) {
+            card.classList.remove('shake');
+            void card.offsetWidth;
+            card.classList.add('shake');
+            setTimeout(() => card.classList.remove('shake'), 500);
+        }
+    }
+
+    function openAdminPanel() {
+        const rect = adminPanel.getBoundingClientRect();
+        const isOffScreen = rect.left < -50 || rect.left > (window.innerWidth - 80) || rect.top < 0 || rect.top > (window.innerHeight - 60);
+        if (isOffScreen || !adminPanel.classList.contains('is-floating')) {
+            adminPanel.classList.remove('is-floating');
+            adminPanel.style.left = '';
+            adminPanel.style.top = '';
+            adminPanel.style.width = '';
+            adminPanel.style.height = '';
+        }
+        adminPanel.classList.add('active');
+    }
+
+    // Admin Toggle (Ozubené kolečko) - Auth Gatekeeper
     adminToggle.addEventListener('click', () => {
+        const user = getAuthenticatedUser();
+        if (!user) {
+            openLoginModal();
+            return;
+        }
+
         const isActive = adminPanel.classList.contains('active');
         if (!isActive) {
-            const rect = adminPanel.getBoundingClientRect();
-            const isOffScreen = rect.left < -50 || rect.left > (window.innerWidth - 80) || rect.top < 0 || rect.top > (window.innerHeight - 60);
-            if (isOffScreen || !adminPanel.classList.contains('is-floating')) {
-                adminPanel.classList.remove('is-floating');
-                adminPanel.style.left = '';
-                adminPanel.style.top = '';
-                adminPanel.style.width = '';
-                adminPanel.style.height = '';
-            }
-            adminPanel.classList.add('active');
+            openAdminPanel();
         } else {
             adminPanel.classList.remove('active');
         }
     });
 
-    // Double click on toggle gear resets to default dock position
+    // Double click on toggle gear resets to default dock position (only if authenticated)
     adminToggle.addEventListener('dblclick', () => {
+        const user = getAuthenticatedUser();
+        if (!user) {
+            openLoginModal();
+            return;
+        }
         adminPanel.classList.remove('is-floating');
         adminPanel.style.left = '';
         adminPanel.style.top = '';
@@ -949,6 +1146,195 @@ document.addEventListener('DOMContentLoaded', () => {
         adminPanel.style.height = '';
         adminPanel.classList.add('active');
     });
+
+    // Modal Close buttons & interactions
+    if (authModalCloseBtn) {
+        authModalCloseBtn.addEventListener('click', closeLoginModal);
+    }
+    if (adminLoginModal) {
+        adminLoginModal.addEventListener('click', (e) => {
+            if (e.target === adminLoginModal) {
+                closeLoginModal();
+            }
+        });
+    }
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && adminLoginModal && adminLoginModal.classList.contains('active')) {
+            closeLoginModal();
+        }
+    });
+
+    // Login Form Submit
+    if (authLoginForm) {
+        authLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = authUsernameInput ? authUsernameInput.value.trim() : '';
+            const password = authPasswordInput ? authPasswordInput.value : '';
+            const remember = authRememberCheckbox ? authRememberCheckbox.checked : true;
+
+            if (!username || !password) {
+                if (authLoginAlert) {
+                    authLoginAlert.className = 'auth-alert error';
+                    authLoginAlert.textContent = 'Zadejte prosím uživatelské jméno a heslo.';
+                    authLoginAlert.style.display = 'block';
+                }
+                shakeAuthModal();
+                return;
+            }
+
+            const users = getAdminUsers();
+            const matched = users.find(u => 
+                (u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === username.toLowerCase()) &&
+                u.password === password
+            );
+
+            if (matched) {
+                if (authLoginAlert) {
+                    authLoginAlert.className = 'auth-alert success';
+                    authLoginAlert.textContent = '✅ Přihlášení úspěšné! Načítám nastavení webu...';
+                    authLoginAlert.style.display = 'block';
+                }
+                setAuthenticatedUser(matched, remember);
+
+                setTimeout(() => {
+                    closeLoginModal();
+                    openAdminPanel();
+                    if (authPasswordInput) authPasswordInput.value = '';
+                    if (authLoginAlert) authLoginAlert.style.display = 'none';
+                }, 400);
+            } else {
+                shakeAuthModal();
+                if (authLoginAlert) {
+                    authLoginAlert.className = 'auth-alert error';
+                    authLoginAlert.textContent = '❌ Neplatné uživatelské jméno nebo heslo. Zkontrolujte prosím zadané údaje.';
+                    authLoginAlert.style.display = 'block';
+                }
+                if (authPasswordInput) {
+                    authPasswordInput.focus();
+                    authPasswordInput.select();
+                }
+            }
+        });
+    }
+
+    // Forgot Password Interactions
+    if (authShowForgotBtn) {
+        authShowForgotBtn.addEventListener('click', () => {
+            if (authViewLogin) authViewLogin.style.display = 'none';
+            if (authViewForgot) authViewForgot.style.display = 'block';
+            if (authForgotAlert) authForgotAlert.style.display = 'none';
+
+            const curVal = authUsernameInput ? authUsernameInput.value.trim() : '';
+            if (curVal && curVal.includes('@') && authForgotEmailInput) {
+                authForgotEmailInput.value = curVal;
+            }
+            setTimeout(() => {
+                if (authForgotEmailInput) authForgotEmailInput.focus();
+            }, 50);
+        });
+    }
+
+    if (authBackToLoginBtn) {
+        authBackToLoginBtn.addEventListener('click', () => {
+            if (authViewForgot) authViewForgot.style.display = 'none';
+            if (authViewLogin) authViewLogin.style.display = 'block';
+            if (authLoginAlert) authLoginAlert.style.display = 'none';
+            setTimeout(() => {
+                if (authUsernameInput) authUsernameInput.focus();
+            }, 50);
+        });
+    }
+
+    if (authForgotForm) {
+        authForgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = authForgotEmailInput ? authForgotEmailInput.value.trim().toLowerCase() : '';
+
+            if (!email) {
+                if (authForgotAlert) {
+                    authForgotAlert.className = 'auth-alert error';
+                    authForgotAlert.textContent = 'Zadejte prosím e-mailovou adresu.';
+                    authForgotAlert.style.display = 'block';
+                }
+                shakeAuthModal();
+                return;
+            }
+
+            const users = getAdminUsers();
+            const found = users.find(u => u.email.toLowerCase() === email);
+
+            if (found) {
+                if (authForgotAlert) {
+                    authForgotAlert.className = 'auth-alert success';
+                    authForgotAlert.innerHTML = `
+                        <div style="font-weight: 700; margin-bottom: 6px;">✅ Heslo bylo úspěšně odesláno na e-mail:</div>
+                        <div style="color: inherit; font-size: 0.95rem; margin-bottom: 10px;"><strong>${escapeHtml(found.email)}</strong></div>
+                        <div style="background: rgba(0,0,0,0.06); padding: 8px 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px; line-height: 1.45;">
+                            <span style="font-size: 0.76rem; text-transform: uppercase; font-weight: 700; color: var(--gold-color);">💡 Testovací zobrazení hesla:</span><br>
+                            Vaše heslo je: <code style="font-size: 1.05rem; font-weight: 800; color: var(--gold-color); letter-spacing: 0.5px;">${escapeHtml(found.password)}</code><br>
+                            <span style="font-size: 0.72rem; opacity: 0.75;">(V ostrém provozu se toto heslo odešle skrytě přes e-mailovou bránu).</span>
+                        </div>
+                        <button type="button" id="auth-fill-found-btn" class="btn" style="width: 100%; padding: 8px; font-size: 0.84rem; background: var(--accent-color); color: #fff; font-weight: 700;">
+                            ← Přejít k přihlášení s tímto e-mailem
+                        </button>
+                    `;
+                    authForgotAlert.style.display = 'block';
+
+                    const fillFoundBtn = document.getElementById('auth-fill-found-btn');
+                    if (fillFoundBtn) {
+                        fillFoundBtn.addEventListener('click', () => {
+                            if (authViewForgot) authViewForgot.style.display = 'none';
+                            if (authViewLogin) authViewLogin.style.display = 'block';
+                            if (authUsernameInput) authUsernameInput.value = found.email;
+                            if (authPasswordInput) authPasswordInput.value = found.password;
+                            if (authLoginAlert) {
+                                authLoginAlert.className = 'auth-alert info';
+                                authLoginAlert.textContent = '⚡ Údaje z obnovy hesla byly předvyplněny.';
+                                authLoginAlert.style.display = 'block';
+                            }
+                            if (authPasswordInput) authPasswordInput.focus();
+                        });
+                    }
+                }
+            } else {
+                shakeAuthModal();
+                if (authForgotAlert) {
+                    authForgotAlert.className = 'auth-alert error';
+                    authForgotAlert.innerHTML = `
+                        <div style="font-weight: 700; margin-bottom: 4px;">❌ E-mail nebyl v systému nalezen</div>
+                        <div>Zadaný e-mail <strong>${escapeHtml(email)}</strong> se nenachází v databázi oprávněných správců. Zkontrolujte prosím správnost nebo kontaktujte správce webu.</div>
+                    `;
+                    authForgotAlert.style.display = 'block';
+                }
+            }
+        });
+    }
+
+    // Demo Fill Button
+    if (authDemoFillBtn) {
+        authDemoFillBtn.addEventListener('click', () => {
+            if (authUsernameInput) authUsernameInput.value = 'admin';
+            if (authPasswordInput) authPasswordInput.value = 'admin123';
+            if (authLoginAlert) {
+                authLoginAlert.className = 'auth-alert info';
+                authLoginAlert.textContent = '⚡ Testovací údaje vyplněny. Klikněte na Přihlásit se.';
+                authLoginAlert.style.display = 'block';
+            }
+        });
+    }
+
+    // Password Visibility Toggle
+    if (authTogglePwdBtn && authPasswordInput) {
+        authTogglePwdBtn.addEventListener('click', () => {
+            const isPass = authPasswordInput.type === 'password';
+            authPasswordInput.type = isPass ? 'text' : 'password';
+            if (authEyeOpen) authEyeOpen.style.display = isPass ? 'none' : 'block';
+            if (authEyeClosed) authEyeClosed.style.display = isPass ? 'block' : 'none';
+        });
+    }
+
+    // Initialize Auth UI on page load
+    updateAdminUIAuthState();
 
     // Admin Panel Draggable Window Logic (With boundary protection so it stays visible)
     const adminDragHeader = document.getElementById('admin-panel-drag-header');
@@ -1071,6 +1457,94 @@ document.addEventListener('DOMContentLoaded', () => {
                     adminPanel.style.top = `${rect.top}px`;
                 }
                 adminPanel.style.width = '850px';
+            }
+        });
+    }
+
+    // Header & Security Logout and Settings handlers
+    const adminLogoutBtn = document.getElementById('admin-logout-btn');
+    const adminSecLogoutBtn = document.getElementById('admin-sec-logout-btn');
+    const adminSecEmailInput = document.getElementById('admin-sec-email-input');
+    const adminSecNewPassInput = document.getElementById('admin-sec-new-pass-input');
+    const adminSecConfirmPassInput = document.getElementById('admin-sec-confirm-pass-input');
+    const adminSecSavePassBtn = document.getElementById('admin-sec-save-pass-btn');
+    const adminSecAlert = document.getElementById('admin-sec-alert');
+
+    if (adminLogoutBtn) {
+        adminLogoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            logoutAdminUser();
+        });
+    }
+
+    if (adminSecLogoutBtn) {
+        adminSecLogoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            logoutAdminUser();
+        });
+    }
+
+    if (adminSecSavePassBtn) {
+        adminSecSavePassBtn.addEventListener('click', () => {
+            const user = getAuthenticatedUser();
+            if (!user) return;
+
+            const newEmail = adminSecEmailInput ? adminSecEmailInput.value.trim() : '';
+            const newPass = adminSecNewPassInput ? adminSecNewPassInput.value : '';
+            const confirmPass = adminSecConfirmPassInput ? adminSecConfirmPassInput.value : '';
+
+            const showSecNotice = (msg, isErr) => {
+                if (!adminSecAlert) return;
+                adminSecAlert.style.display = 'block';
+                adminSecAlert.style.background = isErr ? 'rgba(231, 76, 60, 0.15)' : 'rgba(39, 174, 96, 0.15)';
+                adminSecAlert.style.color = isErr ? '#c0392b' : '#27ae60';
+                adminSecAlert.style.border = `1px solid ${isErr ? 'rgba(231, 76, 60, 0.3)' : 'rgba(39, 174, 96, 0.3)'}`;
+                adminSecAlert.innerHTML = msg;
+                setTimeout(() => {
+                    if (adminSecAlert) adminSecAlert.style.display = 'none';
+                }, 5000);
+            };
+
+            if (!newEmail || !newEmail.includes('@')) {
+                showSecNotice('Zadejte prosím platný e-mail správce.', true);
+                return;
+            }
+
+            if (newPass || confirmPass) {
+                if (newPass.length < 4) {
+                    showSecNotice('Heslo musí mít alespoň 4 znaky.', true);
+                    return;
+                }
+                if (newPass !== confirmPass) {
+                    showSecNotice('Nové heslo a potvrzení nového hesla se neshodují.', true);
+                    return;
+                }
+            }
+
+            const users = getAdminUsers();
+            const idx = users.findIndex(u => 
+                u.username.toLowerCase() === user.username.toLowerCase() ||
+                u.email.toLowerCase() === user.email.toLowerCase()
+            );
+
+            if (idx !== -1) {
+                users[idx].email = newEmail;
+                if (newPass) {
+                    users[idx].password = newPass;
+                }
+                saveAdminUsers(users);
+
+                user.email = newEmail;
+                setAuthenticatedUser(user, true);
+                updateAdminUIAuthState();
+
+                if (adminSecNewPassInput) adminSecNewPassInput.value = '';
+                if (adminSecConfirmPassInput) adminSecConfirmPassInput.value = '';
+
+                showSecNotice('✅ Zabezpečení a přístupové údaje byly úspěšně aktualizovány.', false);
+                showAuthNotification('🔒 Přístupové údaje k administraci byly uloženy.');
+            } else {
+                showSecNotice('Uživatelský účet nebyl v databázi nalezen.', true);
             }
         });
     }
