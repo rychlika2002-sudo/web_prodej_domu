@@ -964,6 +964,7 @@ body.dark-mode .card:hover .card-icon {
 }
 
 .units-scroll-wrapper {
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow: hidden; /* Prevent horizontal scrollbars completely */

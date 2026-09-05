@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=6.0.5">
+    <link rel="stylesheet" href="styles.css?v=6.0.7">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -85,10 +85,10 @@
                             <span style="font-size: 0.82rem; opacity: 0.9;" id="polygon-editor-live-count">0 bodů</span>
                         </div>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                            <button type="button" class="btn" style="background: #27ae60; color: #fff; font-weight: 700; padding: 6px 14px; font-size: 0.85rem;" onclick="window.saveCurrentPolygon()">💾 ULOŽIT POLYGON</button>
-                            <button type="button" class="btn" style="background: #f39c12; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" onclick="window.undoPolygonPoint()">↩️ Zpět</button>
-                            <button type="button" class="btn" style="background: #e74c3c; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" onclick="window.clearCurrentPoints()">🗑️ Smazat body</button>
-                            <button type="button" class="btn" style="background: #7f8c8d; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" onclick="window.closePolygonEditor()">❌ Zavřít</button>
+                            <button type="button" class="btn" style="background: #27ae60; color: #fff; font-weight: 700; padding: 6px 14px; font-size: 0.85rem;" id="editor-btn-save" onclick="window.saveCurrentPolygon()">💾 ULOŽIT POLYGON</button>
+                            <button type="button" class="btn" style="background: #f39c12; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" id="editor-btn-undo" onclick="window.undoPolygonPoint()">↩️ Zpět</button>
+                            <button type="button" class="btn" style="background: #e74c3c; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" id="editor-btn-clear" onclick="window.clearCurrentPoints()">🗑️ Smazat body</button>
+                            <button type="button" class="btn" style="background: #7f8c8d; color: #fff; font-weight: 600; padding: 6px 10px; font-size: 0.82rem;" id="editor-btn-cancel" onclick="window.closePolygonEditor()">❌ Zavřít</button>
                         </div>
                     </div>
                 </div>
@@ -719,8 +719,8 @@
                         <div class="control-group" style="margin-bottom: 10px; margin-top: 6px;">
                             <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Zobrazení rámečku / obrysu jednotek:</label>
                             <select id="polygon-stroke-mode-input" style="width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15); font-weight: 600; font-size: 0.83rem;">
-                                <option value="hover">1. Pouze při najetí myší (Hover rámeček)</option>
-                                <option value="always">2. Trvalý rámeček (Svítí na webu stále)</option>
+                                <option value="always" selected>1. Trvalý rámeček (Svítí na webu stále - Doporučeno)</option>
+                                <option value="hover">2. Pouze při najetí myší (Hover rámeček)</option>
                                 <option value="none">3. Vypnuto (Bez rámečku / pouze barevná výplň)</option>
                             </select>
                         </div>
@@ -1879,6 +1879,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=6.0.5"></script>
+    <script src="app.js?v=6.0.7"></script>
 </body>
 </html>

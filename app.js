@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         soldOpacity: 45,
         strokeColorHex: '#ffffff',
         strokeWidth: 2,
+        strokeMode: 'always',
         widths: { 1: 33.3, 2: 33.3, 3: 33.3, 4: 25, 5: 20, 6: 16, 7: 14, 8: 12, 9: 11 },
         pins: {
             1: {x: 50, y: 50, s: 100}, 2: {x: 50, y: 50, s: 100}, 3: {x: 50, y: 50, s: 100}, 
@@ -533,22 +534,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (mainBtn) {
                 if (isThisActive) {
-                    mainBtn.innerHTML = '💾 ULOŽIT ZMĚNY POLYGONU';
+                    const count = currentPolygonPoints.length;
+                    const countText = count === 1 ? '1 bod' : (count < 5 && count > 1 ? `${count} body` : `${count} bodů`);
+                    mainBtn.innerHTML = `💾 ULOŽIT POLYGON (${countText})`;
                     mainBtn.style.background = '#27ae60';
                     mainBtn.style.color = '#ffffff';
                     mainBtn.style.fontWeight = '700';
-                    mainBtn.style.boxShadow = '0 0 10px rgba(39, 174, 96, 0.4)';
+                    mainBtn.style.boxShadow = '0 0 12px rgba(39, 174, 96, 0.5)';
+                    mainBtn.title = 'Kliknutím polygon uložíte a změny se trvale vykreslí na webu';
                 } else {
                     mainBtn.innerHTML = '✏️ Kreslit / Upravit polygon';
                     mainBtn.style.background = 'var(--accent-color, #c5a059)';
                     mainBtn.style.color = '#ffffff';
                     mainBtn.style.fontWeight = '600';
                     mainBtn.style.boxShadow = 'none';
+                    mainBtn.title = 'Zapnout kreslení a úpravu polygonu na obrázku';
                 }
             }
 
             if (isThisActive && ptsEl) {
-                ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
+                const count = currentPolygonPoints.length;
+                const countText = count === 1 ? '1 bod' : (count < 5 && count > 1 ? `${count} body` : `${count} bodů`);
+                ptsEl.textContent = countText;
             }
 
             if(polygonStatusLabels[i]) {
@@ -589,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(polygonStrokeColorInput) polygonStrokeColorInput.value = unitsConfig.strokeColorHex || '#ffffff';
         if(polygonStrokeWidthInput) polygonStrokeWidthInput.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
         if(polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
-        if(polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode || 'hover';
+        if(polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode || 'always';
     };
 
     if (unitsCountInput) {
@@ -1631,7 +1638,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (svgOverlay) svgOverlay.style.display = 'block';
             if (svgPolygonsLayer) svgPolygonsLayer.innerHTML = '';
 
-            const globalStrokeMode = unitsConfig.strokeMode || 'hover'; // 'always', 'hover', 'none'
+            const globalStrokeMode = unitsConfig.strokeMode || 'always'; // 'always', 'hover', 'none'
             const globalStrokeColor = unitsConfig.strokeColorHex || '#ffffff';
             const globalStrokeWidth = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
 
@@ -1688,6 +1695,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 poly.setAttribute('data-unit', i);
                 
                 // Set inline styles directly for 100% reliable rendering
+                poly.setAttribute('fill', idleFill);
+                poly.setAttribute('stroke', idleStroke);
+                poly.setAttribute('stroke-width', idleStrokeWidth);
                 poly.style.fill = idleFill;
                 poly.style.stroke = idleStroke;
                 poly.style.strokeWidth = idleStrokeWidth;
@@ -1712,6 +1722,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     poly.style.fill = hoverFill;
                     poly.style.stroke = hoverStroke;
                     poly.style.strokeWidth = hoverStrokeWidth;
+                    poly.setAttribute('fill', hoverFill);
+                    poly.setAttribute('stroke', hoverStroke);
+                    poly.setAttribute('stroke-width', hoverStrokeWidth);
 
                     if (popover) {
                         const containerRect = document.getElementById('units-main-container').getBoundingClientRect();
@@ -1760,6 +1773,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     poly.style.fill = idleFill;
                     poly.style.stroke = idleStroke;
                     poly.style.strokeWidth = idleStrokeWidth;
+                    poly.setAttribute('fill', idleFill);
+                    poly.setAttribute('stroke', idleStroke);
+                    poly.setAttribute('stroke-width', idleStrokeWidth);
 
                     if (popover) {
                         popover.classList.remove('active');
@@ -2327,7 +2343,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (widthNumbers[i] && unitsConfig.widths && unitsConfig.widths[i]) widthNumbers[i].value = unitsConfig.widths[i];
                     }
 
-                    if (polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode || 'hover';
+                    if (!unitsConfig.strokeMode || unitsConfig.strokeMode === 'hover') unitsConfig.strokeMode = 'always';
+                    if (polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode;
                     if (polygonStrokeColorInput) polygonStrokeColorInput.value = unitsConfig.strokeColorHex || '#ffffff';
                     if (polygonStrokeWidthInput) polygonStrokeWidthInput.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
                     if (polygonStrokeWidthNumber) polygonStrokeWidthNumber.value = (unitsConfig.strokeWidth !== undefined) ? unitsConfig.strokeWidth : 2;
@@ -2518,6 +2535,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let polyIgnoreNextClick = false;
     window.isPolygonEditingActive = false;
 
+    const unitsMainContainer = document.getElementById('units-main-container');
     const editorToolbar = document.getElementById('polygon-editor-toolbar');
     const editorActiveUnitText = document.getElementById('editor-active-unit-text');
     const editorBtnSave = document.getElementById('editor-btn-save');
@@ -2556,13 +2574,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateLiveIndicators = () => {
         if (activeEditingUnit) {
+            const count = currentPolygonPoints.length;
+            const countText = count === 1 ? '1 bod' : (count < 5 && count > 1 ? `${count} body` : `${count} bodů`);
             const ptsEl = document.getElementById(`polygon-live-pts-${activeEditingUnit}`);
-            if (ptsEl) ptsEl.textContent = `${currentPolygonPoints.length} bodů`;
+            if (ptsEl) ptsEl.textContent = countText;
+            const mainBtn = document.getElementById(`polygon-main-btn-${activeEditingUnit}`);
+            if (mainBtn) {
+                mainBtn.innerHTML = `💾 ULOŽIT POLYGON (${countText})`;
+                mainBtn.style.background = '#27ae60';
+                mainBtn.style.color = '#ffffff';
+                mainBtn.style.fontWeight = '700';
+                mainBtn.style.boxShadow = '0 0 12px rgba(39, 174, 96, 0.5)';
+                mainBtn.title = 'Kliknutím polygon uložíte a změny se trvale vykreslí na webu';
+            }
             const nameEl = document.getElementById('polygon-editor-active-unit-name');
             const countEl = document.getElementById('polygon-editor-live-count');
             if (nameEl) nameEl.textContent = `Jednotka ${activeEditingUnit}`;
-            if (countEl) countEl.textContent = `${currentPolygonPoints.length} bodů`;
-            if (editorActiveUnitText) editorActiveUnitText.textContent = `Jednotka ${activeEditingUnit} (${currentPolygonPoints.length} bodů)`;
+            if (countEl) countEl.textContent = countText;
+            if (editorActiveUnitText) editorActiveUnitText.textContent = `Jednotka ${activeEditingUnit} (${countText})`;
         }
     };
 
@@ -2621,6 +2650,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 circle.setAttribute('id', `editor-handle-${index}`);
                 circle.setAttribute('cx', p.x);
                 circle.setAttribute('cy', p.y);
+                circle.setAttribute('r', '5.5');
                 circle.setAttribute('data-point-index', index);
                 circle.setAttribute('title', `Bod ${index + 1} (Uchopte a táhněte pro posun / Dvojklik pro smazání)`);
 
@@ -2669,20 +2699,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.togglePolygonEditor = (unitIndex) => {
-        if (window.isPolygonEditingActive && activeEditingUnit === unitIndex) {
+        const uIdx = Number(unitIndex);
+        if (window.isPolygonEditingActive && Number(activeEditingUnit) === uIdx) {
             window.saveCurrentPolygon();
         } else {
-            window.startPolygonEditor(unitIndex);
+            window.startPolygonEditor(uIdx);
         }
     };
 
     window.startPolygonEditor = (unitIndex) => {
-        activeEditingUnit = unitIndex;
+        const uIdx = Number(unitIndex);
+        activeEditingUnit = uIdx;
         window.isPolygonEditingActive = true;
         isPolygonDragging = false;
         polygonDragIndex = -1;
         polyHasDragged = false;
         polyIgnoreNextClick = false;
+
+        unitsConfig.mode = 'polygons';
+        if (unitsModeInput) unitsModeInput.value = 'polygons';
+
+        const overlay = document.getElementById('unit-overlay');
+        if (overlay) overlay.style.display = 'none';
 
         if (editorToolbar) {
             editorToolbar.style.display = 'flex';
@@ -2690,7 +2728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Parse existing points
         currentPolygonPoints = [];
-        const rawPoints = (unitsConfig.polygons && unitsConfig.polygons[unitIndex]) ? unitsConfig.polygons[unitIndex].trim() : '';
+        const rawPoints = (unitsConfig.polygons && unitsConfig.polygons[uIdx]) ? unitsConfig.polygons[uIdx].trim() : '';
         if (rawPoints) {
             rawPoints.split(/\s+/).filter(Boolean).forEach(pair => {
                 const [x, y] = pair.split(',').map(Number);
@@ -2722,7 +2760,12 @@ document.addEventListener('DOMContentLoaded', () => {
         polyHasDragged = false;
         polyIgnoreNextClick = false;
         if (unitsMainContainer) unitsMainContainer.classList.remove('editor-crosshair-canvas');
-        if (svgOverlay) svgOverlay.classList.remove('editor-active');
+        if (svgOverlay) {
+            svgOverlay.classList.remove('editor-active');
+            if (unitsConfig.mode === 'polygons') {
+                svgOverlay.style.display = 'block';
+            }
+        }
         if (svgEditorLayer) svgEditorLayer.innerHTML = '';
         updateAdminUnitsVisibility();
         renderUnitZones();
@@ -2734,15 +2777,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.saveCurrentPolygon = () => {
         if (!activeEditingUnit) return;
+        const uIdx = Number(activeEditingUnit);
         if (currentPolygonPoints.length < 3) {
             alert('Polygon musí mít alespoň 3 body! Klikněte do obrázku budovy pro přidání dalších bodů obrysu.');
             return;
         }
-        const uIdx = Number(activeEditingUnit);
         if (!unitsConfig.polygons) unitsConfig.polygons = {};
         const ptsStr = currentPolygonPoints.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
         unitsConfig.polygons[uIdx] = ptsStr;
         unitsConfig.mode = 'polygons';
+        if (unitsModeInput) unitsModeInput.value = 'polygons';
+
+        if ((unitsConfig.count || 0) < uIdx) {
+            unitsConfig.count = uIdx;
+            if (unitsCountInput) unitsCountInput.value = uIdx;
+        }
+
+        if (!unitsConfig.strokeMode || unitsConfig.strokeMode === 'hover') unitsConfig.strokeMode = 'always';
+        if (polygonStrokeModeInput) polygonStrokeModeInput.value = unitsConfig.strokeMode;
         
         // Force save to localStorage
         saveToStorage(true);
@@ -2761,7 +2813,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 savedPoly.style.fill = 'rgba(46, 204, 113, 0.4)';
                 setTimeout(() => {
                     if (typeof renderUnitZones === 'function') renderUnitZones();
-                }, 1600);
+                }, 1400);
             }
         }, 50);
     };
@@ -2781,9 +2833,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.clearPolygon = (unitIndex) => {
-        if (confirm(`Opravdu chcete smazat polygon pro Jednotku ${unitIndex}?`)) {
+        const uIdx = Number(unitIndex);
+        if (confirm(`Opravdu chcete smazat polygon pro Jednotku ${uIdx}?`)) {
             if (!unitsConfig.polygons) unitsConfig.polygons = {};
-            unitsConfig.polygons[unitIndex] = '';
+            unitsConfig.polygons[uIdx] = '';
+            if (window.isPolygonEditingActive && Number(activeEditingUnit) === uIdx) {
+                closePolygonEditor();
+            }
             saveToStorage(true);
             updateAdminUnitsVisibility();
             renderUnitZones();
