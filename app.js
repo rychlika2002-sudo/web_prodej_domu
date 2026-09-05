@@ -2404,16 +2404,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         if (siteMedia.agent && siteMedia.agent.startsWith('db:')) {
-                            const data = await MediaDB.load('agent');
-                            if (data && agentPhotoDisplay) {
-                                agentPhotoDisplay.src = data;
-                                agentPhotoDisplay.style.display = 'block';
-                                if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
-                            }
-                        } else if (agentPhotoDisplay) {
-                            agentPhotoDisplay.src = 'michal-svec.jpg';
-                            agentPhotoDisplay.style.display = 'block';
-                            if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
+                            try {
+                                const data = await MediaDB.load('agent');
+                                if (data && agentPhotoDisplay) {
+                                    agentPhotoDisplay.src = data;
+                                    agentPhotoDisplay.style.display = 'block';
+                                    if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
+                                }
+                            } catch(e) {}
                         }
                     } catch (e) {
                         console.error('Error loading media from IndexedDB:', e);
@@ -2464,16 +2462,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 const defaultFbLink = 'https://www.facebook.com/profile.php?id=61576137536672';
                 const defaultIgLink = 'https://www.instagram.com/domyledenice/';
 
-                if (!c.agentName || c.agentName === 'Jan Novák') c.agentName = defaultAgentName;
-                if (!c.contactPhone || c.contactPhone === '+420 123 456 789') c.contactPhone = defaultContactPhone;
-                if (!c.contactEmail || c.contactEmail === 'info@modernibydleni.cz') c.contactEmail = defaultContactEmail;
-                if (!c.agentAddress) c.agentAddress = defaultAgentAddress;
-                if (!c.agentIco) c.agentIco = defaultAgentIco;
-                if (!c.agentHours) c.agentHours = defaultAgentHours;
-                if (!c.fbLink || c.fbLink === '#') c.fbLink = defaultFbLink;
-                if (!c.igLink || c.igLink === '#') c.igLink = defaultIgLink;
-                if (!c.contactTitle || c.contactTitle === 'Máte dotaz?') c.contactTitle = defaultContactTitle;
-                if (!c.contactText || c.contactText === 'Náš tým je vám k dispozici pro prohlídku nebo konzultaci.') c.contactText = defaultContactText;
+                let configChanged = false;
+                if (!c.agentName || c.agentName.trim() === '' || c.agentName === 'Jan Novák') {
+                    c.agentName = defaultAgentName;
+                    configChanged = true;
+                }
+                if (!c.contactPhone || c.contactPhone.trim() === '' || c.contactPhone.includes('123 456') || c.contactPhone.replace(/\s/g, '') === '+420123456789') {
+                    c.contactPhone = defaultContactPhone;
+                    configChanged = true;
+                }
+                if (!c.contactEmail || c.contactEmail.trim() === '' || c.contactEmail.includes('modernibydleni.cz')) {
+                    c.contactEmail = defaultContactEmail;
+                    configChanged = true;
+                }
+                if (!c.agentAddress || c.agentAddress.trim() === '' || c.agentAddress.includes('Václavské')) {
+                    c.agentAddress = defaultAgentAddress;
+                    configChanged = true;
+                }
+                if (!c.agentIco || c.agentIco.trim() === '' || c.agentIco === '12345678') {
+                    c.agentIco = defaultAgentIco;
+                    configChanged = true;
+                }
+                if (!c.agentHours || c.agentHours.trim() === '') {
+                    c.agentHours = defaultAgentHours;
+                    configChanged = true;
+                }
+                if (!c.fbLink || c.fbLink.trim() === '' || c.fbLink === '#') {
+                    c.fbLink = defaultFbLink;
+                    configChanged = true;
+                }
+                if (!c.igLink || c.igLink.trim() === '' || c.igLink === '#') {
+                    c.igLink = defaultIgLink;
+                    configChanged = true;
+                }
+                if (!c.contactTitle || c.contactTitle.trim() === '' || c.contactTitle === 'Máte dotaz?') {
+                    c.contactTitle = defaultContactTitle;
+                    configChanged = true;
+                }
+                if (!c.contactText || c.contactText.trim() === '' || c.contactText.includes('Náš tým je vám k dispozici')) {
+                    c.contactText = defaultContactText;
+                    configChanged = true;
+                }
+
+                if (configChanged) {
+                    config.content = c;
+                    try {
+                        localStorage.setItem('web_prodej_ultra_v3_config', JSON.stringify(config));
+                    } catch(e) {}
+                }
+
+                // Agent photo handling
+                if (agentPhotoDisplay) {
+                    if (!siteMedia.agent || !siteMedia.agent.startsWith('db:')) {
+                        agentPhotoDisplay.src = 'michal-svec.jpg';
+                        agentPhotoDisplay.style.display = 'block';
+                        if (agentPhotoPlaceholder) agentPhotoPlaceholder.style.display = 'none';
+                    }
+                }
 
                 // Agent info (text)
                 const agentNameDisplay = document.getElementById('editable-agent-name');
