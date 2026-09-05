@@ -1620,14 +1620,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.style.cursor = 'default';
             }
             item.className = 'partner-item';
+            item.style.cssText = 'display: flex; align-items: center; justify-content: center; padding: 0.5rem; height: var(--partner-card-height, 70px); background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; text-decoration: none; width: 100%; box-sizing: border-box;';
 
             const img = document.createElement('img');
             img.src = logoSrc;
             img.alt = 'Partner';
-            const scale = (partner.scale !== undefined && partner.scale !== null) ? Number(partner.scale) : 100;
-            if (scale !== 100) {
-                img.style.transform = `scale(${scale / 100})`;
-            }
+            const baseScale = (partner.scale !== undefined && partner.scale !== null) ? (Number(partner.scale) / 100) : 1;
+            img.style.cssText = `width: 100%; height: var(--partner-logo-height, 50px); max-height: var(--partner-logo-height, 50px); object-fit: contain; filter: grayscale(1); opacity: 0.55; transition: all 0.35s ease; display: block; pointer-events: none; transform: scale(${baseScale});`;
+
+            item.addEventListener('mouseenter', () => {
+                img.style.filter = 'grayscale(0) saturate(1.2)';
+                img.style.opacity = '1';
+                img.style.transform = `scale(${baseScale * 1.08})`;
+            });
+            item.addEventListener('mouseleave', () => {
+                img.style.filter = 'grayscale(1)';
+                img.style.opacity = '0.55';
+                img.style.transform = `scale(${baseScale})`;
+            });
+
             item.appendChild(img);
 
             partnersGrid.appendChild(item);
