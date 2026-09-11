@@ -2842,8 +2842,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ensureUnitDynamicFields(u);
 
         if (u.customFiles && Array.isArray(u.customFiles) && u.customFiles.length > 0) {
-            const match = u.customFiles.find(f => f && f.url && (f.name || '').toLowerCase().includes('karta'));
+            const match = u.customFiles.find(f => {
+                if (!f || !f.url) return false;
+                const txt = ((f.name || '') + ' ' + (f.fileName || '')).toLowerCase();
+                return txt.includes('karta') || txt.includes('půdorys') || txt.includes('katalog') || txt.includes('dispozic');
+            });
             if (match) return { url: match.url, fileName: match.fileName || `${u.name || 'Jednotka ' + unitId} - Karta bytu.pdf`, name: match.name || 'Karta bytu' };
+
             if (u.customFiles[0] && u.customFiles[0].url) {
                 return { url: u.customFiles[0].url, fileName: u.customFiles[0].fileName || `${u.name || 'Jednotka ' + unitId} - Karta bytu.pdf`, name: u.customFiles[0].name || 'Karta bytu' };
             }
@@ -2862,10 +2867,20 @@ document.addEventListener('DOMContentLoaded', () => {
         ensureUnitDynamicFields(u);
 
         if (u.customFiles && Array.isArray(u.customFiles) && u.customFiles.length > 0) {
-            const match = u.customFiles.find(f => f && f.url && (f.name || '').toLowerCase().includes('standard'));
+            const match = u.customFiles.find(f => {
+                if (!f || !f.url) return false;
+                const txt = ((f.name || '') + ' ' + (f.fileName || '')).toLowerCase();
+                return txt.includes('standard') || txt.includes('vybavení') || txt.includes('specifikac') || txt.includes('technick');
+            });
             if (match) return { url: match.url, fileName: match.fileName || `${u.name || 'Jednotka ' + unitId} - Standardy.pdf`, name: match.name || 'Standardy' };
+
             if (u.customFiles[1] && u.customFiles[1].url) {
                 return { url: u.customFiles[1].url, fileName: u.customFiles[1].fileName || `${u.name || 'Jednotka ' + unitId} - Standardy.pdf`, name: u.customFiles[1].name || 'Standardy' };
+            }
+
+            const other = u.customFiles.find((f, i) => i > 0 && f && f.url);
+            if (other) {
+                return { url: other.url, fileName: other.fileName || `${u.name || 'Jednotka ' + unitId} - Standardy.pdf`, name: other.name || 'Standardy' };
             }
         }
 
@@ -2967,6 +2982,45 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.renderUnitsTable = renderUnitsTable;
 
+    let activePdfBlobUrl = null;
+
+    const convertDataToBlobUrl = async (data, mimeType = 'application/pdf') => {
+        if (!data) return null;
+        if (data instanceof Blob) {
+            return URL.createObjectURL(data);
+        }
+        if (typeof data === 'string') {
+            if (data.startsWith('blob:')) {
+                return data;
+            }
+            if (data.startsWith('data:')) {
+                try {
+                    const res = await fetch(data);
+                    const blob = await res.blob();
+                    return URL.createObjectURL(blob);
+                } catch(e) {
+                    try {
+                        const parts = data.split(',');
+                        const mime = (parts[0].match(/:(.*?);/) || [])[1] || mimeType;
+                        const bstr = atob(parts[1]);
+                        const n = bstr.length;
+                        const u8arr = new Uint8Array(n);
+                        for (let i = 0; i < n; i++) {
+                            u8arr[i] = bstr.charCodeAt(i);
+                        }
+                        const blob = new Blob([u8arr], { type: mime });
+                        return URL.createObjectURL(blob);
+                    } catch(err) {
+                        console.error('Chyba při dekódování Base64:', err);
+                        return data;
+                    }
+                }
+            }
+            return data;
+        }
+        return null;
+    };
+
     window.openUnitPdf = async (unitId, type) => {
         const data = unitsData[unitId];
         if (!data) return;
@@ -2982,59 +3036,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const docLabel = isKarta ? 'Karta bytu' : 'Standardy bytu';
         const modalTitle = `${unitName} – ${docLabel}`;
 
-        let fileDataUrl = null;
-        if (docInfo && docInfo.url) {
-            if (docInfo.url.startsWith('db:')) {
-                try {
-                    fileDataUrl = await MediaDB.load(docInfo.url.split(':')[1]);
-                } catch(e) {
-                    console.error('Chyba při načítání souboru z MediaDB:', e);
-                }
-            } else {
-                fileDataUrl = docInfo.url;
-            }
+        // Uvolnit předchozí blob URL pro úsporu paměti
+        if (activePdfBlobUrl && activePdfBlobUrl.startsWith('blob:')) {
+            try { URL.revokeObjectURL(activePdfBlobUrl); } catch(e) {}
+            activePdfBlobUrl = null;
         }
 
-        if (fileDataUrl) {
-            const isImage = fileDataUrl.startsWith('data:image/') || /\.(png|jpe?g|webp|gif)$/i.test(docInfo.fileName || '');
-            const safeFileName = docInfo.fileName || (isKarta ? `${unitName}_karta.pdf` : `${unitName}_standardy.pdf`);
+        modal.classList.add('active');
 
-            body.innerHTML = `
-                <div class="pdf-modal-head">
-                    <div class="pdf-modal-title-wrap">
-                        <span class="pdf-badge-tag">${escapeHtml(docLabel.toUpperCase())}</span>
-                        <h3 class="pdf-modal-title">${escapeHtml(modalTitle)}</h3>
-                        <span class="pdf-filename-tag">${escapeHtml(safeFileName)}</span>
-                    </div>
-                    <div class="pdf-modal-btn-group">
-                        <a href="${fileDataUrl}" download="${escapeHtml(safeFileName)}" class="btn-pdf-act btn-pdf-dl" title="Stáhnout soubor do počítače">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            <span>Stáhnout PDF</span>
-                        </a>
-                        <a href="${fileDataUrl}" target="_blank" rel="noopener" class="btn-pdf-act btn-pdf-nw" title="Otevřít v novém okně prohlížeče">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            <span>Otevřít v novém okně</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="pdf-modal-viewer">
-                    ${isImage ? `
-                        <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.03); border-radius: 8px;">
-                            <img src="${fileDataUrl}" alt="${escapeHtml(modalTitle)}" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-                        </div>
-                    ` : `
-                        <object data="${fileDataUrl}" type="application/pdf" class="pdf-embed-object">
-                            <iframe src="${fileDataUrl}#view=FitH" class="pdf-embed-iframe" title="${escapeHtml(modalTitle)}">
-                                <div style="padding: 2rem; text-align: center; color: #fff;">
-                                    <p>Váš prohlížeč nepodporuje přímý náhled PDF v okně.</p>
-                                    <a href="${fileDataUrl}" download="${escapeHtml(safeFileName)}" class="btn" style="background: var(--accent-color); color:#fff; padding: 8px 16px;">Stáhnout PDF soubor</a>
-                                </div>
-                            </iframe>
-                        </object>
-                    `}
-                </div>
-            `;
-        } else {
+        if (!docInfo || !docInfo.url) {
             body.innerHTML = `
                 <div class="pdf-modal-head">
                     <div class="pdf-modal-title-wrap">
@@ -3049,9 +3059,97 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button type="button" class="btn" onclick="window.closePdfPreviewModal()" style="background: var(--primary-color, #1a1a1a); color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; margin-top: 1rem;">Rozumím</button>
                 </div>
             `;
+            return;
         }
 
-        modal.classList.add('active');
+        // Indikátor načítání pro velké soubory
+        body.innerHTML = `
+            <div class="pdf-modal-head">
+                <div class="pdf-modal-title-wrap">
+                    <span class="pdf-badge-tag">${escapeHtml(docLabel.toUpperCase())}</span>
+                    <h3 class="pdf-modal-title">${escapeHtml(modalTitle)}</h3>
+                </div>
+            </div>
+            <div class="pdf-modal-viewer" style="display:flex;align-items:center;justify-content:center;color:#fff;">
+                <div style="text-align:center;">
+                    <div style="font-size:2.2rem;margin-bottom:10px;">⏳</div>
+                    <p style="font-size:1.15rem;font-weight:600;margin:0;">Načítám PDF dokument...</p>
+                    <span style="font-size:0.85rem;opacity:0.75;">Připravuji zobrazení souboru</span>
+                </div>
+            </div>
+        `;
+
+        let rawData = null;
+        try {
+            if (docInfo.url.startsWith('db:')) {
+                rawData = await MediaDB.load(docInfo.url.split(':')[1]);
+            } else {
+                rawData = docInfo.url;
+            }
+        } catch(e) {
+            console.error('Chyba při načítání souboru z MediaDB:', e);
+        }
+
+        if (!rawData) {
+            body.innerHTML = `
+                <div class="pdf-modal-head">
+                    <div class="pdf-modal-title-wrap">
+                        <span class="pdf-badge-tag">${escapeHtml(docLabel.toUpperCase())}</span>
+                        <h3 class="pdf-modal-title">${escapeHtml(modalTitle)}</h3>
+                    </div>
+                </div>
+                <div class="pdf-modal-empty-state">
+                    <div class="pdf-empty-icon-box">⚠️</div>
+                    <h4>Dokument se nepodařilo načíst</h4>
+                    <p>Dokument PDF pro <strong>${escapeHtml(unitName)}</strong> se nepodařilo načíst z paměti.<br>Zkuste jej prosím v administraci nahrát znovu.</p>
+                    <button type="button" class="btn" onclick="window.closePdfPreviewModal()" style="background: var(--primary-color, #1a1a1a); color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; margin-top: 1rem;">Rozumím</button>
+                </div>
+            `;
+            return;
+        }
+
+        const isImage = (typeof rawData === 'string' && rawData.startsWith('data:image/')) || /\.(png|jpe?g|webp|gif)$/i.test(docInfo.fileName || '');
+        const safeFileName = docInfo.fileName || (isKarta ? `${unitName}_karta.pdf` : `${unitName}_standardy.pdf`);
+
+        let displayUrl = rawData;
+        if (!isImage) {
+            displayUrl = await convertDataToBlobUrl(rawData, 'application/pdf');
+            activePdfBlobUrl = displayUrl;
+        }
+
+        body.innerHTML = `
+            <div class="pdf-modal-head">
+                <div class="pdf-modal-title-wrap">
+                    <span class="pdf-badge-tag">${escapeHtml(docLabel.toUpperCase())}</span>
+                    <h3 class="pdf-modal-title">${escapeHtml(modalTitle)}</h3>
+                    <span class="pdf-filename-tag">${escapeHtml(safeFileName)}</span>
+                </div>
+                <div class="pdf-modal-btn-group">
+                    <a href="${displayUrl}" download="${escapeHtml(safeFileName)}" class="btn-pdf-act btn-pdf-dl" title="Stáhnout soubor do počítače">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Stáhnout PDF</span>
+                    </a>
+                    <a href="${displayUrl}" target="_blank" rel="noopener" class="btn-pdf-act btn-pdf-nw" title="Otevřít v novém okně prohlížeče">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        <span>Otevřít v novém okně</span>
+                    </a>
+                </div>
+            </div>
+            <div class="pdf-modal-viewer">
+                ${isImage ? `
+                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.03); border-radius: 8px;">
+                        <img src="${displayUrl}" alt="${escapeHtml(modalTitle)}" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    </div>
+                ` : `
+                    <iframe src="${displayUrl}#view=FitH" class="pdf-embed-iframe" title="${escapeHtml(modalTitle)}">
+                        <div style="padding: 2rem; text-align: center; color: #fff;">
+                            <p>Váš prohlížeč nepodporuje přímé zobrazení PDF v okně.</p>
+                            <a href="${displayUrl}" download="${escapeHtml(safeFileName)}" class="btn" style="background: var(--accent-color); color:#fff; padding: 8px 16px;">Stáhnout PDF soubor</a>
+                        </div>
+                    </iframe>
+                `}
+            </div>
+        `;
     };
 
     window.closePdfPreviewModal = () => {
@@ -3061,7 +3159,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const body = document.getElementById('pdf-preview-body') || document.getElementById('card-preview-body');
             if (body) {
                 setTimeout(() => {
-                    if (!modal.classList.contains('active')) body.innerHTML = '';
+                    if (!modal.classList.contains('active')) {
+                        body.innerHTML = '';
+                        if (activePdfBlobUrl && activePdfBlobUrl.startsWith('blob:')) {
+                            try { URL.revokeObjectURL(activePdfBlobUrl); } catch(e) {}
+                            activePdfBlobUrl = null;
+                        }
+                    }
                 }, 200);
             }
         }
@@ -3399,12 +3503,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 unitsData[unitId].customFiles[idx].url = `db:${dbKey}`;
                 unitsData[unitId].customFiles[idx].fileName = file.name;
 
-                const nameLower = (unitsData[unitId].customFiles[idx].name || '').toLowerCase();
-                if (nameLower.includes('karta') || idx === 0) {
+                const nameLower = ((unitsData[unitId].customFiles[idx].name || '') + ' ' + (file.name || '')).toLowerCase();
+                if (nameLower.includes('karta') || nameLower.includes('půdorys') || idx === 0) {
                     unitsData[unitId].pdfKarta = `db:${dbKey}`;
                 }
-                if (nameLower.includes('standard') || idx === 1) {
+                if (nameLower.includes('standard') || nameLower.includes('vybavení') || nameLower.includes('specifikac') || idx === 1) {
                     unitsData[unitId].pdfStandardy = `db:${dbKey}`;
+                }
+                if (unitsData[unitId].customFiles[idx].name === 'Nový dokument (PDF)') {
+                    if (file.name.toLowerCase().includes('standard')) {
+                        unitsData[unitId].customFiles[idx].name = 'Standardy bytu (PDF)';
+                    } else if (file.name.toLowerCase().includes('karta') || file.name.toLowerCase().includes('půdorys')) {
+                        unitsData[unitId].customFiles[idx].name = 'Karta bytu (PDF)';
+                    }
                 }
 
                 window.renderUnitAdminDynamic(unitId);
