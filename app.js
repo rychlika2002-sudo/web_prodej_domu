@@ -187,6 +187,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
+            if (config.units && typeof config.units === 'object') {
+                for (const uId in config.units) {
+                    const u = config.units[uId];
+                    if (u && u.customFiles && Array.isArray(u.customFiles)) {
+                        for (const f of u.customFiles) {
+                            if (f && f.url && typeof f.url === 'string' && f.url.startsWith('db:')) {
+                                const dbKey = f.url.split(':')[1];
+                                try {
+                                    const data = await MediaDB.load(dbKey);
+                                    if (data) exportData.mediaData[dbKey] = data;
+                                } catch(e) {}
+                            }
+                        }
+                    }
+                    if (u && u.pdfKarta && typeof u.pdfKarta === 'string' && u.pdfKarta.startsWith('db:')) {
+                        const dbKey = u.pdfKarta.split(':')[1];
+                        try {
+                            const data = await MediaDB.load(dbKey);
+                            if (data) exportData.mediaData[dbKey] = data;
+                        } catch(e) {}
+                    }
+                    if (u && u.pdfStandardy && typeof u.pdfStandardy === 'string' && u.pdfStandardy.startsWith('db:')) {
+                        const dbKey = u.pdfStandardy.split(':')[1];
+                        try {
+                            const data = await MediaDB.load(dbKey);
+                            if (data) exportData.mediaData[dbKey] = data;
+                        } catch(e) {}
+                    }
+                }
+            }
             
             const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -920,7 +950,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroBg = document.getElementById('hero-bg');
     const triplexImage = document.querySelector('.units-image');
 
-    // --- Helper: File to Base64 ---
+    // --- Helper: Smart Client-Side Image Optimizer for Large Visualizations ---
+    const optimizeImageFile = (file, callback) => {
+        // If SVG or under 1.5MB, no resizing needed
+        if (file.type === 'image/svg+xml' || file.size < 1.5 * 1024 * 1024) {
+            const reader = new FileReader();
+            reader.onload = (e) => callback(e.target.result);
+            reader.readAsDataURL(file);
+            return;
+        }
+
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.onload = () => {
+                const MAX_DIM = 2560; // Max 2.5K width/height for crystal clear web visuals
+                let w = img.naturalWidth || img.width;
+                let h = img.naturalHeight || img.height;
+                if (w > MAX_DIM || h > MAX_DIM) {
+                    if (w > h) {
+                        h = Math.round((h * MAX_DIM) / w);
+                        w = MAX_DIM;
+                    } else {
+                        w = Math.round((w * MAX_DIM) / h);
+                        h = MAX_DIM;
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, w, h);
+
+                const isPng = file.type === 'image/png';
+                let dataUrl;
+                try {
+                    dataUrl = canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.92);
+                    if (isPng && dataUrl.length > 3.5 * 1024 * 1024) {
+                        dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                    }
+                } catch(err) {
+                    dataUrl = e.target.result;
+                }
+                callback(dataUrl);
+            };
+            img.onerror = () => callback(e.target.result);
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // --- Helper: File to Base64 (Supports large files up to 50MB with auto-optimization) ---
     const handleFileUpload = (input, callback) => {
         if (!input) return;
         input.addEventListener('change', (e) => {
@@ -928,13 +1010,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!files.length) return;
             
             Array.from(files).forEach(file => {
-                if (file.size > 10 * 1024 * 1024) { 
-                    alert(`Soubor ${file.name} je příliš velký (max 10MB). Přeskočeno.`);
+                if (file.size > 50 * 1024 * 1024) { 
+                    alert(`Soubor ${file.name} je příliš velký (max 50MB). Přeskočeno.`);
                     return;
                 }
-                const reader = new FileReader();
-                reader.onload = (event) => callback(event.target.result);
-                reader.readAsDataURL(file);
+                if (file.type && file.type.startsWith('image/')) {
+                    optimizeImageFile(file, (optimizedBase64) => callback(optimizedBase64));
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = (event) => callback(event.target.result);
+                    reader.readAsDataURL(file);
+                }
             });
         });
     };
@@ -2881,7 +2967,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.renderUnitsTable = renderUnitsTable;
 
-    window.openUnitPdf = (unitId, type) => {
+    window.openUnitPdf = async (unitId, type) => {
         const data = unitsData[unitId];
         if (!data) return;
         ensureUnitDynamicFields(data);
@@ -2896,8 +2982,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const docLabel = isKarta ? 'Karta bytu' : 'Standardy bytu';
         const modalTitle = `${unitName} – ${docLabel}`;
 
+        let fileDataUrl = null;
         if (docInfo && docInfo.url) {
-            const isImage = docInfo.url.startsWith('data:image/') || /\.(png|jpe?g|webp|gif)$/i.test(docInfo.fileName || '');
+            if (docInfo.url.startsWith('db:')) {
+                try {
+                    fileDataUrl = await MediaDB.load(docInfo.url.split(':')[1]);
+                } catch(e) {
+                    console.error('Chyba při načítání souboru z MediaDB:', e);
+                }
+            } else {
+                fileDataUrl = docInfo.url;
+            }
+        }
+
+        if (fileDataUrl) {
+            const isImage = fileDataUrl.startsWith('data:image/') || /\.(png|jpe?g|webp|gif)$/i.test(docInfo.fileName || '');
             const safeFileName = docInfo.fileName || (isKarta ? `${unitName}_karta.pdf` : `${unitName}_standardy.pdf`);
 
             body.innerHTML = `
@@ -2908,11 +3007,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="pdf-filename-tag">${escapeHtml(safeFileName)}</span>
                     </div>
                     <div class="pdf-modal-btn-group">
-                        <a href="${docInfo.url}" download="${escapeHtml(safeFileName)}" class="btn-pdf-act btn-pdf-dl" title="Stáhnout soubor do počítače">
+                        <a href="${fileDataUrl}" download="${escapeHtml(safeFileName)}" class="btn-pdf-act btn-pdf-dl" title="Stáhnout soubor do počítače">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             <span>Stáhnout PDF</span>
                         </a>
-                        <a href="${docInfo.url}" target="_blank" rel="noopener" class="btn-pdf-act btn-pdf-nw" title="Otevřít v novém okně prohlížeče">
+                        <a href="${fileDataUrl}" target="_blank" rel="noopener" class="btn-pdf-act btn-pdf-nw" title="Otevřít v novém okně prohlížeče">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             <span>Otevřít v novém okně</span>
                         </a>
@@ -2921,14 +3020,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="pdf-modal-viewer">
                     ${isImage ? `
                         <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.03); border-radius: 8px;">
-                            <img src="${docInfo.url}" alt="${escapeHtml(modalTitle)}" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                            <img src="${fileDataUrl}" alt="${escapeHtml(modalTitle)}" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
                         </div>
                     ` : `
-                        <object data="${docInfo.url}" type="application/pdf" class="pdf-embed-object">
-                            <iframe src="${docInfo.url}#view=FitH" class="pdf-embed-iframe" title="${escapeHtml(modalTitle)}">
+                        <object data="${fileDataUrl}" type="application/pdf" class="pdf-embed-object">
+                            <iframe src="${fileDataUrl}#view=FitH" class="pdf-embed-iframe" title="${escapeHtml(modalTitle)}">
                                 <div style="padding: 2rem; text-align: center; color: #fff;">
                                     <p>Váš prohlížeč nepodporuje přímý náhled PDF v okně.</p>
-                                    <a href="${docInfo.url}" download="${escapeHtml(safeFileName)}" class="btn" style="background: var(--accent-color); color:#fff; padding: 8px 16px;">Stáhnout PDF soubor</a>
+                                    <a href="${fileDataUrl}" download="${escapeHtml(safeFileName)}" class="btn" style="background: var(--accent-color); color:#fff; padding: 8px 16px;">Stáhnout PDF soubor</a>
                                 </div>
                             </iframe>
                         </object>
@@ -3275,36 +3374,58 @@ document.addEventListener('DOMContentLoaded', () => {
     window.uploadUnitFile = (unitId, idx, inputEl) => {
         if (!inputEl || !inputEl.files || !inputEl.files[0]) return;
         const file = inputEl.files[0];
+        if (file.size > 50 * 1024 * 1024) {
+            alert(`Soubor ${file.name} je příliš velký (max 50MB).`);
+            return;
+        }
+
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             if (!unitsData[unitId]) return;
             ensureUnitDynamicFields(unitsData[unitId]);
             if (!unitsData[unitId].customFiles[idx]) {
                 unitsData[unitId].customFiles[idx] = { name: file.name.replace(/\.[^/.]+$/, ''), url: '', fileName: '' };
             }
-            unitsData[unitId].customFiles[idx].url = e.target.result;
-            unitsData[unitId].customFiles[idx].fileName = file.name;
 
-            const nameLower = (unitsData[unitId].customFiles[idx].name || '').toLowerCase();
-            if (nameLower.includes('karta') || idx === 0) {
-                unitsData[unitId].pdfKarta = e.target.result;
-            }
-            if (nameLower.includes('standard') || idx === 1) {
-                unitsData[unitId].pdfStandardy = e.target.result;
+            const dbKey = `unit_${unitId}_file_${idx}_${Date.now()}`;
+            // Clean up old MediaDB key if exists
+            const oldUrl = unitsData[unitId].customFiles[idx].url || '';
+            if (oldUrl.startsWith('db:')) {
+                try { await MediaDB.delete(oldUrl.split(':')[1]); } catch(err) {}
             }
 
-            window.renderUnitAdminDynamic(unitId);
-            saveToStorage(true);
-            if (typeof renderUnitsTable === 'function') renderUnitsTable();
+            try {
+                await MediaDB.save(dbKey, e.target.result);
+                unitsData[unitId].customFiles[idx].url = `db:${dbKey}`;
+                unitsData[unitId].customFiles[idx].fileName = file.name;
+
+                const nameLower = (unitsData[unitId].customFiles[idx].name || '').toLowerCase();
+                if (nameLower.includes('karta') || idx === 0) {
+                    unitsData[unitId].pdfKarta = `db:${dbKey}`;
+                }
+                if (nameLower.includes('standard') || idx === 1) {
+                    unitsData[unitId].pdfStandardy = `db:${dbKey}`;
+                }
+
+                window.renderUnitAdminDynamic(unitId);
+                saveToStorage(true);
+                if (typeof renderUnitsTable === 'function') renderUnitsTable();
+            } catch(dbErr) {
+                console.error('Chyba při ukládání souboru do MediaDB:', dbErr);
+                alert('Chyba při ukládání souboru: ' + (dbErr.message || dbErr));
+            }
         };
         reader.readAsDataURL(file);
     };
 
-    window.removeUnitFile = (unitId, idx) => {
+    window.removeUnitFile = async (unitId, idx) => {
         if (!unitsData[unitId]) return;
         ensureUnitDynamicFields(unitsData[unitId]);
         const removed = unitsData[unitId].customFiles.splice(idx, 1);
         if (removed && removed[0]) {
+            if (removed[0].url && removed[0].url.startsWith('db:')) {
+                try { await MediaDB.delete(removed[0].url.split(':')[1]); } catch(e) {}
+            }
             const rName = (removed[0].name || '').toLowerCase();
             if (rName.includes('karta') || idx === 0) delete unitsData[unitId].pdfKarta;
             if (rName.includes('standard') || idx === 1) delete unitsData[unitId].pdfStandardy;
@@ -3364,9 +3485,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span>${escapeHtml(f.name || 'Dokument ke stažení')}</span>
                     `;
                     if (f.url) {
-                        btn.href = f.url;
-                        btn.download = f.fileName || `${(f.name || 'dokument').replace(/\s+/g, '_')}.pdf`;
-                        btn.target = '_blank';
+                        btn.href = '#';
+                        btn.onclick = async (e) => {
+                            e.preventDefault();
+                            let dlUrl = f.url;
+                            if (dlUrl.startsWith('db:')) {
+                                try {
+                                    dlUrl = await MediaDB.load(dlUrl.split(':')[1]);
+                                } catch(err) {
+                                    console.error('Chyba při načítání souboru:', err);
+                                }
+                            }
+                            if (dlUrl) {
+                                const dlLink = document.createElement('a');
+                                dlLink.href = dlUrl;
+                                dlLink.download = f.fileName || `${(f.name || 'dokument').replace(/\s+/g, '_')}.pdf`;
+                                dlLink.target = '_blank';
+                                document.body.appendChild(dlLink);
+                                dlLink.click();
+                                document.body.removeChild(dlLink);
+                            } else {
+                                alert('Dokument se nepodařilo načíst z paměti.');
+                            }
+                        };
                     } else {
                         btn.href = '#';
                         btn.style.opacity = '0.45';
@@ -3632,6 +3773,48 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     }
+                }
+
+                // Migrate any inline base64 documents in unitsData to MediaDB to free up localStorage
+                let migratedUnits = false;
+                for (let i = 1; i <= 9; i++) {
+                    const u = unitsData[i];
+                    if (!u) continue;
+                    if (u.customFiles && Array.isArray(u.customFiles)) {
+                        for (let idx = 0; idx < u.customFiles.length; idx++) {
+                            const f = u.customFiles[idx];
+                            if (f && f.url && f.url.startsWith('data:')) {
+                                const dbKey = `unit_${i}_file_${idx}_migrated`;
+                                try {
+                                    await MediaDB.save(dbKey, f.url);
+                                    f.url = `db:${dbKey}`;
+                                    migratedUnits = true;
+                                } catch(err) {}
+                            }
+                        }
+                    }
+                    if (u.pdfKarta && u.pdfKarta.startsWith('data:')) {
+                        const dbKey = `unit_${i}_karta_migrated`;
+                        try {
+                            await MediaDB.save(dbKey, u.pdfKarta);
+                            u.pdfKarta = `db:${dbKey}`;
+                            migratedUnits = true;
+                        } catch(err) {}
+                    }
+                    if (u.pdfStandardy && u.pdfStandardy.startsWith('data:')) {
+                        const dbKey = `unit_${i}_standardy_migrated`;
+                        try {
+                            await MediaDB.save(dbKey, u.pdfStandardy);
+                            u.pdfStandardy = `db:${dbKey}`;
+                            migratedUnits = true;
+                        } catch(err) {}
+                    }
+                }
+                if (migratedUnits) {
+                    config.units = unitsData;
+                    try {
+                        localStorage.setItem('web_prodej_ultra_v3_config', JSON.stringify(config));
+                    } catch(err) {}
                 }
 
                 const defaultAgentName = 'Michal Švec';
