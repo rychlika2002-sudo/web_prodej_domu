@@ -2750,6 +2750,46 @@ document.addEventListener('DOMContentLoaded', () => {
         renderUnitsTable();
     };
 
+    const getUnitKartaPdf = (unitId) => {
+        const u = unitsData[unitId];
+        if (!u) return null;
+        ensureUnitDynamicFields(u);
+
+        if (u.customFiles && Array.isArray(u.customFiles) && u.customFiles.length > 0) {
+            const match = u.customFiles.find(f => f && f.url && (f.name || '').toLowerCase().includes('karta'));
+            if (match) return { url: match.url, fileName: match.fileName || `${u.name || 'Jednotka ' + unitId} - Karta bytu.pdf`, name: match.name || 'Karta bytu' };
+            if (u.customFiles[0] && u.customFiles[0].url) {
+                return { url: u.customFiles[0].url, fileName: u.customFiles[0].fileName || `${u.name || 'Jednotka ' + unitId} - Karta bytu.pdf`, name: u.customFiles[0].name || 'Karta bytu' };
+            }
+        }
+
+        if (u.pdfKarta) {
+            return { url: u.pdfKarta, fileName: `${u.name || 'Jednotka ' + unitId} - Karta bytu.pdf`, name: 'Karta bytu' };
+        }
+
+        return null;
+    };
+
+    const getUnitStandardyPdf = (unitId) => {
+        const u = unitsData[unitId];
+        if (!u) return null;
+        ensureUnitDynamicFields(u);
+
+        if (u.customFiles && Array.isArray(u.customFiles) && u.customFiles.length > 0) {
+            const match = u.customFiles.find(f => f && f.url && (f.name || '').toLowerCase().includes('standard'));
+            if (match) return { url: match.url, fileName: match.fileName || `${u.name || 'Jednotka ' + unitId} - Standardy.pdf`, name: match.name || 'Standardy' };
+            if (u.customFiles[1] && u.customFiles[1].url) {
+                return { url: u.customFiles[1].url, fileName: u.customFiles[1].fileName || `${u.name || 'Jednotka ' + unitId} - Standardy.pdf`, name: u.customFiles[1].name || 'Standardy' };
+            }
+        }
+
+        if (u.pdfStandardy) {
+            return { url: u.pdfStandardy, fileName: `${u.name || 'Jednotka ' + unitId} - Standardy.pdf`, name: 'Standardy' };
+        }
+
+        return null;
+    };
+
     const renderUnitsTable = () => {
         const tbody = document.getElementById('units-table-tbody');
         if (!tbody) return;
@@ -2784,6 +2824,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusClass = data.status || 'status-available';
             const statusText = data.statusText || (statusClass === 'status-sold' ? 'Prodáno' : (statusClass === 'status-reserved' ? 'Rezervováno' : 'Volno'));
 
+            const kartaPdf = getUnitKartaPdf(i);
+            const hasKarta = !!(kartaPdf && kartaPdf.url);
+
+            const standardyPdf = getUnitStandardyPdf(i);
+            const hasStandardy = !!(standardyPdf && standardyPdf.url);
+
             tr.innerHTML = `
                 <td>
                     <div class="unit-name-cell">
@@ -2797,15 +2843,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><span class="unit-price-val">${escapeHtml(price)}</span></td>
                 <td><span class="unit-status ${statusClass}">${escapeHtml(statusText)}</span></td>
                 <td>
-                    <button type="button" class="unit-table-btn btn-karta" onclick="event.stopPropagation(); window.previewUnitCard(${i});" title="Zobrazit náhled karty bytu a půdorysu">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        <span>Náhled</span>
+                    <button type="button" class="unit-table-btn btn-karta ${hasKarta ? 'has-pdf' : 'no-pdf'}" onclick="event.stopPropagation(); window.openUnitPdf(${i}, 'karta');" title="${hasKarta ? 'Zobrazit náhled nahraného PDF karty bytu' : 'PDF karty bytu zatím nebylo nahráno'}">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <span>${hasKarta ? 'Náhled PDF' : 'Nenahráno'}</span>
                     </button>
                 </td>
                 <td>
-                    <button type="button" class="unit-table-btn btn-standards" onclick="event.stopPropagation(); window.previewUnitStandards(${i});" title="Zobrazit standardy jednotky a vybavení">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                        <span>Standardy</span>
+                    <button type="button" class="unit-table-btn btn-standards ${hasStandardy ? 'has-pdf' : 'no-pdf'}" onclick="event.stopPropagation(); window.openUnitPdf(${i}, 'standardy');" title="${hasStandardy ? 'Zobrazit náhled nahraného PDF standardů' : 'PDF standardů zatím nebylo nahráno'}">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <span>${hasStandardy ? 'Náhled PDF' : 'Nenahráno'}</span>
                     </button>
                 </td>
                 <td>
@@ -2835,202 +2881,102 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.renderUnitsTable = renderUnitsTable;
 
-    window.previewUnitCard = async (id) => {
-        const data = unitsData[id];
+    window.openUnitPdf = (unitId, type) => {
+        const data = unitsData[unitId];
         if (!data) return;
         ensureUnitDynamicFields(data);
 
-        const modal = document.getElementById('unit-card-preview-modal');
-        const body = document.getElementById('card-preview-body');
+        const modal = document.getElementById('pdf-preview-modal') || document.getElementById('unit-card-preview-modal');
+        const body = document.getElementById('pdf-preview-body') || document.getElementById('card-preview-body');
         if (!modal || !body) return;
 
-        let unitImg = null;
-        if (siteMedia && siteMedia[`unit${id}`]) {
-            let val = siteMedia[`unit${id}`];
-            if (typeof val === 'string' && val.startsWith('db:')) {
-                try { unitImg = await MediaDB.load(val.split(':')[1]); } catch(e) {}
-            } else {
-                unitImg = val;
+        const isKarta = type === 'karta';
+        const docInfo = isKarta ? getUnitKartaPdf(unitId) : getUnitStandardyPdf(unitId);
+        const unitName = data.name || `Jednotka ${unitId}`;
+        const docLabel = isKarta ? 'Karta bytu' : 'Standardy bytu';
+        const modalTitle = `${unitName} – ${docLabel}`;
+
+        if (docInfo && docInfo.url) {
+            const isImage = docInfo.url.startsWith('data:image/') || /\.(png|jpe?g|webp|gif)$/i.test(docInfo.fileName || '');
+            const safeFileName = docInfo.fileName || (isKarta ? `${unitName}_karta.pdf` : `${unitName}_standardy.pdf`);
+
+            body.innerHTML = `
+                <div class="pdf-modal-head">
+                    <div class="pdf-modal-title-wrap">
+                        <span class="pdf-badge-tag">${escapeHtml(docLabel.toUpperCase())}</span>
+                        <h3 class="pdf-modal-title">${escapeHtml(modalTitle)}</h3>
+                        <span class="pdf-filename-tag">${escapeHtml(safeFileName)}</span>
+                    </div>
+                    <div class="pdf-modal-btn-group">
+                        <a href="${docInfo.url}" download="${escapeHtml(safeFileName)}" class="btn-pdf-act btn-pdf-dl" title="Stáhnout soubor do počítače">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Stáhnout PDF</span>
+                        </a>
+                        <a href="${docInfo.url}" target="_blank" rel="noopener" class="btn-pdf-act btn-pdf-nw" title="Otevřít v novém okně prohlížeče">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            <span>Otevřít v novém okně</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="pdf-modal-viewer">
+                    ${isImage ? `
+                        <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.03); border-radius: 8px;">
+                            <img src="${docInfo.url}" alt="${escapeHtml(modalTitle)}" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        </div>
+                    ` : `
+                        <object data="${docInfo.url}" type="application/pdf" class="pdf-embed-object">
+                            <iframe src="${docInfo.url}#view=FitH" class="pdf-embed-iframe" title="${escapeHtml(modalTitle)}">
+                                <div style="padding: 2rem; text-align: center; color: #fff;">
+                                    <p>Váš prohlížeč nepodporuje přímý náhled PDF v okně.</p>
+                                    <a href="${docInfo.url}" download="${escapeHtml(safeFileName)}" class="btn" style="background: var(--accent-color); color:#fff; padding: 8px 16px;">Stáhnout PDF soubor</a>
+                                </div>
+                            </iframe>
+                        </object>
+                    `}
+                </div>
+            `;
+        } else {
+            body.innerHTML = `
+                <div class="pdf-modal-head">
+                    <div class="pdf-modal-title-wrap">
+                        <span class="pdf-badge-tag">${escapeHtml(docLabel.toUpperCase())}</span>
+                        <h3 class="pdf-modal-title">${escapeHtml(modalTitle)}</h3>
+                    </div>
+                </div>
+                <div class="pdf-modal-empty-state">
+                    <div class="pdf-empty-icon-box">📄</div>
+                    <h4>PDF soubor zatím nebyl nahrán</h4>
+                    <p>K jednotce <strong>${escapeHtml(unitName)}</strong> zatím v administraci nebyl nahrán soubor PDF pro <em>${escapeHtml(docLabel)}</em>.<br>Můžete jej nahrát v administraci v sekci <strong>Nastavení webu &gt; Správa jednotek &gt; Dokumenty ke stažení</strong>.</p>
+                    <button type="button" class="btn" onclick="window.closePdfPreviewModal()" style="background: var(--primary-color, #1a1a1a); color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; margin-top: 1rem;">Rozumím</button>
+                </div>
+            `;
+        }
+
+        modal.classList.add('active');
+    };
+
+    window.closePdfPreviewModal = () => {
+        const modal = document.getElementById('pdf-preview-modal') || document.getElementById('unit-card-preview-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            const body = document.getElementById('pdf-preview-body') || document.getElementById('card-preview-body');
+            if (body) {
+                setTimeout(() => {
+                    if (!modal.classList.contains('active')) body.innerHTML = '';
+                }, 200);
             }
         }
-
-        let kartaFile = null;
-        if (data.customFiles && data.customFiles.length > 0) {
-            kartaFile = data.customFiles.find(f => (f.name || '').toLowerCase().includes('karta') || (f.name || '').toLowerCase().includes('půdorys') || f.url) || data.customFiles[0];
-        }
-
-        let layout = data.layout || '5+kk';
-        let area = data.area ? (data.area.includes('m²') ? data.area : `${data.area} m²`) : '145 m²';
-        let garden = data.garden ? (data.garden.includes('m²') ? data.garden : `${data.garden} m²`) : '210 m²';
-        let price = data.price || '8 490 000 Kč';
-
-        let drawingHtml = '';
-        if (unitImg) {
-            drawingHtml = `<img src="${unitImg}" alt="${escapeHtml(data.name || `Jednotka ${id}`)}" style="max-width: 100%; max-height: 380px; border-radius: 8px; object-fit: contain; cursor: pointer;" onclick="window.openLightbox('${unitImg}')">`;
-        } else if (kartaFile && kartaFile.url && kartaFile.url.startsWith('data:image/')) {
-            drawingHtml = `<img src="${kartaFile.url}" alt="Karta bytu" style="max-width: 100%; max-height: 380px; border-radius: 8px; object-fit: contain; cursor: pointer;" onclick="window.openLightbox('${kartaFile.url}')">`;
-        } else {
-            drawingHtml = `
-                <div style="width: 100%; text-align: center; padding: 1.5rem;">
-                    <svg viewBox="0 0 320 220" style="width: 100%; max-width: 320px; height: auto; margin: 0 auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.06));">
-                        <rect x="10" y="10" width="300" height="200" rx="8" fill="none" stroke="var(--accent-color, #c5a059)" stroke-width="2.5"/>
-                        <line x1="160" y1="10" x2="160" y2="210" stroke="var(--accent-color, #c5a059)" stroke-dasharray="4" stroke-width="1.5"/>
-                        <line x1="10" y1="110" x2="160" y2="110" stroke="var(--accent-color, #c5a059)" stroke-width="1.5"/>
-                        <text x="85" y="65" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">Obývací pokoj + KK</text>
-                        <text x="85" y="85" font-size="11" opacity="0.7" fill="currentColor" text-anchor="middle">42.5 m²</text>
-                        <text x="85" y="160" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">Ložnice + Šatna</text>
-                        <text x="85" y="180" font-size="11" opacity="0.7" fill="currentColor" text-anchor="middle">21.8 m²</text>
-                        <text x="240" y="70" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">Dětský pokoj 1</text>
-                        <text x="240" y="90" font-size="11" opacity="0.7" fill="currentColor" text-anchor="middle">16.4 m²</text>
-                        <text x="240" y="145" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">Dětský pokoj 2</text>
-                        <text x="240" y="165" font-size="11" opacity="0.7" fill="currentColor" text-anchor="middle">15.8 m²</text>
-                    </svg>
-                    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">📐 Schématický půdorys jednotky</p>
-                </div>
-            `;
-        }
-
-        let downloadBtnHtml = '';
-        if (kartaFile && kartaFile.url) {
-            downloadBtnHtml = `
-                <a href="${kartaFile.url}" download="${kartaFile.fileName || 'karta_bytu.pdf'}" target="_blank" class="btn" style="background: var(--accent-color, #c5a059); color: #fff; text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    <span>Stáhnout kartu (PDF)</span>
-                </a>
-            `;
-        } else {
-            downloadBtnHtml = `
-                <button type="button" class="btn" style="background: var(--primary-color, #1a1a1a); color: #fff; font-weight: 600; padding: 10px 18px; border-radius: 8px;" onclick="window.closeUnitCardModal(); window.openUnit(${id});">
-                    <span>Mám zájem o prohlídku</span>
-                </button>
-            `;
-        }
-
-        body.innerHTML = `
-            <div style="border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--accent-color);">KARTA JEDNOTKY & PŮDORYS</span>
-                    <h2 style="font-size: 1.7rem; margin: 4px 0 0;">${escapeHtml(data.name || `Jednotka ${id}`)}</h2>
-                </div>
-                <span class="unit-status ${data.status || 'status-available'}">${escapeHtml(data.statusText || 'Volno')}</span>
-            </div>
-
-            <div class="preview-card-grid">
-                <div class="preview-card-drawing">
-                    ${drawingHtml}
-                </div>
-                <div class="preview-card-info">
-                    <div>
-                        <h4 style="margin-bottom: 0.8rem; font-size: 1.1rem;">Základní údaje</h4>
-                        <table class="preview-specs-list">
-                            <tr><td>Dispozice</td><td><strong>${escapeHtml(layout)}</strong></td></tr>
-                            <tr><td>Užitná plocha</td><td><strong>${escapeHtml(area)}</strong></td></tr>
-                            <tr><td>Zahrada / Pozemek</td><td><strong>${escapeHtml(garden)}</strong></td></tr>
-                            <tr><td>Parkování</td><td><strong>${escapeHtml(data.parking || '2 vyhrazená stání')}</strong></td></tr>
-                            <tr><td>Cena jednotky</td><td><strong style="color: var(--accent-color); font-size: 1.1rem;">${escapeHtml(price)}</strong></td></tr>
-                        </table>
-                        <p style="font-size: 0.88rem; opacity: 0.8; line-height: 1.5;">${escapeHtml(data.desc || 'Luxusní rodinný dům navržený v moderním energeticky úsporném standardu s vlastní zahradou.')}</p>
-                    </div>
-                    <div style="margin-top: 1.5rem; display: flex; gap: 10px; flex-wrap: wrap;">
-                        ${downloadBtnHtml}
-                        <button type="button" class="btn" style="background: rgba(0,0,0,0.06); color: inherit; font-weight: 600; padding: 10px 16px; border-radius: 8px;" onclick="window.closeUnitCardModal(); window.openUnit(${id});">Otevřít formulář</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        modal.classList.add('active');
     };
 
-    window.closeUnitCardModal = () => {
-        const modal = document.getElementById('unit-card-preview-modal');
-        if (modal) modal.classList.remove('active');
-    };
+    window.previewUnitCard = (id) => window.openUnitPdf(id, 'karta');
+    window.previewUnitStandards = (id) => window.openUnitPdf(id, 'standardy');
+    window.closeUnitCardModal = window.closePdfPreviewModal;
+    window.closeStandardsModal = window.closePdfPreviewModal;
 
-    window.previewUnitStandards = (id) => {
-        const data = unitsData[id];
-        const modal = document.getElementById('standards-modal');
-        const body = document.getElementById('standards-body');
-        if (!modal || !body) return;
-
-        let standardsFile = null;
-        if (data && data.customFiles && data.customFiles.length > 0) {
-            standardsFile = data.customFiles.find(f => (f.name || '').toLowerCase().includes('standard') && f.url);
-        }
-
-        let fileActionHtml = '';
-        if (standardsFile && standardsFile.url) {
-            fileActionHtml = `
-                <div style="margin-bottom: 1.5rem; padding: 12px 16px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>${escapeHtml(standardsFile.fileName || 'Standardy_vybaveni.pdf')}</strong>
-                        <span style="font-size: 0.8rem; opacity: 0.7; display: block;">Oficiální klientská specifikace</span>
-                    </div>
-                    <a href="${standardsFile.url}" download="${standardsFile.fileName || 'standardy.pdf'}" class="btn" style="background: #3498db; color: #fff; padding: 8px 14px; font-size: 0.85rem; border-radius: 6px; text-decoration: none; font-weight: 600;">Stáhnout PDF</a>
-                </div>
-            `;
-        }
-
-        body.innerHTML = `
-            <div style="border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-                <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--accent-color);">TECHNICKÉ PROVEDENÍ & STANDARDY</span>
-                <h2 style="font-size: 1.7rem; margin: 4px 0 0;">Standardy provedení a materiálů</h2>
-                <p style="font-size: 0.9rem; opacity: 0.75; margin: 4px 0 0;">Kvalita bez kompromisů – vybrané materiály a špičkové technologie pro váš nový domov.</p>
-            </div>
-
-            ${fileActionHtml}
-
-            <div class="standards-features-grid">
-                <div class="standards-feature-item">
-                    <h5>🔥 Vytápění & Chlazení</h5>
-                    <p>Tepelné čerpadlo vzduch-voda s vysokým topným faktorem a teplovodním podlahovým vytápěním v celém domě.</p>
-                </div>
-                <div class="standards-feature-item">
-                    <h5>🪟 Okna & Zasklení</h5>
-                    <p>Prémiová plasto-hliníková okna s izolačním trojsklem, teplým distančním rámečkem a přípravou na žaluzie.</p>
-                </div>
-                <div class="standards-feature-item">
-                    <h5>🧱 Zdivo & Zateplení</h5>
-                    <p>Broušené cihlové bloky s vysokou akumulací tepla doplněné o fasádní zateplení o tloušťce 200 mm.</p>
-                </div>
-                <div class="standards-feature-item">
-                    <h5>🚿 Koupelny & Sanita</h5>
-                    <p>Velkoformátové rektifikované obklady a dlažba, podomítkové baterie Grohe, walk-in sprchové kouty a vany Kaldewei.</p>
-                </div>
-                <div class="standards-feature-item">
-                    <h5>⚡ Elektro & Smart Home</h5>
-                    <p>Příprava pro fotovoltaiku (FVE), optické datové rozvody v každém pokoji a příprava na wallbox pro elektromobil.</p>
-                </div>
-                <div class="standards-feature-item">
-                    <h5>🌳 Exteriér & Pozemek</h5>
-                    <p>Kompletně dokončené terasy z mrazuvzdorné dlažby, oplocení pozemku a dvě zpevněná parkovací stání.</p>
-                </div>
-            </div>
-
-            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" class="btn" style="background: var(--primary-color, #1a1a1a); color: #fff; font-weight: 600; padding: 10px 20px; border-radius: 8px;" onclick="window.closeStandardsModal()">Zavřít</button>
-            </div>
-        `;
-
-        modal.classList.add('active');
-    };
-
-    window.closeStandardsModal = () => {
-        const modal = document.getElementById('standards-modal');
-        if (modal) modal.classList.remove('active');
-    };
-
-    const unitCardModalEl = document.getElementById('unit-card-preview-modal');
-    if (unitCardModalEl) {
-        unitCardModalEl.addEventListener('click', (e) => {
-            if (e.target === unitCardModalEl) window.closeUnitCardModal();
-        });
-    }
-
-    const standardsModalEl = document.getElementById('standards-modal');
-    if (standardsModalEl) {
-        standardsModalEl.addEventListener('click', (e) => {
-            if (e.target === standardsModalEl) window.closeStandardsModal();
+    const pdfPreviewModalEl = document.getElementById('pdf-preview-modal');
+    if (pdfPreviewModalEl) {
+        pdfPreviewModalEl.addEventListener('click', (e) => {
+            if (e.target === pdfPreviewModalEl) window.closePdfPreviewModal();
         });
     }
 
@@ -3323,6 +3269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             unitsData[unitId].customFiles[idx].name = name;
         }
         saveToStorage(true);
+        if (typeof renderUnitsTable === 'function') renderUnitsTable();
     };
 
     window.uploadUnitFile = (unitId, idx, inputEl) => {
@@ -3337,8 +3284,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             unitsData[unitId].customFiles[idx].url = e.target.result;
             unitsData[unitId].customFiles[idx].fileName = file.name;
+
+            const nameLower = (unitsData[unitId].customFiles[idx].name || '').toLowerCase();
+            if (nameLower.includes('karta') || idx === 0) {
+                unitsData[unitId].pdfKarta = e.target.result;
+            }
+            if (nameLower.includes('standard') || idx === 1) {
+                unitsData[unitId].pdfStandardy = e.target.result;
+            }
+
             window.renderUnitAdminDynamic(unitId);
             saveToStorage(true);
+            if (typeof renderUnitsTable === 'function') renderUnitsTable();
         };
         reader.readAsDataURL(file);
     };
@@ -3346,9 +3303,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.removeUnitFile = (unitId, idx) => {
         if (!unitsData[unitId]) return;
         ensureUnitDynamicFields(unitsData[unitId]);
-        unitsData[unitId].customFiles.splice(idx, 1);
+        const removed = unitsData[unitId].customFiles.splice(idx, 1);
+        if (removed && removed[0]) {
+            const rName = (removed[0].name || '').toLowerCase();
+            if (rName.includes('karta') || idx === 0) delete unitsData[unitId].pdfKarta;
+            if (rName.includes('standard') || idx === 1) delete unitsData[unitId].pdfStandardy;
+        }
         window.renderUnitAdminDynamic(unitId);
         saveToStorage(true);
+        if (typeof renderUnitsTable === 'function') renderUnitsTable();
     };
 
     // --- Modal Logic ---

@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=6.5.0">
+    <link rel="stylesheet" href="styles.css?v=6.6.0">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -220,26 +220,14 @@
         </div>
     </div>
 
-    <!-- Unit Card / Floor Plan Preview Modal -->
-    <div class="modal-overlay" id="unit-card-preview-modal">
-        <div class="modal-content modal-card-preview-content">
-            <div class="modal-close" onclick="closeUnitCardModal()">
+    <!-- Dedicated PDF Preview Modal for Karta bytu and Standardy -->
+    <div class="modal-overlay" id="pdf-preview-modal">
+        <div class="modal-content modal-pdf-preview-content">
+            <div class="modal-close" onclick="closePdfPreviewModal()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </div>
-            <div class="card-preview-body" id="card-preview-body">
-                <!-- Dynamically filled -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Standards Modal -->
-    <div class="modal-overlay" id="standards-modal">
-        <div class="modal-content modal-standards-content">
-            <div class="modal-close" onclick="closeStandardsModal()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </div>
-            <div class="standards-body" id="standards-body">
-                <!-- Dynamically filled -->
+            <div class="pdf-preview-body" id="pdf-preview-body">
+                <!-- Dynamicky vyplňováno čistým náhledem nahraného PDF -->
             </div>
         </div>
     </div>
@@ -2078,6 +2066,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=6.5.0"></script>
+    <script src="app.js?v=6.6.0"></script>
 </body>
 </html>
