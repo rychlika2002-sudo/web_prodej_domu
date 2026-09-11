@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="styles.css?v=6.4.0">
+    <link rel="stylesheet" href="styles.css?v=6.5.0">
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -68,6 +68,16 @@
     <!-- Map Section -->
     <section id="location" style="height: 500px; padding: 0; position: relative;">
         <div id="map" style="width: 100%; height: 500px; min-height: 500px; display: block;"></div>
+        <div class="map-cadastral-bar" id="map-cadastral-bar">
+            <button type="button" id="map-cadastral-btn" class="map-cadastral-btn" title="Zapnout / vypnout zobrazení katastrální mapy ČÚZK">
+                <span class="cadastral-icon">🗺️</span>
+                <span class="cadastral-text">Katastrální mapa ČÚZK</span>
+                <span class="cadastral-status" id="map-cadastral-status">VYPNUTO</span>
+            </button>
+            <div id="map-cadastral-zoom-hint" class="map-cadastral-zoom-hint" style="display: none;">
+                🔍 Pro parcely přibližte mapu (zoom 14+)
+            </div>
+        </div>
     </section>
 
     <!-- Units Selector Section -->
@@ -115,6 +125,42 @@
 
                 <!-- Plovoucí infokarta pro Variantu 3 na hover -->
                 <div id="polygon-unit-popover" class="polygon-unit-popover" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Units Table Section -->
+        <div class="units-table-container" id="units-table-container">
+            <div class="units-table-header">
+                <span class="units-table-badge">CENÍK &amp; SPECIFIKACE</span>
+                <h3>Přehled všech jednotek</h3>
+                <p>Kompletní parametry, výměry, dispozice a technická dokumentace projektu</p>
+            </div>
+
+            <div class="units-table-wrapper">
+                <table class="units-overview-table" id="units-overview-table">
+                    <thead>
+                        <tr>
+                            <th class="th-unit">Jednotka</th>
+                            <th class="th-layout">Dispozice</th>
+                            <th class="th-area">Plocha</th>
+                            <th class="th-garden">Zahrada</th>
+                            <th class="th-price">Cena</th>
+                            <th class="th-status">Stav</th>
+                            <th class="th-preview">Karta bytu</th>
+                            <th class="th-standards">Standardy</th>
+                            <th class="th-action">Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="units-table-tbody">
+                        <!-- Dynamicky generováno přes JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="units-table-legend">
+                <span class="legend-item"><span class="legend-dot status-available"></span> Volno</span>
+                <span class="legend-item"><span class="legend-dot status-reserved"></span> Rezervováno</span>
+                <span class="legend-item"><span class="legend-dot status-sold"></span> Prodáno</span>
             </div>
         </div>
     </section>
@@ -170,6 +216,30 @@
                     </div>
                     <button type="submit" class="btn" style="width: 100%;">Odeslat poptávku</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unit Card / Floor Plan Preview Modal -->
+    <div class="modal-overlay" id="unit-card-preview-modal">
+        <div class="modal-content modal-card-preview-content">
+            <div class="modal-close" onclick="closeUnitCardModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div class="card-preview-body" id="card-preview-body">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Standards Modal -->
+    <div class="modal-overlay" id="standards-modal">
+        <div class="modal-content modal-standards-content">
+            <div class="modal-close" onclick="closeStandardsModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div class="standards-body" id="standards-body">
+                <!-- Dynamically filled -->
             </div>
         </div>
     </div>
@@ -2008,6 +2078,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=6.4.0"></script>
+    <script src="app.js?v=6.5.0"></script>
 </body>
 </html>
